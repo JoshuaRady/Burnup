@@ -104,6 +104,7 @@ module BurnupMod
 	! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
 	! Add one to one dimension for the  'no companion' interaction element.
 	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
+	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
 
 
