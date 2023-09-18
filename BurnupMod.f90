@@ -1,57 +1,102 @@
 !---------------------------------------------------------------------------------------------------
-! Burnup.f90
-! Burnup Source Code, Modernized Free Form
+! BurnupMod.f90
+! Burnup ...
+!
+! IN PROGRESS!!!!!
 !
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
 ! 9/2023
 !
-! The following is modernized source code for the original version of the Burnup model from:
-!
-! Program BURNUP, a simulation model of the burning of large woody natural fuels.
-! Albini, F. A.
-! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
-! Appendix B.
-!
-! The original report is held by the National Forest Service Library in Fort Collins.
-!
-! Code Modernization:
-! 	The original Burnup source code is self-described as being in Fortran IV, though there are
-! numerous features from Fortran 66 and 77.  It is in fixed form form.  Here I have revised the code
-! to modern Fortran (2003+).  This involved replacing goto logic, removing statement functions,
-! making all variable declarations explicit, added additional comments, and changing the code to
-! free form. Additional routines were added as needed to reproduce the original behavior.  Original
-! routines maintain their all caps format while new routines use camelcase.
-!
-! 	I have changed the formating to remove most of the idiosyncratic internal whitespace and to add
-! full indenting.  Some styling inconstancies may remain.
-!
-! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
-! and future porting of this code (e.g. to C++).  While tabs are not valid Fortran characters,
-! compilers tend to tolerate them.  I have used 4-space equivalent tabs for layout purposes here,
-! and they can easily be converted in the future.
-!
-! 	Many comments have been added to the code to increase it's readability and to document changes.
-! Original comments are marked with '!c'.  Comments starting with just '!' have been added.  Page
-! breaks and page numbers from the PDF have been marked in comments to make comparison to the
-! orignal code easier.
-!
-! Caveats:
-! 	This code compiles, runs, and produces output identical to the original Burnup code.  The UI
-! menu behavior has been examined and is largely similar but some differences may not have been
-! identified.  Transcription errors may remain, some of which may affect results.
-!
-! 	There is no licence provided for the original code.  It is though to be open by provenance, but
-! that man not be correct.
+! This is an reimplementation of the the Burnup wildfire fuel consumption model as a Fortran module.
+! ...
+		! The the following is modernized source code for the original version of the Burnup model from:
+		!
+		! Program BURNUP, a simulation model of the burning of large woody natural fuels.
+		! Albini, F. A.
+		! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
+		! Appendix B.
+		!
+		! The original report is held by the National Forest Service Library in Fort Collins.
+		!
+		! Code Modernization:
+		! 	The original Burnup source code is self-described as being in Fortran IV, though there are
+		! numerous features from Fortran 66 and 77.  It is in fixed form form.  Here I have revised the code
+		! to modern Fortran (2003+).  This involved replacing goto logic, removing statement functions,
+		! making all variable declarations explicit, added additional comments, and changing the code to
+		! free form. Additional routines were added as needed to reproduce the original behavior.  Original
+		! routines maintain their all caps format while new routines use camelcase.
+		!
+		! 	I have changed the formating to remove most of the idiosyncratic internal whitespace and to add
+		! full indenting.  Some styling inconstancies may remain.
+		!
+		! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
+		! and future porting of this code (e.g. to C++).  While tabs are not valid Fortran characters,
+		! compilers tend to tolerate them.  I have used 4-space equivalent tabs for layout purposes here,
+		! and they can easily be converted in the future.
+		!
+		! 	Many comments have been added to the code to increase it's readability and to document changes.
+		! Original comments are marked with '!c'.  Comments starting with just '!' have been added.  Page
+		! breaks and page numbers from the PDF have been marked in comments to make comparison to the
+		! orignal code easier.
+		!
+		! Caveats:
+		! 	This code compiles, runs, and produces output identical to the original Burnup code.  The UI
+		! menu behavior has been examined and is largely similar but some differences may not have been
+		! identified.  Transcription errors may remain, some of which may affect results.
+		!
+		! 	There is no licence provided for the original code.  It is though to be open by provenance, but
+		! that man not be correct.
 !---------------------------------------------------------------------------------------------------
 
-
-! Pg. 75: Start of source code.
-
-
-program BURNUP
+!program BURNUP
+module BurnupMod
 	implicit none
+	! private
+
+	! These should be calculation only.
+	public :: DUFBRN
+	public :: ARRAYS
+	public :: SORTER
+	public :: OVLAPS
+	public :: START
+	public :: FIRINT
+	public :: TIGNIT
+	public :: DRYTIM
+	public :: HEATX
+	public :: TEMPF
+	public :: STEP
+
+
+	! Contain original menu based UI.  Probably not runnable in most contexts.
+	! Should these just be removed?
+	private :: BurnupMain
+	private :: GETDAT
+	private :: GetComponentParameters
+	private :: GetFireAndSimProperties
+	private :: ReviewDataMenu
+	private :: AddDeleteComponent
+	private :: ReviewFuelComp
+	private :: ReviseFuelComponent
+	private :: ReviseFuelParameters
+	private :: ReviewFireEnvData
+	private :: ReviewIntlCntlVars
+	private :: GetDataFromFiles
+	private :: ArchiveMenu
+	private :: ArchiveSettings
+	private :: RETRY
+	
+	! File IO:
+	private :: STASH
+	private :: SUMMARY
+	
+	! Utilities:
+	private :: Loc
+	private :: ErrorApprox
+	private :: AskForReal1
+	private :: AskForReal2
+	private :: AskForReal
 
 	! Program level dimensional constants:
 	! These parameters are passed into all routines that need them and are not treated as globals.
@@ -61,206 +106,206 @@ program BURNUP
 	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
 	integer, parameter :: mxstep = 20
 
-	! Locals:
-	! The original declarations in the original order:
-	real*4 :: wdry(maxno)			! Ovendry mass loading, kg/sq m
-	real*4 :: ash(maxno)			! Mineral content, fraction dry mass
-	real*4 :: htval(maxno)			! Low heat of combustion, J / kg
-	real*4 :: fmois(maxno)			! Moisture fraction of component
-	real*4 :: dendry(maxno)			! Ovendry mass density, kg / cu m
-	real*4 :: sigma(maxno)			! Surface to volume ratio, 1 / m
-	real*4 :: cheat(maxno)			! Specific heat capacity, (J / K) / kg dry mass
-	real*4 :: condry(maxno)			! Thermal conductivity, W / m K, ovendry
-	real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
-	real*4 :: tpig(maxno)			! Ignition temperature, K
-	real*4 :: tchar(maxno)			! Char temperature, K
-	real*4 :: flit(maxno)			! Fraction of each component currently alight
-	real*4 :: fout(maxno)			! Fraction of each component currently gone out
-	real*4 :: work(maxno)			! ?????
-	real*4 :: elam(maxno, maxno)	! Interaction matrix
-	real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class.
-	real*4 :: area(maxno)			! Fraction of site area expected to be covered at
-									! least once by initial planform area of ea size
-	real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
-	real*4 :: xmat(maxkl)			! Consolidated interaction matrix
-	real*4 :: tdry(maxkl)			! Time of drying start of the larger of each
-									! fuel component pair
-	real*4 :: tign(maxkl)			! Ignition time for the larger of each
-									! fuel component pair
-	real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
-	real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
-	real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair
-	real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
-	real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s
-	real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m
-	real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying)
-	real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging
-	real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
-	integer :: key(maxno)			! Ordered index list
-	character*12 :: parts(maxno)	! Fuel component names / labels
-	character*12 :: list(maxno)		!
-	character*12 :: infile			! Stores the name of input data files.
-	character*12 :: outfil			! The name of the summary file.  This currently static in the code
-									! below.  It would be better to ask.
-	logical :: nohist				! Flag indicating if history output should be not be stored.
 
-	! The rest in order of appearance:
-	real :: fimin			! Fire intensity (kW / sq m) at which fire goes out. (Change to parameter?)
-	integer :: nruns		! The number of simulations run.
-	integer :: number		! The actual number of fuel classes
-	real*4 :: fi			! Site avg fire intensity (kW / sq m)
-	real*4 :: ti 			! Spreading fire residence time (s)
-	real*4 :: u				! Mean horizontal windspeed at top of fuelbed (m/s).
-	real*4 :: d				! Fuelbed depth (m)
-	real*4 :: tpamb			! Ambient temperature (K)
-	real*4 :: ak			! Area influence factor (ak / K_a parameter)
-	real*4 :: r0			! Minimum value of mixing parameter
-	real*4 :: dr			! Max - min value of mixing parameter
-	real*4 :: dt			! Time step for integration of burning rates (s)
-	integer :: ntimes		! Number of time steps.
-	real*4 :: wdf			! Duff loading (kg/m^2, aka W sub d)
-	real*4 :: dfm			! Ratio of moisture mass to dry organic mass /
-							! duff fractional moisture (aka R sub M).
-	integer :: ihist		! User input value.
-	real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
-	real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
-	integer :: now			! Index marking the current time step.
-	real :: tis				! Current time (ti + number of time steps * dt).
-	real*4 :: tpdry			! Temperature (all components) start drying (K)
-	integer :: ncalls		! Counter of calls to this START().
-	real*4 :: ch2o			! Specific heat capacity of water, J / kg K
-	real :: fid				! Fire intensity due to duff burning.
-	integer :: nun			! Stash file unit identifier.
-	integer :: readStat		! IO error status.
-	integer :: next 		! User menu selection.
-
-	! Constants:
-	! STASH() leaves the history file open when it returns.  The original code hard codes this file
-	! unit value.  It would be more robust if it were returned like nun.
-	integer, parameter :: mum = 66 ! History file unit number.
-
-	fimin = 0.1
-	nruns = 0
-
-	do
-		call GETDAT(infile, outfil, parts, wdry, ash, htval, &
-					fmois, dendry, sigma, cheat, condry, tpig, &
-					tchar, number, maxno, fi, ti, u, d, tpamb, &
-					ak, r0, dr, dt, ntimes, wdf, dfm, nruns, &
-					area, fint)
-
-		do
-			write(*, "(' Enter 1 to store fire history, 0 to skip ' ,$)")
-			read(*, *) ihist
-			! Could add read error checking here.
-		
-			! If a valid selection was made continue, otherwise prompt again:
-			if ((ihist .eq. 0) .or. (ihist .eq. 1)) then
-				nohist = ihist .eq. 0
-				exit
-			end if
-		end do
-
-		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
-					sigma, htval, cheat, condry, tpig, tchar, &
-					diam, key, work, ak, elam, alone, xmat, wo, &
-					 maxkl, parts, list, area)
-
-		call DUFBRN(wdf, dfm, dfi, tdf)
-
-		now = 1
-		tis = ti
-		call START(tis, mxstep, now, maxno, number, wo, alfa, &
-					dendry, fmois, cheat, condry, diam, tpig, &
-					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
-					tdry, tign, tout, qcum, tcum, acum, qdot, &
-					ddot, wodot, work, u, d, r0, dr, ch2o, &
-					ncalls, maxkl)
-
-		if (tis .lt. tdf) then
-
-
-! -- Pagebreak --
-! Pg. 76:
-
-
-			fid = dfi
-		else
-			fid = 0.0
-		end if
-
-		if (nohist .eqv. .false.) then
-			call STASH(tis, now, maxno, number, outfil, fi, flit, &
-						fout, wo, wodot, diam, ddot, tdry, tign, &
-						tout, fmois, maxkl, nun)
-		end if
-
-		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, &
-					fint, fi)
-
-		if (fi .gt. fimin) then
-			do while (now .LT. ntimes)
-				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
-							dendry, fmois, cheat, condry, diam, tpig, &
-							tchar, xmat, tpamb, tpdry, fi, flit, fout, &
-							tdry, tign, tout, qcum, tcum, acum, qdot, &
-							ddot, wodot, work, u, d, r0, dr, ch2o, &
-							ncalls, maxkl, tis, fint, fid)
-	
-				now = now + 1
-				tis = tis + dt
-				if (tis .lt. tdf) then
-					fid = dfi
-				else
-					fid = 0.0
-				end if
-			
-				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
-
-				if (fi .LE. fimin) then
-					exit
-				else
-					if (nohist .eqv. .false.) then
-						call STASH(tis, now, maxno, number, outfil, fi, flit, &
-									fout, wo, wodot, diam, ddot, tdry, tign, &
-									tout, fmois, maxkl, nun)
-					end if
-				end if
-			end do
-		end if ! (fi .gt. fimin)
-
-		close(nun)
-
-		outfil = 'SUMMARY.DAT'
-		call SUMMARY(outfil, number, maxno, maxkl, parts, nun, &
-						tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
-		close(nun)
-
-		do
-			write(*, "(' Exercise completed. Do another = 1 , quit = 0 ',$)")
-			read(*, *, iostat = readStat) next
-			if (readStat .eq. 0) then
-
-
-! -- Pagebreak --
-! Pg. 77:
-
-
-				if (next .eq. 0) then
-					close(mum)
-					stop' Terminated'
-				else if (next .eq. 1) then
-					exit
-				!Otherwise an invalid value was provided. Ask again.
-				end if
-			end if ! (readStat .eq. 0)
-		end do
-
-		close(mum)
-	end do ! Main program loop.
 
 
 contains
+
+
+	! The original contents of the main Burnup program.  At the moment this code has just beeen
+	! moved here.  It can't be expected to work as is.
+	subroutine BurnupMain()
+		implicit none
+
+		! Locals:
+		! The original declarations in the original order:
+		real*4 :: wdry(maxno)			! Ovendry mass loading, kg/sq m
+		real*4 :: ash(maxno)			! Mineral content, fraction dry mass
+		real*4 :: htval(maxno)			! Low heat of combustion, J / kg
+		real*4 :: fmois(maxno)			! Moisture fraction of component
+		real*4 :: dendry(maxno)			! Ovendry mass density, kg / cu m
+		real*4 :: sigma(maxno)			! Surface to volume ratio, 1 / m
+		real*4 :: cheat(maxno)			! Specific heat capacity, (J / K) / kg dry mass
+		real*4 :: condry(maxno)			! Thermal conductivity, W / m K, ovendry
+		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
+		real*4 :: tpig(maxno)			! Ignition temperature, K
+		real*4 :: tchar(maxno)			! Char temperature, K
+		real*4 :: flit(maxno)			! Fraction of each component currently alight
+		real*4 :: fout(maxno)			! Fraction of each component currently gone out
+		real*4 :: work(maxno)			! ?????
+		real*4 :: elam(maxno, maxno)	! Interaction matrix
+		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class.
+		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
+										! least once by initial planform area of ea size
+		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
+		real*4 :: xmat(maxkl)			! Consolidated interaction matrix
+		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each
+										! fuel component pair
+		real*4 :: tign(maxkl)			! Ignition time for the larger of each
+										! fuel component pair
+		real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
+		real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
+		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair
+		real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
+		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s
+		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m
+		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying)
+		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging
+		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+		integer :: key(maxno)			! Ordered index list
+		character*12 :: parts(maxno)	! Fuel component names / labels
+		character*12 :: list(maxno)		!
+		character*12 :: infile			! Stores the name of input data files.
+		character*12 :: outfil			! The name of the summary file.  This currently static in the code
+										! below.  It would be better to ask.
+		logical :: nohist				! Flag indicating if history output should be not be stored.
+
+		! The rest in order of appearance:
+		real :: fimin			! Fire intensity (kW / sq m) at which fire goes out. (Change to parameter?)
+		integer :: nruns		! The number of simulations run.
+		integer :: number		! The actual number of fuel classes
+		real*4 :: fi			! Site avg fire intensity (kW / sq m)
+		real*4 :: ti 			! Spreading fire residence time (s)
+		real*4 :: u				! Mean horizontal windspeed at top of fuelbed (m/s).
+		real*4 :: d				! Fuelbed depth (m)
+		real*4 :: tpamb			! Ambient temperature (K)
+		real*4 :: ak			! Area influence factor (ak / K_a parameter)
+		real*4 :: r0			! Minimum value of mixing parameter
+		real*4 :: dr			! Max - min value of mixing parameter
+		real*4 :: dt			! Time step for integration of burning rates (s)
+		integer :: ntimes		! Number of time steps.
+		real*4 :: wdf			! Duff loading (kg/m^2, aka W sub d)
+		real*4 :: dfm			! Ratio of moisture mass to dry organic mass /
+								! duff fractional moisture (aka R sub M).
+		integer :: ihist		! User input value.
+		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
+		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
+		integer :: now			! Index marking the current time step.
+		real :: tis				! Current time (ti + number of time steps * dt).
+		real*4 :: tpdry			! Temperature (all components) start drying (K)
+		integer :: ncalls		! Counter of calls to this START().
+		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
+		real :: fid				! Fire intensity due to duff burning.
+		integer :: nun			! Stash file unit identifier.
+		integer :: readStat		! IO error status.
+		integer :: next 		! User menu selection.
+
+		! Constants:
+		! STASH() leaves the history file open when it returns.  The original code hard codes this file
+		! unit value.  It would be more robust if it were returned like nun.
+		integer, parameter :: mum = 66 ! History file unit number.
+
+		fimin = 0.1
+		nruns = 0
+
+		do
+			call GETDAT(infile, outfil, parts, wdry, ash, htval, &
+						fmois, dendry, sigma, cheat, condry, tpig, &
+						tchar, number, maxno, fi, ti, u, d, tpamb, &
+						ak, r0, dr, dt, ntimes, wdf, dfm, nruns, &
+						area, fint)
+
+			do
+				write(*, "(' Enter 1 to store fire history, 0 to skip ' ,$)")
+				read(*, *) ihist
+				! Could add read error checking here.
+		
+				! If a valid selection was made continue, otherwise prompt again:
+				if ((ihist .eq. 0) .or. (ihist .eq. 1)) then
+					nohist = ihist .eq. 0
+					exit
+				end if
+			end do
+
+			call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+						sigma, htval, cheat, condry, tpig, tchar, &
+						diam, key, work, ak, elam, alone, xmat, wo, &
+						 maxkl, parts, list, area)
+
+			call DUFBRN(wdf, dfm, dfi, tdf)
+
+			now = 1
+			tis = ti
+			call START(tis, mxstep, now, maxno, number, wo, alfa, &
+						dendry, fmois, cheat, condry, diam, tpig, &
+						tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+						tdry, tign, tout, qcum, tcum, acum, qdot, &
+						ddot, wodot, work, u, d, r0, dr, ch2o, &
+						ncalls, maxkl)
+
+			if (tis .lt. tdf) then
+
+				fid = dfi
+			else
+				fid = 0.0
+			end if
+
+			if (nohist .eqv. .false.) then
+				call STASH(tis, now, maxno, number, outfil, fi, flit, &
+							fout, wo, wodot, diam, ddot, tdry, tign, &
+							tout, fmois, maxkl, nun)
+			end if
+
+			call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, &
+						fint, fi)
+
+			if (fi .gt. fimin) then
+				do while (now .LT. ntimes)
+					call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
+								dendry, fmois, cheat, condry, diam, tpig, &
+								tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+								tdry, tign, tout, qcum, tcum, acum, qdot, &
+								ddot, wodot, work, u, d, r0, dr, ch2o, &
+								ncalls, maxkl, tis, fint, fid)
+	
+					now = now + 1
+					tis = tis + dt
+					if (tis .lt. tdf) then
+						fid = dfi
+					else
+						fid = 0.0
+					end if
+			
+					call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+
+					if (fi .LE. fimin) then
+						exit
+					else
+						if (nohist .eqv. .false.) then
+							call STASH(tis, now, maxno, number, outfil, fi, flit, &
+										fout, wo, wodot, diam, ddot, tdry, tign, &
+										tout, fmois, maxkl, nun)
+						end if
+					end if
+				end do
+			end if ! (fi .gt. fimin)
+
+			close(nun)
+
+			outfil = 'SUMMARY.DAT'
+			call SUMMARY(outfil, number, maxno, maxkl, parts, nun, &
+							tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
+			close(nun)
+
+			do
+				write(*, "(' Exercise completed. Do another = 1 , quit = 0 ',$)")
+				read(*, *, iostat = readStat) next
+				if (readStat .eq. 0) then
+
+					if (next .eq. 0) then
+						close(mum)
+						stop' Terminated'
+					else if (next .eq. 1) then
+						exit
+					!Otherwise an invalid value was provided. Ask again.
+					end if
+				end if ! (readStat .eq. 0)
+			end do
+
+			close(mum)
+		end do ! Main program loop.
+
+	end subroutine BurnupMain()
 
 
 	!c Duff burning rate (ergo, intensity) and duration
@@ -3539,5 +3584,6 @@ contains
 
 	end function AskForReal
 
-end program BURNUP
+!end program BURNUP
+end module BurnupMod
 
