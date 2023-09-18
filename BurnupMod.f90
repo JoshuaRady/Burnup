@@ -314,6 +314,22 @@ contains
 	end subroutine BurnupMain
 
 
+	! 
+!	subroutine Simulate()
+!		implicit none
+
+		! Arguments:
+		
+		
+		! Fuel component property arrays:  The values will not change but they may be reordered...
+		
+		
+		! Sort the fuel components and calculate the interaction matrix...
+		
+
+!	end subroutine Simulate
+
+
 	!c Duff burning rate (ergo, intensity) and duration
 	!
 	! History: Modernized original Burnup subroutine.
@@ -1908,7 +1924,7 @@ contains
 			do i = (j - 1), 1, -1
 				usi = 1.0 / sigma(i)
 				diam = (usi .LT. s)
-!if(diam ) goto 10
+!if(diam ) goto 10 ! JMR: Remove !!!!!
 				if (diam) then
 					newIndexFound = .true.
 					exit
