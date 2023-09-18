@@ -98,8 +98,13 @@ module BurnupMod
 	private :: AskForReal2
 	private :: AskForReal
 
+
 	! Program level dimensional constants:
 	! These parameters are passed into all routines that need them and are not treated as globals.
+	
+	! The maximum number of fuel components or types.  This is used to build fixed size data
+	! structures.  The number of elements may be less than this so some indexes may be empty.
+	! The original program fixes this arbitrarily at 10 fuel components.
 	integer, parameter :: maxno = 10
 	! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
 	! Add one to one dimension for the  'no companion' interaction element.
@@ -221,7 +226,7 @@ contains
 			call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, wo, &
-						 maxkl, parts, list, area)
+						maxkl, parts, list, area)
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
 
@@ -306,7 +311,7 @@ contains
 			close(mum)
 		end do ! Main program loop.
 
-	end subroutine BurnupMain()
+	end subroutine BurnupMain
 
 
 	!c Duff burning rate (ergo, intensity) and duration
