@@ -165,7 +165,7 @@ program BURNUP
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
-					 maxkl, parts, list, area)
+					maxkl, parts, list, area)
 
 		call DUFBRN(wdf, dfm, dfi, tdf)
 
