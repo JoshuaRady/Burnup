@@ -1,11 +1,11 @@
-! --------------------------------------------------------------------------------------------------
+!---------------------------------------------------------------------------------------------------
 ! BurnupTransitional.f
-! Burnup Source Code, Transitional Fixed Form, Revision 48
+! Burnup Source Code, Transitional Fixed Form
 !
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
-! 9/12/2023
+! 9/2023
 !
 ! The following is partially modernized source code for the original version of the Burnup model
 ! from:
@@ -51,7 +51,7 @@
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
 ! that man not be correct.
-! --------------------------------------------------------------------------------------------------
+!---------------------------------------------------------------------------------------------------
 
 
 ! Pg. 75: Start of source code.

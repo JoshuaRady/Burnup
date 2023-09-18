@@ -1,13 +1,13 @@
-! --------------------------------------------------------------------------------------------------
+!---------------------------------------------------------------------------------------------------
 ! Burnup.f90
-! Burnup Source Code, Modernized Free Form, Revision 48
+! Burnup Source Code, Modernized Free Form
 !
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
-! 9/12/2023
+! 9/2023
 !
-! The the following is modernized source code for the original version of the Burnup model from:
+! The following is modernized source code for the original version of the Burnup model from:
 !
 ! Program BURNUP, a simulation model of the burning of large woody natural fuels.
 ! Albini, F. A.
@@ -44,7 +44,7 @@
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
 ! that man not be correct.
-! --------------------------------------------------------------------------------------------------
+!---------------------------------------------------------------------------------------------------
 
 
 ! Pg. 75: Start of source code.
