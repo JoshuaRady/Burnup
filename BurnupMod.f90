@@ -330,11 +330,8 @@ contains
 
 
 	! A draft alternate entry point...
-	subroutine Simulate(fi, ti, u, d, tpamb, &
-						ak, r0, dr, dt, &
-						wdf, dfm, ntimes, &
-						wdry, ash, htval, fmois, dendry, &
-						sigma, cheat, condry, tpig, tchar, &! maxno,
+	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
+						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &! maxno,
 						number)
 		implicit none
 
@@ -352,15 +349,15 @@ contains
 		real*4, intent(in) :: d			! Fuelbed depth (m)
 		real*4, intent(in) :: tpamb		! Ambient temperature (K)
 		! Internal and control variables:
-		real*4, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
-		real*4, intent(in) :: r0			! Minimum value of mixing parameter
-		real*4, intent(in) :: dr			! Max - min value of mixing parameter
-		real*4, intent(in) :: dt			! Time step for integration of burning rates (s)
+		real*4, intent(in) :: ak		! Area influence factor (ak / K_a parameter)
+		real*4, intent(in) :: r0		! Minimum value of mixing parameter
+		real*4, intent(in) :: dr		! Max - min value of mixing parameter
+		real*4, intent(in) :: dt		! Time step for integration of burning rates (s)
 		
 		! Considering removing these two.  See below:
 		real*4, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
 		real*4, intent(in) :: dfm		! Ratio of moisture mass to dry organic mass /
-											! duff fractional moisture (aka R sub M).
+										! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes	! Number of time steps.  Move down?
 		
 		
@@ -541,60 +538,52 @@ contains
 	! This is a wrapper for Simulate() that allows it to be called from R:
 	! 
 	! History: Added for module.
-	subroutine SimulateR(fi, ti, u, d, tpamb, &
-						ak, r0, dr, dt, &
-						wdf, dfm, ntimes, &
-						wdry, ash, htval, fmois, dendry, &
-						sigma, cheat, condry, tpig, tchar, &
-						number) bind(C, name = "simulater")
+	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
+							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
+							number) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
 		double precision, intent(inout) :: fi		! Current fire intensity (site avg), kW / sq m
-		double precision, intent(in) :: ti		! Igniting fire residence time (s).
+		double precision, intent(in) :: ti			! Igniting fire residence time (s).
 		double precision, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
 		double precision, intent(in) :: d			! Fuelbed depth (m)
 		double precision, intent(in) :: tpamb		! Ambient temperature (K)
-		! Internal and control variables:
 		double precision, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
 		double precision, intent(in) :: r0			! Minimum value of mixing parameter
 		double precision, intent(in) :: dr			! Max - min value of mixing parameter
-		double precision, intent(in) :: dt
-		double precision, intent(in) :: wdf
-		double precision, intent(in) :: dfm
-		integer, intent(in) :: ntimes
+		double precision, intent(in) :: dt			! Time step for integration of burning rates (s)
+		double precision, intent(in) :: wdf			! Duff loading (kg/m^2, aka W sub d)
+		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
+													! duff fractional moisture (aka R sub M).
+		integer, intent(in) :: ntimes						! Number of time steps.
 		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
-		double precision, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
+		double precision, intent(inout) :: ash(maxno)		! Mineral content, fraction dry mass
 		double precision, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
 		double precision, intent(inout) :: fmois(maxno)		! Moisture fraction of component
-		double precision, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
+		double precision, intent(inout) :: dendry(maxno)	! Ovendry mass density, kg / cu m
 		double precision, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
 		double precision, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
-		double precision, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
+		double precision, intent(inout) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry
 		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K
 		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K
 		integer, intent(in) :: number
 
 		! Local type conversion intermediates:
-		real :: fiOut
-		real :: wdryOut(maxno)
-		real :: ashOut(maxno)
-		real :: htvalOut(maxno)
-		real :: fmoisOut(maxno)
-		real :: dendryOut(maxno)
-		real :: sigmaOut(maxno)
-		real :: cheatOut(maxno)
-		real :: condryOut(maxno)
-		real :: tpigOut(maxno), tcharOut(maxno)
+		real :: fiReal
+		real :: wdryOut(maxno), ashOut(maxno), htvalOut(maxno), fmoisOut(maxno), dendryOut(maxno)
+		real :: sigmaOut(maxno), cheatOut(maxno), condryOut(maxno), tpigOut(maxno), tcharOut(maxno)
 
-		call Simulate(fiOut, real(ti), real(u), real(d), real(tpamb), &
+		fiReal = real(fi)
+
+		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
 						real(ak), real(r0), real(dr), real(dt), &
 						real(wdf), real(dfm), ntimes, &
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
 						number)
 
-		fi = dble(fiOut)
+		fi = dble(fiReal)
 		wdry = dble(wdryOut)
 		ash = dble(ashOut)
 		htval = dble(htvalOut)
