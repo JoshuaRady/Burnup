@@ -333,7 +333,7 @@ contains
 	!c Duff burning rate (ergo, intensity) and duration
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine DUFBRN(wdf, dfm, dfi, tdf)
+	subroutine DUFBRN(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
 		implicit none
 
 		! Arguments:
@@ -3611,16 +3611,16 @@ end module BurnupMod
 
 
 ! Test!!!!!:
-subroutine duffburn(wdf, dfm, dfi, tdf)
-	implicit none
-
-	! Arguments:
-	double precision, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
-	double precision, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
-											! duff fractional moisture (aka R sub M)
-	double precision, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
-	double precision, intent(out) :: tdf 	! Burning duration (aka t sub d)
-	
-	call DUFBRN(wdf, dfm, dfi, tdf)
-
-end subroutine duffburn
+! subroutine duffburn(wdf, dfm, dfi, tdf)
+! 	implicit none
+! 
+! 	! Arguments:
+! 	double precision, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
+! 	double precision, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
+! 											! duff fractional moisture (aka R sub M)
+! 	double precision, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
+! 	double precision, intent(out) :: tdf 	! Burning duration (aka t sub d)
+! 	
+! 	call DUFBRN(wdf, dfm, dfi, tdf)
+! 
+! end subroutine duffburn
