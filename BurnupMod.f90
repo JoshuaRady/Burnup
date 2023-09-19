@@ -369,7 +369,7 @@ contains
 	
 		call DUFBRN(wdf, dfm, dfi, tdf)
 
-	end subroutine duffburn
+	end subroutine DufBrnR
 
 
 ! -- Pagebreak --
