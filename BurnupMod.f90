@@ -378,7 +378,7 @@ contains
 		call DUFBRN(real(wdf), real(dfm), dfiOut, tdfOut)
 
 		dfi = dble(dfiOut)
-		tdf = dble(dfiOut)
+		tdf = dble(tdfOut)
 
 	end subroutine DufBrnR
 
