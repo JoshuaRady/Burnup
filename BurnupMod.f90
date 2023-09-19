@@ -364,11 +364,19 @@ contains
 		double precision, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
 		double precision, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
 												! duff fractional moisture (aka R sub M)
-		double precision, intent(inout) :: dfi	! Duff fire intensity (aka I sub d)
-		double precision, intent(inout) :: tdf	! Burning duration (aka t sub d)
-	
+		double precision, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
+		double precision, intent(out) :: tdf	! Burning duration (aka t sub d)
+		
+		! Locals:
+		real :: dfiOut
+		real :: tdfOut
+		
 		!call DUFBRN(wdf, dfm, dfi, tdf)
-		call DUFBRN(real(wdf), real(dfm), real(dfi), real(tdf))
+		!call DUFBRN(real(wdf), real(dfm), real(dfi), real(tdf))
+		call DUFBRN(real(wdf), real(dfm), dfiOut, tdfOut)
+		
+		dfi = dble(dfiOut)
+		tdf = dble(dfiOut)
 
 	end subroutine DufBrnR
 
