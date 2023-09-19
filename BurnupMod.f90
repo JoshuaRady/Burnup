@@ -367,7 +367,8 @@ contains
 		double precision, intent(inout) :: dfi	! Duff fire intensity (aka I sub d)
 		double precision, intent(inout) :: tdf	! Burning duration (aka t sub d)
 	
-		call DUFBRN(wdf, dfm, dfi, tdf)
+		!call DUFBRN(wdf, dfm, dfi, tdf)
+		call DUFBRN(real(wdf), real(dfm), real(dfi), real(tdf))
 
 	end subroutine DufBrnR
 
