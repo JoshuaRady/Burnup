@@ -333,7 +333,7 @@ contains
 	!c Duff burning rate (ergo, intensity) and duration
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine DUFBRN(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
+	subroutine DUFBRN(wdf, dfm, dfi, tdf) !bind(C, name = "dufbrnc")
 		implicit none
 
 		! Arguments:
@@ -341,7 +341,7 @@ contains
 		real, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
 									! duff fractional moisture (aka R sub M)
 		real, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
-		real, intent(out) :: tdf 	! Burning duration (aka t sub d)
+		real, intent(out) :: tdf 	! Burning duration (aka t sub d) ! JMR: Space issue in original!!!!
 
 		! Locals:
 		real ff ! Fractional duff reduction depth from Brown et al. 1985, (aka F in report equation 4)
@@ -353,6 +353,24 @@ contains
 		ff = 0.837 - 0.426 * dfm
 		tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm)
 	end subroutine DUFBRN
+! JMR: Space issue in original!!!!
+
+
+	! Test wrapper!!!!!
+	subroutine DufBrnR(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
+		implicit none
+
+		! Arguments:
+		double precision, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
+		double precision, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
+												! duff fractional moisture (aka R sub M)
+		double precision, intent(inout) :: dfi	! Duff fire intensity (aka I sub d)
+		double precision, intent(inout) :: tdf	! Burning duration (aka t sub d)
+	
+		call DUFBRN(wdf, dfm, dfi, tdf)
+
+	end subroutine duffburn
+
 
 ! -- Pagebreak --
 ! Pg. 78:
