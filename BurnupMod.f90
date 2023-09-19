@@ -98,6 +98,8 @@ module BurnupMod
 	private :: AskForReal2
 	private :: AskForReal
 
+	! R wrappers:
+	private :: DufBrnR
 
 	! Program level dimensional constants:
 	! These parameters are passed into all routines that need them and are not treated as globals.
@@ -333,7 +335,7 @@ contains
 	!c Duff burning rate (ergo, intensity) and duration
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine DUFBRN(wdf, dfm, dfi, tdf) !bind(C, name = "dufbrnc")
+	subroutine DUFBRN(wdf, dfm, dfi, tdf)
 		implicit none
 
 		! Arguments:
@@ -356,7 +358,9 @@ contains
 ! JMR: Space issue in original!!!!
 
 
-	! Test wrapper!!!!!
+	! This is a wrapper for DUFBRN() that allows it to be called from R:
+	! 
+	! History: New for module.
 	subroutine DufBrnR(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
 		implicit none
 
@@ -366,15 +370,13 @@ contains
 												! duff fractional moisture (aka R sub M)
 		double precision, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
 		double precision, intent(out) :: tdf	! Burning duration (aka t sub d)
-		
-		! Locals:
+
+		! Local type conversion intermediates:
 		real :: dfiOut
 		real :: tdfOut
-		
-		!call DUFBRN(wdf, dfm, dfi, tdf)
-		!call DUFBRN(real(wdf), real(dfm), real(dfi), real(tdf))
+
 		call DUFBRN(real(wdf), real(dfm), dfiOut, tdfOut)
-		
+
 		dfi = dble(dfiOut)
 		tdf = dble(dfiOut)
 
@@ -3636,18 +3638,3 @@ contains
 !end program BURNUP
 end module BurnupMod
 
-
-! Test!!!!!:
-! subroutine duffburn(wdf, dfm, dfi, tdf)
-! 	implicit none
-! 
-! 	! Arguments:
-! 	double precision, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
-! 	double precision, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
-! 											! duff fractional moisture (aka R sub M)
-! 	double precision, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
-! 	double precision, intent(out) :: tdf 	! Burning duration (aka t sub d)
-! 	
-! 	call DUFBRN(wdf, dfm, dfi, tdf)
-! 
-! end subroutine duffburn
