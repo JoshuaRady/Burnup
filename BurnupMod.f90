@@ -99,7 +99,12 @@ module BurnupMod
 	private :: AskForReal
 
 	! R wrappers:
-	private :: DufBrnR
+	! These routines are intended to be only used from R not from Fortan.  As such they will only be
+	! used when the code is compiled as a shared library rather than as part of an executable.
+	! Specifying these as private still allows them to be used in the shared library context but
+	! generates a compiler warning.
+	!private :: DufBrnR
+	public :: DufBrnR
 
 	! Program level dimensional constants:
 	! These parameters are passed into all routines that need them and are not treated as globals.
@@ -232,6 +237,7 @@ contains
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
 
+			! Initialize variables and data structures:
 			now = 1
 			tis = ti
 			call START(tis, mxstep, now, maxno, number, wo, alfa, &
@@ -241,8 +247,9 @@ contains
 						ddot, wodot, work, u, d, r0, dr, ch2o, &
 						ncalls, maxkl)
 
+			! If the duff burns longer than the passing fire front then have it's intensity
+			! contribute to the post front fire environment, otherwise ignore it:
 			if (tis .lt. tdf) then
-
 				fid = dfi
 			else
 				fid = 0.0
@@ -254,9 +261,11 @@ contains
 							tout, fmois, maxkl, nun)
 			end if
 
-			call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, &
-						fint, fi)
+			! Calculate the initial fire intensity:
+			call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
+			! If the fire intensity is above the extinguishing threshold calculate combustion until
+			! the fire goes out or the number of timesteps is reached:
 			if (fi .gt. fimin) then
 				do while (now .LT. ntimes)
 					call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
@@ -266,14 +275,18 @@ contains
 								ddot, wodot, work, u, d, r0, dr, ch2o, &
 								ncalls, maxkl, tis, fint, fid)
 	
+					! Update time trackers:
 					now = now + 1
 					tis = tis + dt
+					
+					! Get the duff contribution while it remains burning:
 					if (tis .lt. tdf) then
 						fid = dfi
 					else
 						fid = 0.0
 					end if
 			
+					! Calculate the fire intensity at this time step:
 					call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
 					if (fi .LE. fimin) then
@@ -316,20 +329,213 @@ contains
 	end subroutine BurnupMain
 
 
-	! 
-!	subroutine Simulate()
-!		implicit none
+	! A draft alternate entry point...
+	subroutine Simulate(fi, ti, u, d, tpamb, &
+						ak, r0, dr, dt, &
+						wdf, dfm, ntimes, &
+						wdry, ash, htval, fmois, dendry, &
+						sigma, cheat, condry, tpig, tchar, &! maxno,
+						number)
+		implicit none
 
 		! Arguments:
+		! Igniting fire and environmental data:
+		
+		! The value passed in is the fire front intensity.  The variable is later reused and updated
+		! by FIRINT().  It is passed on to other routines that use bu do not change it.  These two
+		! uses should probably be separated.  I'm not sure it is useful to return the value, which
+		! will be the final value.  A history would be valuable.
+		real*4, intent(inout) :: fi		! Current fire intensity (site avg), kW / sq m
+		
+		real*4, intent(in) :: ti		! Igniting fire residence time (s).
+		real*4, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
+		real*4, intent(in) :: d			! Fuelbed depth (m)
+		real*4, intent(in) :: tpamb		! Ambient temperature (K)
+		! Internal and control variables:
+		real*4, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
+		real*4, intent(in) :: r0			! Minimum value of mixing parameter
+		real*4, intent(in) :: dr			! Max - min value of mixing parameter
+		real*4, intent(in) :: dt			! Time step for integration of burning rates (s)
+		
+		! Considering removing these two.  See below:
+		real*4, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
+		real*4, intent(in) :: dfm		! Ratio of moisture mass to dry organic mass /
+											! duff fractional moisture (aka R sub M).
+		integer, intent(in) :: ntimes	! Number of time steps.
 		
 		
 		! Fuel component property arrays:  The values will not change but they may be reordered...
 		
+		! Character strings can't be pass from R!!!!:
+		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
+		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
+		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
+		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
+		real*4, intent(inout) :: fmois(maxno)		! Moisture fraction of component
+		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
+		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
+		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
+		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
 		
-		! Sort the fuel components and calculate the interaction matrix...
+		
+		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K
+		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K
+		
+		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
+		! Could try to remove?:
+		integer, intent(in) :: number			! The number of fuel classes.
+		
+		
+		! Locals:
+		
+		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
+		
+		
+		! The original declarations in the original order:
 		
 
-!	end subroutine Simulate
+		real*4 :: flit(maxno)			! Fraction of each component currently alight
+		real*4 :: fout(maxno)			! Fraction of each component currently gone out
+		real*4 :: work(maxno)			! ?????
+		real*4 :: elam(maxno, maxno)	! Interaction matrix
+		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class.
+		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
+										! least once by initial planform area of ea size
+		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
+		real*4 :: xmat(maxkl)			! Consolidated interaction matrix
+		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each
+										! fuel component pair
+		real*4 :: tign(maxkl)			! Ignition time for the larger of each
+										! fuel component pair
+		real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
+		real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
+		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair
+		real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
+		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s
+		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m
+		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying)
+		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging
+		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+		integer :: key(maxno)			! Ordered index list
+		
+		! Temporary: currently left blank!!!!
+		character*12 :: parts(maxno)	! Fuel component names / labels
+		
+		character*12 :: list(maxno)		!
+		!character*12 :: infile			! Stores the name of input data files.
+		!character*12 :: outfil			! The name of the summary file.  This currently static in the code
+										! below.  It would be better to ask.
+		logical :: nohist				! Flag indicating if history output should be not be stored.
+		
+		
+		
+		! The rest in order of appearance:
+		!integer :: nruns		! The number of simulations run.
+		!integer :: number		! The actual number of fuel classes
+! 		real*4 :: fi			! Site avg fire intensity (kW / sq m)
+! 		real*4 :: ti 			! Spreading fire residence time (s)
+! 		real*4 :: u				! Mean horizontal windspeed at top of fuelbed (m/s).
+! 		real*4 :: d				! Fuelbed depth (m)
+! 		real*4 :: tpamb			! Ambient temperature (K)
+! 		real*4 :: ak			! Area influence factor (ak / K_a parameter)
+! 		real*4 :: r0			! Minimum value of mixing parameter
+! 		real*4 :: dr			! Max - min value of mixing parameter
+! 		real*4 :: dt			! Time step for integration of burning rates (s)
+! 		integer :: ntimes		! Number of time steps.
+		!real*4 :: wdf			! Duff loading (kg/m^2, aka W sub d)
+		!real*4 :: dfm			! Ratio of moisture mass to dry organic mass /
+								! duff fractional moisture (aka R sub M).
+						!integer :: ihist		! User input value.
+		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
+		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
+		integer :: now			! Index marking the current time step.
+		real :: tis				! Current time (ti + number of time steps * dt).
+		real*4 :: tpdry			! Temperature (all components) start drying (K)
+		integer :: ncalls		! Counter of calls to this START().									! JMR: Grammar!!!!!
+		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
+		real :: fid				! Fire intensity due to duff burning.
+			!integer :: nun			! Stash file unit identifier.
+			!integer :: readStat		! IO error status.
+			!integer :: next 		! User menu selection.
+		
+		
+		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
+		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
+		
+		
+		! How to specify store????
+		
+		! Sort the fuel components and calculate the interaction matrix...
+		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+					sigma, htval, cheat, condry, tpig, tchar, &
+					diam, key, work, ak, elam, alone, xmat, wo, &
+					maxkl, parts, list, area)
+
+		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
+		! running but it would probably better to pass the output of DUFBRN() in instead.
+		call DUFBRN(wdf, dfm, dfi, tdf)
+		
+		! Initialize variables and data structures:
+		! Which of these variables need to be declared?????
+		now = 1
+		tis = ti
+		call START(tis, mxstep, now, maxno, number, wo, alfa, &
+					dendry, fmois, cheat, condry, diam, tpig, &
+					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+					tdry, tign, tout, qcum, tcum, acum, qdot, &
+					ddot, wodot, work, u, d, r0, dr, ch2o, &
+					ncalls, maxkl)
+		
+		! If the duff burns longer than the passing fire front then have it's intensity
+		! contribute to the post front fire environment, otherwise ignore it:
+		if (tis .lt. tdf) then
+			fid = dfi
+		else
+			fid = 0.0
+		end if
+		
+		! Record the state at this timepoint somehow...
+		
+		
+		! Calculate the initial fire intensity:
+		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+		
+		! If the fire intensity is above the extinguishing threshold calculate combustion until
+		! the fire goes out or the number of timesteps is reached:
+		if (fi .gt. fimin) then
+			do while (now .LT. ntimes)
+				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
+							dendry, fmois, cheat, condry, diam, tpig, &
+							tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+							tdry, tign, tout, qcum, tcum, acum, qdot, &
+							ddot, wodot, work, u, d, r0, dr, ch2o, &
+							ncalls, maxkl, tis, fint, fid)
+
+				! Update time trackers:
+				now = now + 1
+				tis = tis + dt
+				
+				! Get the duff contribution while it remains burning:
+				if (tis .lt. tdf) then
+					fid = dfi
+				else
+					fid = 0.0
+				end if
+		
+				! Calculate the fire intensity at this time step:
+				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+
+				if (fi .LE. fimin) then
+					exit
+				else
+					if (nohist .eqv. .false.) then
+						! Record the state at this timepoint somehow...
+					end if
+				end if
+			end do
+		end if ! (fi .gt. fimin)
+
+	end subroutine Simulate
 
 
 	!c Duff burning rate (ergo, intensity) and duration
@@ -360,7 +566,7 @@ contains
 
 	! This is a wrapper for DUFBRN() that allows it to be called from R:
 	! 
-	! History: New for module.
+	! History: Added for module.
 	subroutine DufBrnR(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
 		implicit none
 
@@ -2119,6 +2325,7 @@ contains
 !c fire, dt is the residence time for the spreading fire.  Only physical
 !c parameters specified are the fuel array descriptors. To call STEP,
 !c one must initialize the following variables.
+! 
 ! History: Modernized original Burnup subroutine.
 	subroutine START(dt, mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
@@ -2193,7 +2400,7 @@ contains
 
 		! These variables are a little odd.  They are treated as constants but are declared as
 		! arguments that are initialized and returned for use elsewhere in the program.  It would be
-		! better to define them are program or global scope as true constants (parameter ::):
+		! better to define them at program or global scope as true constants (parameter ::):
 		real*4, intent(inout) :: ch2o	! Specific heat capacity of water, J / kg K
 		real*4, intent(inout) :: tpdry	! Temperature (all components) start drying (K)
 		! The original comments include hvap as a constant, but is not actually used:
