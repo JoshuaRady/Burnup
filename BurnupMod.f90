@@ -422,7 +422,7 @@ contains
 		!character*12 :: infile			! Stores the name of input data files.
 		!character*12 :: outfil			! The name of the summary file.  This currently static in the code
 										! below.  It would be better to ask.
-		logical :: nohist				! Flag indicating if history output should be not be stored.
+		!logical :: nohist				! Flag indicating if history output should be not be stored.
 		
 		
 		
@@ -525,9 +525,7 @@ contains
 				if (fi .LE. fimin) then
 					exit
 				else
-					if (nohist .eqv. .false.) then
-						! Record the state at this timepoint somehow...
-					end if
+					! Record the state at this timepoint somehow...
 				end if
 			end do
 		end if ! (fi .gt. fimin)
@@ -575,6 +573,16 @@ contains
 		real :: sigmaOut(maxno), cheatOut(maxno), condryOut(maxno), tpigOut(maxno), tcharOut(maxno)
 
 		fiReal = real(fi)
+		wdryOut = real(wdry)
+		ashOut = real(ash)
+		htvalOut = real(htval)
+		fmoisOut = real(fmois)
+		dendryOut = real(dendry)
+		sigmaOut = real(sigma)
+		cheatOut = real(cheat)
+		condryOut = real(condry)
+		tpigOut = real(tpig)
+		tcharOut = real(tchar)
 
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
 						real(ak), real(r0), real(dr), real(dt), &
