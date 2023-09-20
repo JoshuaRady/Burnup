@@ -103,6 +103,7 @@ module BurnupMod
 	! used when the code is compiled as a shared library rather than as part of an executable.
 	! Specifying these as private still allows them to be used in the shared library context but
 	! generates a compiler warning.
+	public :: SimulateR
 	!private :: DufBrnR
 	public :: DufBrnR
 
@@ -332,7 +333,8 @@ contains
 	! A draft alternate entry point...
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
 						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &! maxno,
-						number)
+						number, &
+						xmat, tign, tout, wo, diam)
 		implicit none
 
 		! Arguments:
@@ -361,7 +363,10 @@ contains
 		integer, intent(in) :: ntimes	! Number of time steps.  Move down?
 		
 		
-		! Fuel component property arrays:  The values will not change but they may be reordered...
+		! Fuel component property arrays:  The values will not change but they may be reordered.
+		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
+		! However, setting these to inout allows the values to bo modified for use interally in this
+		! routine, which is useful for now.
 		
 		! Character strings can't be pass from R!!!!:
 		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
@@ -382,11 +387,19 @@ contains
 		! Could try to remove?:
 		integer, intent(in) :: number			! The number of fuel classes.  Move up?
 		
+		! Calculated outputs:
+		! The following are the main variables output in SUMMARY()... [name], fr, ti, to, wd, di
+		! Order?????
+		real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
+		real*4, intent(out) :: tign(maxkl)			! Ignition time for the larger of each fuel component pair
+		real*4, intent(out) :: tout(maxkl)			! Burnout time of larger component of pairs
+		real*4, intent(out) :: wo(maxkl)			! Current ovendry loading for the larger of
+													! each component pair, kg/sq m
+		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
+													! fuel component pair, m
 		
 		! Locals:
-		
 		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
-		
 		
 		! The original declarations in the original order:
 		
@@ -399,15 +412,15 @@ contains
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size
 		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
-		real*4 :: xmat(maxkl)			! Consolidated interaction matrix
+		!real*4 :: xmat(maxkl)			! Consolidated interaction matrix
 		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each
 										! fuel component pair
-		real*4 :: tign(maxkl)			! Ignition time for the larger of each
+		!real*4 :: tign(maxkl)			! Ignition time for the larger of each
 										! fuel component pair
-		real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
-		real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
+		!real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
+		!real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
 		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair
-		real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
+		!real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
 		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s
 		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m
 		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying)
@@ -538,7 +551,8 @@ contains
 	! History: Added for module.
 	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-							number) bind(C, name = "simulater")
+							number, &
+							xmat, tign, tout, wo, diam) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
@@ -566,11 +580,22 @@ contains
 		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K
 		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K
 		integer, intent(in) :: number
+		
+		! Calculated outputs:
+		double precision, intent(out) :: xmat(maxkl)		! Table of influence fractions between components
+		double precision, intent(out) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair
+		double precision, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs
+		double precision, intent(out) :: wo(maxkl)			! Current ovendry loading for the larger of
+															! each component pair, kg/sq m
+		double precision, intent(out) :: diam(maxkl)		! Current diameter of the larger of each
+															! fuel component pair, m
 
 		! Local type conversion intermediates:
 		real :: fiReal
 		real :: wdryOut(maxno), ashOut(maxno), htvalOut(maxno), fmoisOut(maxno), dendryOut(maxno)
 		real :: sigmaOut(maxno), cheatOut(maxno), condryOut(maxno), tpigOut(maxno), tcharOut(maxno)
+		!real :: xmatR(maxkl), tignR(maxkl), toutR(maxkl), woR(maxkl), diamR(maxkl)
+		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
 
 		fiReal = real(fi)
 		wdryOut = real(wdry)
@@ -589,7 +614,8 @@ contains
 						real(wdf), real(dfm), ntimes, &
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
-						number)
+						number, &
+						xmatR, tignR, toutR, woR, diamR)
 
 		fi = dble(fiReal)
 		wdry = dble(wdryOut)
@@ -602,6 +628,12 @@ contains
 		condry = dble(condryOut)
 		tpig = dble(tpigOut)
 		tchar = dble(tcharOut)
+		
+		xmat = dble(xmatR)
+		tign = dble(tignR)
+		tout = dble(toutR)
+		wo = dble(woR)
+		diam = dble(diamR)
 
 	end subroutine SimulateR
 
@@ -3582,7 +3614,7 @@ contains
 		real*4, intent(in) :: sigma(maxno)			! Surface to volume ratio, 1 / m
 		real*4, intent(in) :: tign(maxkl)			! Ignition time for the larger of each
 													! fuel component pair
-		real*4, intent(in) :: tout(maxkl) 			! Burnout time of larger component of pairs
+		real*4, intent(in) :: tout(maxkl) 			! Burnout time of larger component of pairs		! JMR: Whitespace!!!!!
 		real*4, intent(in) :: xmat(maxkl)			! Table of influence fractions between components
 		real*4, intent(in) :: wo(maxkl)				! Current ovendry loading for the larger of
 													! each component pair, kg/sq m
@@ -3691,7 +3723,7 @@ contains
 				ts = min(ti, ts)
 				to = tout(mn)
 				tf = max(to, tf)
-				wd = wo (mn)
+				wd = wo (mn)									! JMR: Transcription whitespace!!!!!
 				rem = rem + wd
 				di = diam(mn)
 				if (v) then
