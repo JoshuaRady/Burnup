@@ -332,22 +332,26 @@ contains
 	end subroutine BurnupMain
 
 
-	! A draft alternate entry point...
+	! Perform a simulation with prescribed inputs and return fuel consumption properties.
+	!
+	! History: Added as an programatic alternative entry point to the original interactive program.
+	!
+	! ToDo:
+	! - Provide a way to specify if fire history should be stored and returned.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
-						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &! maxno,
+						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
 						number, &
-						xmat, tign, tout, wo, diam)
+						xmat, tign, tout, wo, diam, burnout)
 		implicit none
 
 		! Arguments:
 		! Igniting fire and environmental data:
 		
-		! The value passed in is the fire front intensity.  The variable is later reused and updated
-		! by FIRINT().  It is passed on to other routines that use bu do not change it.  These two
-		! uses should probably be separated.  I'm not sure it is useful to return the value, which
-		! will be the final value.  A history would be valuable.
+		! The value passed in for fi is the fire front intensity.  The variable is later reused and
+		! updated by FIRINT().  It is passed on to other routines that use bu do not change it.
+		! These two uses could be separated.  The value returned the value, is the final intensity,
+		! which might be of use.  A history would be more valuable.
 		real*4, intent(inout) :: fi		! Current fire intensity (site avg), kW / sq m
-		
 		real*4, intent(in) :: ti		! Igniting fire residence time (s).
 		real*4, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
 		real*4, intent(in) :: d			! Fuelbed depth (m)
@@ -364,13 +368,12 @@ contains
 										! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes	! Number of time steps.  Move down?
 		
-		
 		! Fuel component property arrays:  The values will not change but they may be reordered.
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
 		! However, setting these to inout allows the values to bo modified for use interally in this
 		! routine, which is useful for now.
 		
-		! Character strings can't be pass from R!!!!:
+		! Character strings can't be passed in from R so we leave part blank for now (see below):
 		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
 		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
@@ -390,8 +393,7 @@ contains
 		integer, intent(in) :: number			! The number of fuel classes.  Move up?
 		
 		! Calculated outputs:
-		! The following are the main variables output in SUMMARY()... [name], fr, ti, to, wd, di
-		! Order?????
+		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
 		real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
 		real*4, intent(out) :: tign(maxkl)			! Ignition time for the larger of each fuel component pair
 		real*4, intent(out) :: tout(maxkl)			! Burnout time of larger component of pairs
@@ -399,13 +401,12 @@ contains
 													! each component pair, kg/sq m
 		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m
+		! Should we return the end time of the fire (= tis) or is max(tout) sufficient?
+		real, intent(out) :: burnout
 		
 		! Locals:
+		! Arrays:
 		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
-		
-		! The original declarations in the original order:
-		
-
 		real*4 :: flit(maxno)			! Fraction of each component currently alight
 		real*4 :: fout(maxno)			! Fraction of each component currently gone out
 		real*4 :: work(maxno)			! ?????
@@ -414,50 +415,20 @@ contains
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size
 		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
-		!real*4 :: xmat(maxkl)			! Consolidated interaction matrix
 		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each
-										! fuel component pair
-		!real*4 :: tign(maxkl)			! Ignition time for the larger of each
-										! fuel component pair
-		!real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs
-		!real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs
 		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair
-		!real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs]
 		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s
 		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m
 		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying)
 		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
 		integer :: key(maxno)			! Ordered index list
-		
-		! Temporary: currently left blank!!!!
+		! Temporary: Leave the fuel component names blank.
 		character*12 :: parts(maxno)	! Fuel component names / labels
-		
 		character*12 :: list(maxno)		!
-		!character*12 :: infile			! Stores the name of input data files.
-		!character*12 :: outfil			! The name of the summary file.  This currently static in the code
-										! below.  It would be better to ask.
 		!logical :: nohist				! Flag indicating if history output should be not be stored.
 		
-		
-		
-		! The rest in order of appearance:
-		!integer :: nruns		! The number of simulations run.
-		!integer :: number		! The actual number of fuel classes
-! 		real*4 :: fi			! Site avg fire intensity (kW / sq m)
-! 		real*4 :: ti 			! Spreading fire residence time (s)
-! 		real*4 :: u				! Mean horizontal windspeed at top of fuelbed (m/s).
-! 		real*4 :: d				! Fuelbed depth (m)
-! 		real*4 :: tpamb			! Ambient temperature (K)
-! 		real*4 :: ak			! Area influence factor (ak / K_a parameter)
-! 		real*4 :: r0			! Minimum value of mixing parameter
-! 		real*4 :: dr			! Max - min value of mixing parameter
-! 		real*4 :: dt			! Time step for integration of burning rates (s)
-! 		integer :: ntimes		! Number of time steps.
-		!real*4 :: wdf			! Duff loading (kg/m^2, aka W sub d)
-		!real*4 :: dfm			! Ratio of moisture mass to dry organic mass /
-								! duff fractional moisture (aka R sub M).
-						!integer :: ihist		! User input value.
+		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
 		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
 		integer :: now			! Index marking the current time step.
@@ -466,16 +437,9 @@ contains
 		integer :: ncalls		! Counter of calls to this START().									! JMR: Grammar!!!!!
 		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
-			!integer :: nun			! Stash file unit identifier.
-			!integer :: readStat		! IO error status.
-			!integer :: next 		! User menu selection.
-		
 		
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
-		
-		
-		! How to specify store????
 		
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
@@ -545,6 +509,8 @@ contains
 			end do
 		end if ! (fi .gt. fimin)
 
+		burnout = tis
+
 	end subroutine Simulate
 
 
@@ -554,7 +520,7 @@ contains
 	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
 							number, &
-							xmat, tign, tout, wo, diam) bind(C, name = "simulater")
+							xmat, tign, tout, wo, diam, burnout) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
@@ -591,6 +557,7 @@ contains
 															! each component pair, kg/sq m
 		double precision, intent(out) :: diam(maxkl)		! Current diameter of the larger of each
 															! fuel component pair, m
+		double precision, intent(out) :: burnout
 
 		! Local type conversion intermediates:
 		real :: fiReal
@@ -598,6 +565,7 @@ contains
 		real :: sigmaOut(maxno), cheatOut(maxno), condryOut(maxno), tpigOut(maxno), tcharOut(maxno)
 		!real :: xmatR(maxkl), tignR(maxkl), toutR(maxkl), woR(maxkl), diamR(maxkl)
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
+		real :: burnoutR
 
 		fiReal = real(fi)
 		wdryOut = real(wdry)
@@ -617,7 +585,7 @@ contains
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
 						number, &
-						xmatR, tignR, toutR, woR, diamR)
+						xmatR, tignR, toutR, woR, diamR, burnoutR)
 
 		fi = dble(fiReal)
 		wdry = dble(wdryOut)
@@ -636,6 +604,8 @@ contains
 		tout = dble(toutR)
 		wo = dble(woR)
 		diam = dble(diamR)
+		
+		burnout = dble(burnoutR)
 
 	end subroutine SimulateR
 
@@ -3609,7 +3579,7 @@ contains
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		integer, intent(in) :: nun					! Summary file unit identifier
-		real, intent(in) :: tis						! Igniting surface fire residence time (s)
+		real, intent(in) :: tis						! Igniting surface fire residence time (s)		! JMR: This is a bit confusing.  The residence time (ti above) is output but tis is also the current time?
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: wdry(maxno)			! Ovendry mass loading, kg/sq m
 		real*4, intent(in) :: fmois(maxno)			! Moisture content, fraction dry mass
