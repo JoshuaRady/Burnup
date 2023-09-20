@@ -108,14 +108,16 @@ module BurnupMod
 	public :: DufBrnR
 
 	! Program level dimensional constants:
-	! These parameters are passed into all routines that need them and are not treated as globals.
+	! In the original code these parameters were passed into all routines that need.  Here we change
+	! to module level scope.  This allows us to reduce the number of arguments to routines.
+	! While currently fixed, these can probably be made dynamic to be set a initialization.
 	
 	! The maximum number of fuel components or types.  This is used to build fixed size data
 	! structures.  The number of elements may be less than this so some indexes may be empty.
 	! The original program fixes this arbitrarily at 10 fuel components.
 	integer, parameter :: maxno = 10
 	! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
-	! Add one to one dimension for the  'no companion' interaction element.
+	! Add one to one dimension for the  'no companion' interaction element.							! JMR: Whitespace!!!!!
 	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
@@ -2426,7 +2428,7 @@ contains
 !c parameters specified are the fuel array descriptors. To call STEP,
 !c one must initialize the following variables.
 ! 
-! History: Modernized original Burnup subroutine.
+! History: Modernized original Burnup subroutine.								! JMR: Formating!!!!!
 	subroutine START(dt, mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -2967,7 +2969,7 @@ contains
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
 		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K
-		real*4, intent(in) :: tpig	! fuel surface temperature at iinition, K
+		real*4, intent(in) :: tpig	! fuel surface temperature at iinition, K						! JMR: Transcription!!!!!
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
 		real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
 		real*4, intent(in) :: chtd	! fuel ovendry specific heat capacity, J / kg K
@@ -3752,14 +3754,19 @@ contains
 	! This function coverts the indexes of the pairwise fuel interaction triangular matrix space
 	! to indexes of the arrays used to represent it for several computed variables.
 	!
+	! Note: This will only return valid value valid (occupied) coordinates of the triangular matrix.
+	! Error checking would require that the number of fuel classes be know. 
+	!
 	! History: This function was originally implemented as a statement function defined in seven places
 	! in the original code.
 	function Loc(k, l)
 		 implicit none
 
 		! Arguments:
-		integer, intent(in) :: k ! Triangular matrix row? or column? index, (1:number of fuel types)
-		integer, intent(in) :: l ! Triangular matrix row? or column? index (sometimes j in code), (0:k)
+		integer, intent(in) :: k	! Triangular matrix column (row) index, (1:number of fuel types)
+		integer, intent(in) :: l	! Triangular matrix row (column) index, (0:k), = partner
+									! This index starts at 0, which represent the "no companion"
+									! pairs.
 
 		! Locals:
 		integer :: loc ! Return value: Index in a compact array representing the triangular matrix values.
