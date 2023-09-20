@@ -115,7 +115,7 @@ module BurnupMod
 	! The maximum number of fuel components or types.  This is used to build fixed size data
 	! structures.  The number of elements may be less than this so some indexes may be empty.
 	! The original program fixes this arbitrarily at 10 fuel components.
-	integer, parameter :: maxno = 10
+	integer, parameter :: maxno = 12!10
 	! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
 	! Add one to one dimension for the  'no companion' interaction element.							! JMR: Whitespace!!!!!
 	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
