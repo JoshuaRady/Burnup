@@ -410,8 +410,6 @@ contains
 													! each component pair, kg/sq m
 		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m
-		! Should we return the end time of the fire (= tis) or is max(tout) sufficient?
-		!real, intent(out) :: burnout
 		
 		! Locals:
 		! Arrays:
@@ -518,8 +516,6 @@ contains
 			end do
 		end if ! (fi .gt. fimin)
 
-		burnout = tis
-
 	end subroutine Simulate
 
 
@@ -528,7 +524,7 @@ contains
 	! History: Added for module.
 	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-							xmat, tign, tout, wo, diam, burnout) bind(C, name = "simulater")
+							xmat, tign, tout, wo, diam) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
@@ -572,7 +568,6 @@ contains
 		real, dimension(maxno) :: wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, sigmaOut
 		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
-		real :: burnoutR
 
 		fiReal = real(fi)
 		wdryOut = real(wdry)
@@ -591,7 +586,7 @@ contains
 						real(wdf), real(dfm), ntimes, number,&
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
-						xmatR, tignR, toutR, woR, diamR, burnoutR)
+						xmatR, tignR, toutR, woR, diamR)
 
 		fi = dble(fiReal)
 		wdry = dble(wdryOut)
@@ -2171,6 +2166,7 @@ contains
 
 
 		call OVLAPS(wdry, sigma, dendry, ak, number, maxno, maxkl, &
+					fmois, &
 					xmat, elam, alone, area)
 
 		do k = 1, number
@@ -2307,7 +2303,9 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	subroutine OVLAPS(dryld, sigma, dryden, ak, number, maxno, &
-						maxkl, beta, elam, alone, area)
+						maxkl, &
+						fmois, &
+						beta, elam, alone, area)
 		implicit none
 
 		! Arguments:
@@ -2318,6 +2316,9 @@ contains
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
+		
+		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
+		
 		real*4, intent(out) :: beta(maxno)			! Consolidated interaction matrix (elsewhere = xmat).
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
@@ -2331,6 +2332,9 @@ contains
 		real :: a
 		real :: bb
 		real :: frac ! Intermediate for calculating alone().
+		
+		real :: akDyn ! Calculated value of K_a (ak) parameter.
+		!real :: akVal ! Value of K_a (ak) parameter, fixed or calculated depending on the mode.
 
 		pi = abs(acos(-1.0)) ! Calculate pi.
 
@@ -2346,8 +2350,15 @@ contains
 		end do
 
 		do k = 1, number
-			siga = ak * sigma(k) / pi
+			!siga = ak * sigma(k) / pi
 			do l = 1, k
+				
+				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
+				! Equation per Albini & Reinhardt 1997: K_a = K exp(-B * M^2)
+				akDyn = 3.25 * exp(-20 * fmois(l)**2)
+				
+				siga = akDyn * sigma(k) / pi
+				
 				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
