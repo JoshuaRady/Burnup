@@ -3610,14 +3610,13 @@ contains
 		character*3 :: stat		! File open status.
 		integer :: ido, in		! User menu return value.
 		logical :: v			! Should a full summary should be stored?
-		character*12 :: none	! JMR_NOTE: Should change.  None is a keyword.
 		character*12 :: nuname
 		character*12 :: name
 		integer :: m, n, mn		! Counter.
 		real :: win, fmi, dim, rem, ts, tf
 		real :: fr				! Value of xmat for a single element.
 		real :: ti				! Value of tign for a single element.
-		real :: to				! Value of tout for a single element.! JMR_NOTE: Should change.  To is a keyword.
+		real :: t1				! Value of tout for a single element. (Was 'to', which is a keyword, in the original code.)
 		real :: wd				! Value of wo for a single element.
 		real :: di				! Diameter for a single element.
 		integer :: openStat		! IO status.
@@ -3629,7 +3628,9 @@ contains
 		character(len = *), parameter :: format30 = '(5x,a12,e9.3,e11.3,e10.3,e11.3,e9.3)'
 		character(len = *), parameter :: format40 = '(5x,a12,e9.3,e11.3,e10.3,e11.3)'
 
-		none = 'no companion'
+		character*12, parameter :: noCmpStr = 'no companion'	! (Was a variable 'none', which is a
+																!  keyword, in the original code.)
+		
 		nuname = outfil
 		stat = 'NEW'
 
@@ -3697,7 +3698,7 @@ contains
 				write(nun, format20) name, win, fmi, dim
 			end if
 	
-			name = none
+			name = noCmpStr
 			rem = 0.0
 			ts = 1.0e+31
 			tf = 0.0
@@ -3706,13 +3707,13 @@ contains
 				fr = xmat(mn)
 				ti = tign(mn)
 				ts = min(ti, ts)
-				to = tout(mn)
-				tf = max(to, tf)
+				t1 = tout(mn)
+				tf = max(t1, tf)
 				wd = wo(mn)
 				rem = rem + wd
 				di = diam(mn)
 				if (v) then
-					write(nun, format30) name, fr, ti, to, wd, di
+					write(nun, format30) name, fr, ti, t1, wd, di
 				endif
 				if (n .LT. m) then
 					name = parts(n + 1)
