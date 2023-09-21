@@ -1,53 +1,62 @@
 !---------------------------------------------------------------------------------------------------
 ! BurnupMod.f90
-! Burnup ...
-!
-! IN PROGRESS!!!!!
+! Burnup Wildfire Fuel Consumption Module
 !
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
 ! 9/2023
 !
-! This is an reimplementation of the the Burnup wildfire fuel consumption model as a Fortran module.
+! This is an reimplementation of the Burnup wildfire fuel consumption model as a Fortran module.
+! 
+! 	This module is based on the Burnup model by Frank Albini and collaborators (see references).
+! The original Burnup source code (Fortran IV/66/77, fixed form) was previously updated to modern
+! Fortran (2003+).  Here that interactive executable has be reformulated into a form that can be
+! compiled as a linkable module or shared library.
+!
+! 	The goal was to provide a version of the Burnup model that could be easily embedded in other
+! code or coupled with other models.  The code produces identical results to the original code and
+! has no dependancies.  The intent is that calling code only need to know Burnup's input and
+! outputs.
+!
+! 	Routines providing C interoperable interfaces have been included for the main program entry
+! points to allow the code to interface with R when compiled as a shared library (.so file).
+!
+! 	The routines that run the UI of the original program have been left for now but may be removed.
+!
+! Formating:
+! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
+! and future porting of this code (e.g. to C++).  While tabs are not valid Fortran characters,
+! compilers tend to tolerate them.  I have used 4-space equivalent tabs for layout purposes here,
+! and they can easily be converted in the future.
+!
+! In-code Documentation:
+! 	Many comments have been added to the code to increase it's readability and to document changes.
+! Comments from the original code are marked with '!c'.  Comments starting with just '!' have been
+! added.
+!
+! 	Routines from the original propgram maintain their all caps format while new routines use
+! camelcase.
+!
+! References:
+! 	The original source code was obtained from
+!
+! Program BURNUP, a simulation model of the burning of large woody natural fuels.
+! Albini, F. A.
+! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
+! Appendix B.
+!
+! The original report is held by the National Forest Service Library in Fort Collins.
+!
 ! ...
-		! The the following is modernized source code for the original version of the Burnup model from:
-		!
-		! Program BURNUP, a simulation model of the burning of large woody natural fuels.
-		! Albini, F. A.
-		! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
-		! Appendix B.
-		!
-		! The original report is held by the National Forest Service Library in Fort Collins.
-		!
-		! Code Modernization:
-		! 	The original Burnup source code is self-described as being in Fortran IV, though there are
-		! numerous features from Fortran 66 and 77.  It is in fixed form form.  Here I have revised the code
-		! to modern Fortran (2003+).  This involved replacing goto logic, removing statement functions,
-		! making all variable declarations explicit, added additional comments, and changing the code to
-		! free form. Additional routines were added as needed to reproduce the original behavior.  Original
-		! routines maintain their all caps format while new routines use camelcase.
-		!
-		! 	I have changed the formating to remove most of the idiosyncratic internal whitespace and to add
-		! full indenting.  Some styling inconstancies may remain.
-		!
-		! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
-		! and future porting of this code (e.g. to C++).  While tabs are not valid Fortran characters,
-		! compilers tend to tolerate them.  I have used 4-space equivalent tabs for layout purposes here,
-		! and they can easily be converted in the future.
-		!
-		! 	Many comments have been added to the code to increase it's readability and to document changes.
-		! Original comments are marked with '!c'.  Comments starting with just '!' have been added.  Page
-		! breaks and page numbers from the PDF have been marked in comments to make comparison to the
-		! orignal code easier.
-		!
-		! Caveats:
-		! 	This code compiles, runs, and produces output identical to the original Burnup code.  The UI
-		! menu behavior has been examined and is largely similar but some differences may not have been
-		! identified.  Transcription errors may remain, some of which may affect results.
-		!
-		! 	There is no licence provided for the original code.  It is though to be open by provenance, but
-		! that man not be correct.
+!
+! Caveats:
+! 	This code compiles, runs, and produces output identical to the original Burnup code in tests but
+! the code is under active development and is not complete, so errors could be present that have not
+! been identified.
+!
+! 	There is no licence provided for the original code.  It is though to be open by provenance, but
+! that man not be correct.  The licence for this code is under consideration.
 !---------------------------------------------------------------------------------------------------
 
 !program BURNUP
