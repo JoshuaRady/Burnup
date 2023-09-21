@@ -1801,12 +1801,12 @@ contains
 		do k = 1, number
 			diak = 4.0 / sigma(k)
 			wtk = wdry(k)
-			kl = loc(k, 0)
+			kl = Loc(k, 0)
 			diam(kl) = diak
 			xmat(kl) = alone(k)
 			wo(kl) = wtk * xmat(kl)
 			do j = 1, k
-				kj = loc(k, j)
+				kj = Loc(k, j)
 				diam(kj) = diak
 				xmat(kj) = elam (k, j)
 				wo(kj) = wtk * xmat(kj)
@@ -1962,7 +1962,7 @@ contains
 		do j = 1, number
 			alone(j) = 0.0
 			do k = 1, j
-				kj = loc(j, k)
+				kj = Loc(j, k)
 				beta(kj) = 0.0
 			end do
 			do k = 1, number
@@ -1973,7 +1973,7 @@ contains
 		do k = 1, number
 			siga = ak * sigma(k) / pi
 			do l = 1, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
 					bb = 1 - exp(- a)
@@ -2000,18 +2000,18 @@ contains
 
 			frac = 0.0
 			do l = 1, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				frac = frac + beta(kl)
 			end do
 			if (frac .GT. 1.0) then
 				do l = 1, k
-					kl = loc(k, l)
+					kl = Loc(k, l)
 					elam(k, l) = beta(kl) / frac
 				end do
 				alone(k) = 0.0
 			else
 				do l = 1, k
-					kl = loc(k, l)
+					kl = Loc(k, l)
 					elam(k, l) = beta(kl)
 				end do
 				alone(k) = 1.0 - frac
@@ -2162,7 +2162,7 @@ contains
 		!c		to average value of lab experiments used to find above constants
 			work(k) = 1.0 / (255.0 * heatk)
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				tout(kl) = rindef
 				tign(kl) = rindef
 				tdry(kl) = rindef
@@ -2190,7 +2190,7 @@ contains
 			factor = dendry(k) * fmois(k)
 			conwet = condry(k) + 4.27e-04 * factor
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				dia = diam (kl)
 				call heatx(u, d, dia, tf, tx, hf, hb, conwet, en)
 				call DRYTIM(en, thd, dryt)
@@ -2210,7 +2210,7 @@ contains
 			c = condry(k)
 			tigk = tpig(k)
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
 					dia = diam (kl)
@@ -2245,7 +2245,7 @@ contains
 		do k = 1, number
 			if (flit(k) .GT. 0.) nlit = nlit + 1
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				trt = min(trt, tign(kl))
 			end do
 		end do
@@ -2256,7 +2256,7 @@ contains
 
 		do k = 1, number
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
 					tdry(kl) = tdry (kl) - trt
 				end if
@@ -2272,7 +2272,7 @@ contains
 		do k = 1, number
 			if (flit(k) .EQ. 0.) then
 				do l = 0, k
-					kl = loc(k, l)
+					kl = Loc(k, l)
 					ddot(kl) = 0.0
 					tout(kl) = rindef
 					wodot(kl) = 0.0
@@ -2281,7 +2281,7 @@ contains
 				ts = tchar(k)
 				c = condry(k)
 				do l = 0, k
-					kl = loc(k, l)
+					kl = Loc(k, l)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					qdot(kl, now) = hb * max((tf - ts), 0.)
@@ -2362,7 +2362,7 @@ contains
 		do k = 1, number
 			wdotk = 0.0
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				wdotk = wdotk + wodot(kl)
 			end do
 			term = (1.0 - ash(k)) * htval(k) * wdotk * 1.0e-03
@@ -2449,7 +2449,7 @@ contains
 				fmm = fmois(m)
 				wdm = 0.0
 				do n= 0, m
-					mn = loc(m, n)
+					mn = Loc(m, n)
 					wdm = wdm + wo(mn)
 				end do
 				wgm = wdm * (1.0 + fmm)
@@ -2535,7 +2535,7 @@ contains
 				write(nun, outFormat) time, flit(m), fout(m)
 			end if
 			do n = 0, m
-				mn = loc(m, n)
+				mn = Loc(m, n)
 				wdm = wdm + wo(mn)
 				if (snaps) then
 					write(nun, outFormat) time, wo(mn), &
@@ -2925,7 +2925,7 @@ contains
 		kLoop : do k = 1, number
 			c = condry(k)
 			lLoop : do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				tdun = tout(kl)
 
 				!c See if k of (k, l) pair burned out
@@ -3177,7 +3177,7 @@ contains
 			flit (k) = 0.0
 			fout (k) = 0.0
 			do l = 0, k
-				kl = loc(k, l)
+				kl = Loc(k, l)
 				flag = (tnext .GE. tign(kl))
 				if (flag .AND. (tnext .LE. tout(kl))) then
 					flit(k) = flit(k) + xmat(kl)
@@ -3322,7 +3322,7 @@ contains
 			ts = 1.0e+31
 			tf = 0.0
 			do n = 0, m
-				mn = loc(m, n)
+				mn = Loc(m, n)
 				fr = xmat(mn)
 				ti = tign(mn)
 				ts = min(ti, ts)
