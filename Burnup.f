@@ -840,7 +840,7 @@
 !c					least once by initial planform area of ea size
 
 
-      character*12 parts ( maxno ) , list ( maxno )
+      character*12 parts( maxno ) , list( maxno )
       real*4 wdry( maxno ) , ash( maxno ) , dendry( maxno )
       real*4 fmois( maxno ) , sigma( maxno ) , htval( maxno )
       real*4 cheat( maxno ) , condry( maxno ) , tpig( maxno)
@@ -860,7 +860,7 @@
       	list( j ) = parts( k )
       end do
       do j = 1 , number
-      	parts ( j ) = list ( j )
+      	parts( j ) = list ( j )
       end do
       do j = 1 , number
 

@@ -126,7 +126,7 @@ module BurnupMod
 	! The original program fixes this arbitrarily at 10 fuel components.
 	integer, parameter :: maxno = 12!10
 	! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
-	! Add one to one dimension for the  'no companion' interaction element.							! JMR: Whitespace!!!!!
+	! Add one to one dimension for the  'no companion' interaction element.
 	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
@@ -157,7 +157,7 @@ contains
 		real*4 :: tchar(maxno)			! Char temperature, K
 		real*4 :: flit(maxno)			! Fraction of each component currently alight
 		real*4 :: fout(maxno)			! Fraction of each component currently gone out
-		real*4 :: work(maxno)			! ?????
+		real*4 :: work(maxno)			! Workspace array
 		real*4 :: elam(maxno, maxno)	! Interaction matrix
 		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class.
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
@@ -418,7 +418,7 @@ contains
 		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
 		real*4 :: flit(maxno)			! Fraction of each component currently alight
 		real*4 :: fout(maxno)			! Fraction of each component currently gone out
-		real*4 :: work(maxno)			! ?????
+		real*4 :: work(maxno)			! Workspace array
 		real*4 :: elam(maxno, maxno)	! Interaction matrix
 		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class.
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
@@ -443,7 +443,7 @@ contains
 		integer :: now			! Index marking the current time step.
 		real :: tis				! Current time (ti + number of time steps * dt).
 		real*4 :: tpdry			! Temperature (all components) start drying (K)
-		integer :: ncalls		! Counter of calls to this START().									! JMR: Grammar!!!!!
+		integer :: ncalls		! Counter of calls to START().
 		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
 		
@@ -630,7 +630,7 @@ contains
 		real, intent(in) :: dfm 	! Ratio of moisture mass to dry organic mass /
 									! duff fractional moisture (aka R sub M)
 		real, intent(out) :: dfi	! Duff fire intensity (aka I sub d)
-		real, intent(out) :: tdf 	! Burning duration (aka t sub d) ! JMR: Space issue in original!!!!
+		real, intent(out) :: tdf	! Burning duration (aka t sub d)
 
 		! Locals:
 		real ff ! Fractional duff reduction depth from Brown et al. 1985, (aka F in report equation 4)
@@ -642,7 +642,6 @@ contains
 		ff = 0.837 - 0.426 * dfm
 		tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm)
 	end subroutine DUFBRN
-! JMR: Space issue in original!!!!
 
 
 	! This is a wrapper for DUFBRN() that allows it to be called from R:
@@ -992,7 +991,8 @@ contains
 		real, intent(out) :: dt			! Time step for integration of burning rates (s)
 		integer, intent(out):: ntimes	! Number time steps.
 		real, intent(out) :: wdf		! Duff loading (kg/m^2, aka W sub d)
-		real, intent(out) :: dfm		! Ratio of moisture mass to dry organic mass / duff fractional moisture (aka R sub M)
+		real, intent(out) :: dfm		! Ratio of moisture mass to dry organic mass /
+										! duff fractional moisture (aka R sub M)
 
 		! Locals:
 		real :: tamb ! Ambient temperature intermediate in celsius.
@@ -2088,7 +2088,11 @@ contains
 		real*4, intent(out) :: wo(maxkl)			! Initial dry loading by interaction pairs
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
-		character*12, intent(out) :: list(maxno)	!
+		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array?????
+													! This is passed in but is not initialized prior
+													! to that.  It doesn't appear that it is used
+													! after it is returned.  It appears to only be
+													! used internal to this routine.
 		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
 
@@ -2103,7 +2107,7 @@ contains
 			list(j) = parts(k)
 		end do
 		do j = 1, number
-			parts (j) = list (j)
+			parts(j) = list (j)
 		end do
 		do j = 1, number
 
@@ -2240,7 +2244,7 @@ contains
 			do i = (j - 1), 1, -1
 				usi = 1.0 / sigma(i)
 				diam = (usi .LT. s)
-!if(diam ) goto 10 ! JMR: Remove !!!!!
+
 				if (diam) then
 					newIndexFound = .true.
 					exit
@@ -2401,13 +2405,13 @@ contains
 ! Pg. 94:
 
 
-!c This routine initializes variables prior to starting sequence of calls
-!c to subroutine STEP.  On input here, fi is area intensity of spreading
-!c fire, dt is the residence time for the spreading fire.  Only physical
-!c parameters specified are the fuel array descriptors. To call STEP,
-!c one must initialize the following variables.
-! 
-! History: Modernized original Burnup subroutine.								! JMR: Formating!!!!!
+	!c This routine initializes variables prior to starting sequence of calls
+	!c to subroutine STEP.  On input here, fi is area intensity of spreading
+	!c fire, dt is the residence time for the spreading fire.  Only physical
+	!c parameters specified are the fuel array descriptors. To call STEP,
+	!c one must initialize the following variables.
+	! 
+	! History: Modernized original Burnup subroutine.
 	subroutine START(dt, mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -2466,7 +2470,7 @@ contains
 														! to the larger of each component pair
 		real*4, intent(inout) :: ddot(maxkl)	! Diameter reduction rate, larger of pair, m / s
 		real*4, intent(inout) :: wodot(maxkl)	! Dry loading loss rate for larger of pair
-		real*4, intent(inout) :: work(maxno)	! ????? 
+		real*4, intent(inout) :: work(maxno)	! Workspace array
 
 
 ! -- Pagebreak --
@@ -2948,7 +2952,7 @@ contains
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
 		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K
-		real*4, intent(in) :: tpig	! fuel surface temperature at iinition, K						! JMR: Transcription!!!!!
+		real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
 		real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
 		real*4, intent(in) :: chtd	! fuel ovendry specific heat capacity, J / kg K
@@ -3595,7 +3599,7 @@ contains
 		real*4, intent(in) :: sigma(maxno)			! Surface to volume ratio, 1 / m
 		real*4, intent(in) :: tign(maxkl)			! Ignition time for the larger of each
 													! fuel component pair
-		real*4, intent(in) :: tout(maxkl) 			! Burnout time of larger component of pairs		! JMR: Whitespace!!!!!
+		real*4, intent(in) :: tout(maxkl)			! Burnout time of larger component of pairs
 		real*4, intent(in) :: xmat(maxkl)			! Table of influence fractions between components
 		real*4, intent(in) :: wo(maxkl)				! Current ovendry loading for the larger of
 													! each component pair, kg/sq m
@@ -3704,7 +3708,7 @@ contains
 				ts = min(ti, ts)
 				to = tout(mn)
 				tf = max(to, tf)
-				wd = wo (mn)									! JMR: Transcription whitespace!!!!!
+				wd = wo(mn)
 				rem = rem + wd
 				di = diam(mn)
 				if (v) then

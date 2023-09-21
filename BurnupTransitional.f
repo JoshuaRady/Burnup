@@ -64,7 +64,7 @@
       	! These parameters are passed into all routines that need them and are not treated as globals.
       	integer, parameter :: maxno = 10
       ! The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
-      ! Add one to one dimension for the  'no companion' interaction element.
+      ! Add one to one dimension for the 'no companion' interaction element.
       	integer, parameter :: maxkl = maxno * (maxno + 1) / 2 + maxno
       	! The maximum dimension of historical sequences (primarily for qdot):
       	integer, parameter :: mxstep = 20
@@ -135,7 +135,7 @@
       	integer :: now			! Index marking the current time step.
       	real :: tis				! Current time (ti + number of time steps * dt).
       	real*4 :: tpdry			! Temperature ( all components ) start drying ( K )
-      	integer :: ncalls		! Counter of calls to this START().
+      	integer :: ncalls		! Counter of calls to START().
       	real*4 :: ch2o			! Specific heat capacity of water, J / kg K
       	real :: fid				! Fire intensity due to duff burning.
       	integer :: nun			! Stash file unit identifier.
@@ -295,6 +295,7 @@
       tdf = 1.e+04 * ff * wdf / ( 7.5 - 2.7 * dfm )
       !return
       end subroutine DUFBRN
+
 
 ! -- Pagebreak --
 ! Pg. 78:
@@ -1822,7 +1823,7 @@
       	list( j ) = parts( k )
       end do
       do j = 1 , number
-      	parts ( j ) = list ( j )
+      	parts( j ) = list ( j )
       end do
       do j = 1 , number
 
@@ -2673,7 +2674,7 @@
       ! Arguments:
       real*4, intent(in) :: tpam	! ambient temperature , K
       real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig , K
-      real*4, intent(in) :: tpig	! fuel surface temperature at iinition, K
+      real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
       real*4, intent(in) :: tpfi	! fire enviroriment temperature , K
       real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
       real*4, intent(in) :: chtd	! fuel ovendry specific heat capacity, J / kg K
