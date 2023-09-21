@@ -2353,13 +2353,16 @@ contains
 			!siga = ak * sigma(k) / pi
 			do l = 1, k
 				
+				kl = Loc(k, l)
+				
 				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
 				! Equation per Albini & Reinhardt 1997: K_a = K exp(-B * M^2)
-				akDyn = 3.25 * exp(-20 * fmois(l)**2)
+				!akDyn = 3.25 * exp(-20 * fmois(l)**2)
+				akDyn = 3.25 * exp(-20 * fmois(kl)**2)
 				
 				siga = akDyn * sigma(k) / pi
 				
-				kl = Loc(k, l)
+				!kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
 					bb = 1.0 - exp(-a)
