@@ -2358,9 +2358,10 @@ contains
 				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
 				! Equation per Albini & Reinhardt 1997: K_a = K exp(-B * M^2)
 				!akDyn = 3.25 * exp(-20 * fmois(l)**2)
-				akDyn = 3.25 * exp(-20 * fmois(kl)**2)
+				!akDyn = 3.25 * exp(-20 * fmois(kl)**2)
 				
-				siga = akDyn * sigma(k) / pi
+				!siga = akDyn * sigma(k) / pi
+				siga = ak * sigma(k) / pi
 				
 				!kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
