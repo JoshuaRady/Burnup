@@ -347,10 +347,9 @@ contains
 	!
 	! ToDo:
 	! - Provide a way to specify if fire history should be stored and returned.
-	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
+	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-						number, &
-						xmat, tign, tout, wo, diam, burnout)
+						xmat, tign, tout, wo, diam)
 		implicit none
 
 		! Arguments:
@@ -376,6 +375,7 @@ contains
 		real*4, intent(in) :: dfm		! Ratio of moisture mass to dry organic mass /
 										! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes	! Number of time steps.  Move down?
+		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 		
 		! Fuel component property arrays:  The values will not change but they may be reordered.
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
@@ -399,7 +399,7 @@ contains
 		
 		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		! Could try to remove?:
-		integer, intent(in) :: number			! The number of fuel classes.  Move up?
+		!integer, intent(in) :: number			! The number of fuel classes.  Move up?
 		
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
@@ -411,7 +411,7 @@ contains
 		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m
 		! Should we return the end time of the fire (= tis) or is max(tout) sufficient?
-		real, intent(out) :: burnout
+		!real, intent(out) :: burnout
 		
 		! Locals:
 		! Arrays:
@@ -526,9 +526,8 @@ contains
 	! This is a wrapper for Simulate() that allows it to be called from R:
 	! 
 	! History: Added for module.
-	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, &
+	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-							number, &
 							xmat, tign, tout, wo, diam, burnout) bind(C, name = "simulater")
 		implicit none
 
@@ -546,6 +545,8 @@ contains
 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
 													! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes						! Number of time steps.
+		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
+		
 		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
 		double precision, intent(inout) :: ash(maxno)		! Mineral content, fraction dry mass
 		double precision, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
@@ -556,7 +557,6 @@ contains
 		double precision, intent(inout) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry
 		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K
 		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K
-		integer, intent(in) :: number
 		
 		! Calculated outputs:
 		double precision, intent(out) :: xmat(maxkl)		! Table of influence fractions between components
@@ -566,13 +566,11 @@ contains
 															! each component pair, kg/sq m
 		double precision, intent(out) :: diam(maxkl)		! Current diameter of the larger of each
 															! fuel component pair, m
-		double precision, intent(out) :: burnout
 
 		! Local type conversion intermediates:
 		real :: fiReal
-		real :: wdryOut(maxno), ashOut(maxno), htvalOut(maxno), fmoisOut(maxno), dendryOut(maxno)
-		real :: sigmaOut(maxno), cheatOut(maxno), condryOut(maxno), tpigOut(maxno), tcharOut(maxno)
-		!real :: xmatR(maxkl), tignR(maxkl), toutR(maxkl), woR(maxkl), diamR(maxkl)
+		real, dimension(maxno) :: wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, sigmaOut
+		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
 		real :: burnoutR
 
@@ -590,10 +588,9 @@ contains
 
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
 						real(ak), real(r0), real(dr), real(dt), &
-						real(wdf), real(dfm), ntimes, &
+						real(wdf), real(dfm), ntimes, number,&
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
-						number, &
 						xmatR, tignR, toutR, woR, diamR, burnoutR)
 
 		fi = dble(fiReal)
@@ -613,8 +610,6 @@ contains
 		tout = dble(toutR)
 		wo = dble(woR)
 		diam = dble(diamR)
-		
-		burnout = dble(burnoutR)
 
 	end subroutine SimulateR
 
@@ -2356,10 +2351,10 @@ contains
 				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
-					bb = 1 - exp(- a)
+					bb = 1.0 - exp(-a)
 					area (k) = bb
 				else
-					bb = min (1.0, a)
+					bb = min(1.0, a)
 				end if
 				beta(kl) = bb
 			end do

@@ -1049,10 +1049,10 @@
       		kl = loc( k , l )
       		a = siga * dryld( l ) / dryden( l )
       		if ( k .EQ. 1 ) then
-      			bb = 1 - exp( - a )
+      			bb = 1. - exp( - a )
       			area ( k ) = bb
       		end if
-      		if ( k .NE. 1 ) bb = min ( 1. , a )
+      		if ( k .NE. 1 ) bb = min( 1. , a )
       		beta( kl ) = bb
       	end do
       end do

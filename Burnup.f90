@@ -1976,10 +1976,10 @@ contains
 				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
-					bb = 1 - exp(- a)
+					bb = 1.0 - exp(-a)
 					area (k) = bb
 				else
-					bb = min (1.0, a)
+					bb = min(1.0, a)
 				end if
 				beta(kl) = bb
 			end do
