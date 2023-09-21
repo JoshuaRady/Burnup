@@ -10,7 +10,7 @@
 ! The following is modernized source code for the original version of the Burnup model from:
 !
 ! Program BURNUP, a simulation model of the burning of large woody natural fuels.
-! Albini, F. A.
+! Frank A. Albini
 ! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
 ! Appendix B.
 !
@@ -1483,7 +1483,7 @@ contains
 	end function ArchiveMenu
 
 
-	! Save the the current run conditions (settings and parameters) to file:
+	! Save the current run conditions (settings and parameters) to file:
 	!
 	! This code was pulled out of ArchiveMenu() to increase readability.
 	! Testing status: Produces identical output files to original code.

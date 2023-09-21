@@ -10,7 +10,7 @@
 ! The following is annotated source code for the original version of the Burnup model from:
 !
 ! Program BURNUP, a simulation model of the burning of large woody natural fuels.
-! Albini, F. A.
+! Frank A. Albini
 ! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
 ! Appendix B.
 !
