@@ -2179,7 +2179,7 @@ contains
 			do j = 1, k
 				kj = Loc(k, j)
 				diam(kj) = diak
-				xmat(kj) = elam (k, j)
+				xmat(kj) = elam (k, j)					! JMR: Transcription!!!!!!
 				wo(kj) = wtk * xmat(kj)
 			end do
 		end do
@@ -2319,7 +2319,8 @@ contains
 		
 		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
 		
-		real*4, intent(out) :: beta(maxno)			! Consolidated interaction matrix (elsewhere = xmat).
+		!real*4, intent(out) :: beta(maxno)			! Consolidated interaction matrix (elsewhere = xmat). ! JMR: not quite right!!!!!
+		real*4, intent(out) :: beta(maxkl)
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
 		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
@@ -2376,7 +2377,7 @@ contains
 		end do
 
 		if (number .EQ. 1) then
-			elam (1, 1) = beta (2)
+			elam (1, 1) = beta (2)				! JMR: Transcription!!!!
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if
