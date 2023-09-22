@@ -246,6 +246,7 @@ contains
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, wo, &
 						maxkl, parts, list, area)
+			! Note: elam and alone are passed in and returned but are not used again.
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
 
@@ -2172,10 +2173,14 @@ contains
 		do k = 1, number
 			diak = 4.0 / sigma(k)
 			wtk = wdry(k)
+			
+			! Populate the alone/no companion indexes of the arrays:
 			kl = Loc(k, 0)
 			diam(kl) = diak
 			xmat(kl) = alone(k)
 			wo(kl) = wtk * xmat(kl)
+			
+			! Populate the interacting indexes of the arrays:
 			do j = 1, k
 				kj = Loc(k, j)
 				diam(kj) = diak
@@ -2339,6 +2344,7 @@ contains
 
 		pi = abs(acos(-1.0)) ! Calculate pi.
 
+		! Initialize arrays to 0:
 		do j = 1, number
 			alone(j) = 0.0
 			do k = 1, j
@@ -2408,6 +2414,12 @@ contains
 				alone(k) = 1.0 - frac
 			end if
 		end do
+
+		! JMR: Test
+		print *, "Can you print from R?"
+		print *, beta
+		print *, alone
+		print *, elam
 
 	end subroutine OVLAPS
 
