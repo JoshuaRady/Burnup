@@ -2190,13 +2190,13 @@ contains
 		end do
 
 		! JMR: Temporary reporting:
-		print *, "ARRAYS()"
-		print *, "diam:"
-		print *, diam
-		print *, "xmat:"
-		print *, xmat
-		print *, "wo:"
-		print *, wo
+		! print *, "ARRAYS()"
+! 		print *, "diam:"
+! 		print *, diam
+! 		print *, "xmat:"
+! 		print *, xmat
+! 		print *, "wo:"
+! 		print *, wo
 
 	end subroutine ARRAYS
 
@@ -2316,8 +2316,8 @@ contains
 	!c that is not influenced by any other category.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine OVLAPS(dryld, sigma, dryden, ak, number, maxno, &
-						maxkl, &
+	subroutine OVLAPS(dryld, sigma, dryden, ak, number, &
+						maxno, maxkl, &
 						fmois, &
 						beta, elam, alone, area)
 		implicit none
@@ -2349,8 +2349,9 @@ contains
 		real :: bb
 		real :: frac ! Intermediate for calculating alone().
 		
-		real :: akDyn ! Calculated value of K_a (ak) parameter.
+		!real :: akDyn ! Calculated value of K_a (ak) parameter.
 		!real :: akVal ! Value of K_a (ak) parameter, fixed or calculated depending on the mode.
+		real :: K_a ! Value of K_a (ak) parameter, fixed or calculated depending on the mode.
 
 		pi = abs(acos(-1.0)) ! Calculate pi.
 
@@ -2370,17 +2371,29 @@ contains
 			!siga = ak * sigma(k) / pi
 			do l = 1, k
 				
-				kl = Loc(k, l)
+				!kl = Loc(k, l)
 				
 				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
 				! Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
-				akDyn = 3.25 * exp(-20 * fmois(l)**2)
+				!akDyn = 3.25 * exp(-20 * fmois(l)**2)
 				
 				! SAV / pi = diameter (units are carried by ak)
 				!siga = ak * sigma(k) / pi
-				siga = akDyn * sigma(k) / pi
+				!siga = akDyn * sigma(k) / pi
 				
-				!kl = Loc(k, l)
+				if (ak .gt. 0) then! or .ge. ?
+					! If a valid value has been supplied use a fixed K_a as in the original Burnup:
+					K_a = ak
+				else
+					! A negative value indicates that the K_a should be calculated:
+					! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
+					! Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
+					K_a = 3.25 * exp(-20 * fmois(l)**2)
+				end if
+				
+				siga = K_a * sigma(k) / pi
+				
+				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l) ! siga * ? units in meters
 				if (k .EQ. 1) then
 					bb = 1.0 - exp(-a)
@@ -2426,13 +2439,13 @@ contains
 		end do
 
 		! JMR: Temporary reporting:
-		print *, "OVLAPS()"
-		print *, "beta:"
-		print *, beta
-		print *, "alone:"
-		print *, alone
-		print *, "elam:"
-		print *, elam
+		! print *, "OVLAPS()"
+! 		print *, "beta:"
+! 		print *, beta
+! 		print *, "alone:"
+! 		print *, alone
+! 		print *, "elam:"
+! 		print *, elam
 
 	end subroutine OVLAPS
 
