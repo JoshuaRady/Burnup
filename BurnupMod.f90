@@ -2189,6 +2189,15 @@ contains
 			end do
 		end do
 
+		! JMR: Temporary reporting:
+		print *, "ARRAYS()"
+		print *, "diam:"
+		print *, diam
+		print *, "xmat:"
+		print *, xmat
+		print *, "wo:"
+		print *, wo
+
 	end subroutine ARRAYS
 
 
@@ -2330,6 +2339,7 @@ contains
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
 		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
+													! JMR: Change to out!!!!!
 
 		! Locals:
 		real :: pi ! Convert to a constant?
@@ -2415,10 +2425,13 @@ contains
 			end if
 		end do
 
-		! JMR: Test
-		print *, "Can you print from R?"
+		! JMR: Temporary reporting:
+		print *, "OVLAPS()"
+		print *, "beta:"
 		print *, beta
+		print *, "alone:"
 		print *, alone
+		print *, "elam:"
 		print *, elam
 
 	end subroutine OVLAPS
