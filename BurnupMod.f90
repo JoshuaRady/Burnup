@@ -2058,7 +2058,7 @@ contains
 		! Arguments:
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/ sq m
+		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/ sq m				! JMR: Transcription!!!!
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
 		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
 		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
@@ -2309,9 +2309,9 @@ contains
 		implicit none
 
 		! Arguments:
-		real*4, intent(in) :: dryld(maxno)			! Ovendry mass per unit area of each element
+		real*4, intent(in) :: dryld(maxno)			! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...)
 		real*4, intent(in) :: sigma(maxno)			! Surface to volume ratio, 1 / m
-		real*4, intent(in) :: dryden(maxno)			! Ovendry mass density
+		real*4, intent(in) :: dryden(maxno)			! Ovendry mass density, kg / cu m (elsewhere dendry)
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
@@ -2356,18 +2356,18 @@ contains
 				kl = Loc(k, l)
 				
 				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
-				! Equation per Albini & Reinhardt 1997: K_a = K exp(-B * M^2)
-				!akDyn = 3.25 * exp(-20 * fmois(l)**2)
-				!akDyn = 3.25 * exp(-20 * fmois(kl)**2)
+				! Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
+				akDyn = 3.25 * exp(-20 * fmois(l)**2)
 				
-				!siga = akDyn * sigma(k) / pi
-				siga = ak * sigma(k) / pi
+				! SAV / pi = diameter (units are carried by ak)
+				!siga = ak * sigma(k) / pi
+				siga = akDyn * sigma(k) / pi
 				
 				!kl = Loc(k, l)
-				a = siga * dryld(l) / dryden(l)
+				a = siga * dryld(l) / dryden(l) ! siga * ? units in meters
 				if (k .EQ. 1) then
 					bb = 1.0 - exp(-a)
-					area (k) = bb
+					area (k) = bb				! JMR: Transcription!!!!
 				else
 					bb = min(1.0, a)
 				end if
