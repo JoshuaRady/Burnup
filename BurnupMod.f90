@@ -493,6 +493,7 @@ contains
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
 			do while (now .LT. ntimes)
+				print *, "STEP:" ! JMR: Temp reporting.
 				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
 							tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -503,7 +504,7 @@ contains
 				
 				! JMR: Temp reporting:
 				if (now .eq. 1 .or. mod(now, 100) .eq. 0) then
-					print *, "Step"
+					print *, "Next"
 				end if
 				
 				! Update time trackers:
@@ -2653,7 +2654,7 @@ contains
 				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
-					dia = diam (kl)									! JMR: Whitespace
+					dia = diam (kl)									! JMR: Whitespace!!!!!
 					ts = 0.5 * (tsd + tigk)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)		! JMR: Trailing 0s!!!!!
