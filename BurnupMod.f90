@@ -387,11 +387,11 @@ contains
 		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
 		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
-		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
+		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg,					AKA heat content
 		real*4, intent(inout) :: fmois(maxno)		! Moisture fraction of component
 		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
 		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
+		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K
 		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
 		
 		
@@ -584,7 +584,7 @@ contains
 
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
 						real(ak), real(r0), real(dr), real(dt), &
-						real(wdf), real(dfm), ntimes, number,&
+						real(wdf), real(dfm), ntimes, number, &
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
 						xmatR, tignR, toutR, woR, diamR)
@@ -2568,7 +2568,7 @@ contains
 		real :: wnext		! wo ...
 		real :: df		!
 
-		! Initialize constants:
+		! Initialize constants:			! JMR: Make global parameters?????
 		ch2o = 4186.0
 		tpdry = 353.0
 
@@ -2642,10 +2642,10 @@ contains
 				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
-					dia = diam (kl)
+					dia = diam (kl)									! JMR: Whitespace
 					ts = 0.5 * (tsd + tigk)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)
+					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)		! JMR: Trailing 0s!!!!!
 					qcum(kl) = hb * tcum(kl)
 					if (tf .GT. (tigk + 10.)) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tf, condry(k), &
@@ -2672,14 +2672,14 @@ contains
 		!c Determine minimum ignition time and verify ignition exists
 
 		do k = 1, number
-			if (flit(k) .GT. 0.) nlit = nlit + 1
+			if (flit(k) .GT. 0.) nlit = nlit + 1			! JMR: Oneliner!!!!!
 			do l = 0, k
 				kl = Loc(k, l)
 				trt = min(trt, tign(kl))
 			end do
 		end do
 
-			if (nlit .EQ. 0) stop' START ignites no fuel'
+			if (nlit .EQ. 0) stop' START ignites no fuel'		! JMR: Oneliner!!!!!, indenting!
 
 		!c Deduct trt from all time estimates, resetting time origin
 
@@ -2687,7 +2687,7 @@ contains
 			do l = 0, k
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
-					tdry(kl) = tdry (kl) - trt
+					tdry(kl) = tdry (kl) - trt				! JMR: Whitespace!!!!!
 				end if
 				if (tign(kl) .LT. rindef) then
 					tign(kl) = tign(kl) - trt
@@ -3000,7 +3000,7 @@ contains
 
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
-		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K
+		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K			! JMR: Spelling!!!!!
 		real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
 		real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
@@ -3051,7 +3051,7 @@ contains
 	
 			if (abs(fav) .LE. small) then
 				exit
-			else if (fav .LT. 0.) then
+			else if (fav .LT. 0.) then		! JMR: Trailing 0s!!!!!
 				xlo = xav
 			else if (fav .GT. 0.) then
 				xhi = xav
