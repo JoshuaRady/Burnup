@@ -500,6 +500,12 @@ contains
 							ddot, wodot, work, u, d, r0, dr, ch2o, &
 							ncalls, maxkl, tis, fint, fid)
 
+				
+				! JMR: Temp reporting:
+				if (now .eq. 1 .or. mod(now, 100) .eq. 0) then
+					print *, "Step"
+				end if
+				
 				! Update time trackers:
 				now = now + 1
 				tis = tis + dt
