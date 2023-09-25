@@ -1943,7 +1943,7 @@ contains
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
-		real*4, intent(out) :: beta(maxno)			! Consolidated interaction matrix (elsewhere = xmat).
+		real*4, intent(out) :: beta(maxkl)			! Consolidated interaction matrix (elsewhere = xmat).
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
 		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
