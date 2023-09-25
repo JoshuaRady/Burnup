@@ -449,12 +449,14 @@ contains
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
 		
+		print *, "ARRAYS:" ! JMR: Temp reporting.
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					maxkl, parts, list, area)
 
+		print *, "DUFBRN:" ! JMR: Temp reporting.
 		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
 		! running but it would probably better to pass the output of DUFBRN() in instead.
 		call DUFBRN(wdf, dfm, dfi, tdf)
@@ -463,6 +465,7 @@ contains
 		! Which of these variables need to be declared?????
 		now = 1
 		tis = ti
+		print *, "START:" ! JMR: Temp reporting.
 		call START(tis, mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -482,8 +485,10 @@ contains
 		
 		
 		! Calculate the initial fire intensity:
+		print *, "FIRINT:" ! JMR: Temp reporting.
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 		
+		print *, "Loop:" ! JMR: Temp reporting.
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
@@ -2115,7 +2120,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key (j)						! JMR: Whitespace!!!!!
 			work(j) = ash(k)
 		end do
 		do j = 1, number
@@ -2123,7 +2128,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key (j)						! JMR: Whitespace!!!!!
 			work(j) = htval(k)
 		end do
 		do j = 1, number
@@ -2139,7 +2144,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key (j)						! JMR: Whitespace!!!!!
 			work(j) = condry(k)
 		end do
 		do j = 1, number
@@ -2155,7 +2160,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key (j)						! JMR: Whitespace!!!!!
 			work(j) = tchar(k)
 		end do
 		do j = 1, number
