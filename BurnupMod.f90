@@ -446,8 +446,20 @@ contains
 		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
 		
+		
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
+		
+		! JMR: Temporary:
+		! Parts will be empty:
+		parts = "Test"
+		call ArchiveSettings(parts, wdry, ash, htval, fmois, dendry, &
+								sigma, cheat, condry, tpig, tchar, maxno, number, &
+								fi, ti, u, d, tpamb, &
+								ak, r0, dr, dt, wdf, dfm, ntimes)
+		
+		return
+		
 		
 		print *, "ARRAYS:" ! JMR: Temp reporting.
 		! Sort the fuel components and calculate the interaction matrix...
@@ -1906,7 +1918,6 @@ contains
 												! duff fractional moisture (aka R sub M)
 		integer, intent(in) :: ntimes			! Number of time steps.
 
-	
 		! Locals:
 		integer :: readStat, openstat	! IO error statuses.
 		character*12 :: outfil			! Stores the name of input data files.
@@ -1982,6 +1993,46 @@ contains
 		close(fun)
 
 	end subroutine ArchiveSettings
+
+
+	! ...
+	! Argument order differs from ArchiveSettings() and follows Simulate().
+! 	subroutine ArchiveSettingsR
+! 		(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
+! 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
+! 							xmat, tign, tout, wo, diam) bind(C, name = "archivesettingsR")
+! 		implicit none
+! 
+! 		! Arguments:
+! 		double precision, intent(in) :: fi		! Current fire intensity (site avg), kW / sq m
+! 		double precision, intent(in) :: ti			! Igniting fire residence time (s).
+! 		double precision, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
+! 		double precision, intent(in) :: d			! Fuelbed depth (m)
+! 		double precision, intent(in) :: tpamb		! Ambient temperature (K)
+! 		double precision, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
+! 		double precision, intent(in) :: r0			! Minimum value of mixing parameter
+! 		double precision, intent(in) :: dr			! Max - min value of mixing parameter
+! 		double precision, intent(in) :: dt			! Time step for integration of burning rates (s)
+! 		double precision, intent(in) :: wdf			! Duff loading (kg/m^2, aka W sub d)
+! 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
+! 													! duff fractional moisture (aka R sub M).
+! 		integer, intent(in) :: ntimes						! Number of time steps.
+! 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
+! 		
+! 		double precision, intent(in) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
+! 		double precision, intent(in) :: ash(maxno)		! Mineral content, fraction dry mass
+! 		double precision, intent(in) :: htval(maxno)		! Low heat of combustion, J / kg
+! 		double precision, intent(in) :: fmois(maxno)		! Moisture fraction of component
+! 		double precision, intent(in) :: dendry(maxno)	! Ovendry mass density, kg / cu m
+! 		double precision, intent(in) :: sigma(maxno)		! Surface to volume ratio, 1 / m
+! 		double precision, intent(in) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
+! 		double precision, intent(in) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry
+! 		double precision, intent(in) :: tpig(maxno)		! Ignition temperature, K
+! 		double precision, intent(in) :: tchar(maxno)		! Char temperature, K
+! 		
+! 		call ArchiveSettings(real(), real(), real(), real(), real(), real(), real())
+! 
+! 	end subroutine ArchiveSettingsR
 
 
 	! Check if the value passed is in the supplied value range and offer the user a chance to
