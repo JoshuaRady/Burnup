@@ -452,13 +452,13 @@ contains
 		
 		! JMR: Temporary:
 		! Parts will be empty:
-		parts = "Test"
-		call ArchiveSettings(parts, wdry, ash, htval, fmois, dendry, &
-								sigma, cheat, condry, tpig, tchar, maxno, number, &
-								fi, ti, u, d, tpamb, &
-								ak, r0, dr, dt, wdf, dfm, ntimes)
-		
-		return
+! 		parts = "Test"
+! 		call ArchiveSettings(parts, wdry, ash, htval, fmois, dendry, &
+! 								sigma, cheat, condry, tpig, tchar, maxno, number, &
+! 								fi, ti, u, d, tpamb, &
+! 								ak, r0, dr, dt, wdf, dfm, ntimes)
+! 		
+! 		return
 		
 		
 		print *, "ARRAYS:" ! JMR: Temp reporting.
