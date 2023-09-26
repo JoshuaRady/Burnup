@@ -461,14 +461,14 @@ contains
 ! 		return
 		
 		
-		print *, "ARRAYS:" ! JMR: Temp reporting.
+		!print *, "ARRAYS:" ! JMR: Temp reporting.
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					maxkl, parts, list, area)
 
-		print *, "DUFBRN:" ! JMR: Temp reporting.
+		!print *, "DUFBRN:" ! JMR: Temp reporting.
 		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
 		! running but it would probably better to pass the output of DUFBRN() in instead.
 		call DUFBRN(wdf, dfm, dfi, tdf)
@@ -477,7 +477,7 @@ contains
 		! Which of these variables need to be declared?????
 		now = 1
 		tis = ti
-		print *, "START:" ! JMR: Temp reporting.
+		!print *, "START:" ! JMR: Temp reporting.
 		call START(tis, mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -497,15 +497,15 @@ contains
 		
 		
 		! Calculate the initial fire intensity:
-		print *, "FIRINT:" ! JMR: Temp reporting.
+		!print *, "FIRINT:" ! JMR: Temp reporting.
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 		
-		print *, "Loop:" ! JMR: Temp reporting.
+		!print *, "Loop:" ! JMR: Temp reporting.
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
 			do while (now .LT. ntimes)
-				print *, "STEP:" ! JMR: Temp reporting.
+				!print *, "STEP:" ! JMR: Temp reporting.
 				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
 							tchar, xmat, tpamb, tpdry, fi, flit, fout, &
@@ -516,7 +516,7 @@ contains
 				
 				! JMR: Temp reporting:
 				if (now .eq. 1 .or. mod(now, 100) .eq. 0) then
-					print *, "Next"
+					!print *, "Next"
 				end if
 				
 				! Update time trackers:
