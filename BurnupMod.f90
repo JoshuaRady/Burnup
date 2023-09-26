@@ -3178,7 +3178,7 @@ contains
 
 		! Locals:
 		real :: b03
-		real :: xlo, xhi, xav ! Binary search bounds.
+		real :: xlo, xhi, xav ! Binary search bounds and middle (average).
 		real :: fav ! Value of ff() for current search value.
 		real :: beta, conw, dtb, dti, ratio, rhoc
 
@@ -3775,7 +3775,8 @@ contains
 						tign(kl) = 0.5 * (tdry(kl) + dtlite)
 						if (tnext .GT. tign(kl)) then
 							ts = tchar(k)
-							qdot (kl, l) = hb * max ((tf - ts), 0.)
+							!qdot (kl, l) = hb * max ((tf - ts), 0.) ! JMR: Transcription: l for 1 substitution!!!!!
+							qdot (kl, 1) = hb * max((tf - ts), 0.0)
 						end if
 					end if
 				end if
