@@ -3546,7 +3546,7 @@ contains
 					cycle lLoop
 				end if
 
-				!c k has not yet burned out ... see if k of (k, 1) pair is ignited
+				!c k has not yet burned out ... see if k of (k, 1) pair is ignited ! JMR: Transcription!!!!!
 
 				tlit = tign(kl)
 				if (tnow .GE. tlit) then
@@ -3572,35 +3572,51 @@ contains
 					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq
 					if (nspan .GT. mxstep) then
 						do mu = 2, mxstep
-							qdot(kl, mu - l) = qdot (kl, mu)
+							!qdot(kl, mu - l) = qdot (kl, mu) ! JMR: Transcription: l for 1 substitution!!!!!
+							qdot(kl, mu - 1) = qdot(kl, mu)
 						end do
 						qdot(kl, mxstep) = qqq
 					end if
 					aint = (c / hb) ** 2
 					acum(kl) = acum(kl) + aint * dt
-					tav1 = tnext - tlit
-					tav2 = acum(kl) / alfa(k)
-					tav3 = ((dia / 4.) ** 2) / alfa (k)
+					
+					! Time over which to perform averaging:
+					tav1 = tnext - tlit ! Time since ignition.
+					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
+					tav3 = ((dia / 4.) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
-					index = l + min(nspan, mxstep)
+					
+					!index = l + min(nspan, mxstep) ! JMR: Transcription: l for 1 substitution!!!!!
+					index = 1 + min(nspan, mxstep)
 					qdsum = 0.0
 					tspan = 0.0
 					deltim = dt
-
+					
+					! JMR: Mod -> parallel!!!!!
+					! Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
 					do
 						index = index - 1
-						if (index .EQ. 1) deltim = tnext - tspan - tlit
-						if ((tspan + deltim) .GE. tavg) deltim = tavg - tspan
-						qdsum = qdsum + qdot (kl, index) * deltim
+						if (index .EQ. 1) then
+							deltim = tnext - tspan - tlit
+						endif
+						
+						if ((tspan + deltim) .GE. tavg) then
+							deltim = tavg - tspan
+						end if
+						
+						qdsum = qdsum + qdot (kl, index) * deltim ! JMR: Whitespace!!!!!
 						tspan = tspan + deltim
-						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! Will this pass the first time?
+						
+						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! Will this pass the first time?  Yes!
 							cycle
+						else
+							exit
 						endif
 					end do
 
-					qdavg = max (qdsum / tspan, 0.)
+					qdavg = max (qdsum / tspan, 0.) ! JMR: trailing zeros!!!!!
 					ddot(kl) = qdavg * work(k)
-					dnext = max(0., dia - dt * ddot(kl))
+					dnext = max(0., dia - dt * ddot(kl)) ! JMR: trailing zeros!!!!!
 
 
 ! -- Pagebreak --
@@ -3615,13 +3631,13 @@ contains
 						rate = dia / (dia - dnext)
 						tout(kl) = tnow + rate * dt
 					end if
-					if (qdavg .LE. 20.) tout(kl) = 0.5*(tnow + tnext)
+					if (qdavg .LE. 20.) tout(kl) = 0.5*(tnow + tnext) ! JMR: Whitespace...
 					ddt = min(dt, (tout(kl) - tnow))
 					wodot(kl) = (wo(kl) - wnext) / ddt
 					diam(kl) = dnext
 					wo(kl) = wnext
 					cycle lLoop
-				end if
+				end if ! (tnow .GE. tlit) ! JMR: Mod -> parallel!!!!!
 
 				!c See if k of (k, l) has reached outer surface drying stage yet
 
