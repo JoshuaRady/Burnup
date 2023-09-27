@@ -3474,25 +3474,29 @@ contains
 
 		! Locals: (not in a consistant order.)
 		logical flag
-		real :: tnow, tnext, tdun, tgo
-		real :: tifi ! Time when fire ignition phase ended
+		real :: tnow, tnext ! The time of this and the next timestep.
+		real :: tdun	! The burnout time for a single pair.
+		real :: tgo		! Time left to burnout.
+		real :: tifi	! Time when fire ignition phase ended
 		real :: next
 		real :: gi
 		integer :: nspan
 		real :: tst, aint, qqq
-		real :: tav1, tav2, tav3, tavg
+		real :: tav1, tav2, tav3, tavg ! Time over which to perform averaging
 		real :: tbar
 		integer :: index
-		real :: qdsum, deltim, dnext, wnext, rate, qdavg, dryt, dqdt
+		real :: qdsum ! Sum of heat transfer (W/m^2 * s = J/m^2 ?).
+		real :: qdavg ! Average heat transfer...
+		real :: deltim, dnext, wnext, rate, dryt, dqdt
 		real :: qd
 		real :: dteff, heff, delt, factor, he, dtef
 		real*4 :: tf, ts
 		real :: biot
 		real :: cpwet
-		real :: c
+		real :: c ! condry for a single fuel component.
 		real :: conwet
 		real :: ddt
-		real :: dia
+		real :: dia ! Diameter for a single fuel component (kl).
 		real :: dtcum
 		real :: dtlite ! Time to ignition returned by TIGNIT().
 		real :: e
@@ -3528,7 +3532,7 @@ contains
 				if (tnow .GE. tdun) then
 					ddot(kl) = 0.0
 					wodot(kl) = 0.0
-					!goto 10
+					!goto 10 ! JMR: Remove!!!!!
 					cycle lLoop
 				end if
 				if (tnext .GE. tdun) then
@@ -3542,7 +3546,7 @@ contains
 
 					wodot(kl) = wo(kl) / tgo
 					wo(kl) = 0.0
-					diam (kl) = 0.0
+					diam (kl) = 0.0 ! JMR: Whitespace!!!!!
 					cycle lLoop
 				end if
 
@@ -3558,7 +3562,7 @@ contains
 					if ((l .NE. 0) .AND. (l .NE. k)) then
 						r = r0 + 0.5 * (1.0 + flit(l)) * dr
 						gi = fi + fint(k) + flit(l) * fint(l)
-					end if
+					end if								! JMR: Link with following if!!!!!!
 					if (l .EQ. k) then
 						r = r0 + 0.5 * (1.0 + flit(k)) * dr
 						gi = fi + flit (k) * fint(k)
@@ -3569,7 +3573,7 @@ contains
 					qqq = hb * max((tf - ts),  0.)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
-					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq
+					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq ! JMR: Oneliner!!!!! Connect with next if...
 					if (nspan .GT. mxstep) then
 						do mu = 2, mxstep
 							!qdot(kl, mu - l) = qdot (kl, mu) ! JMR: Transcription: l for 1 substitution!!!!!
@@ -3657,7 +3661,7 @@ contains
 					end if
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
-					dia = diam (kl)
+					dia = diam (kl) ! JMR: Transcription!!!!!
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					dtemp = max(0., (tf - ts))
 					dqdt = hb * dtemp
