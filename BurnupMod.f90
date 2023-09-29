@@ -3285,6 +3285,7 @@ contains
 ! Pg. 104:
 
 
+	! This routine calculates how heat is transfered from the fire environment to a given fuel type.
 	!c Given horizontal windspeed u at height d [top of fuelbed], cylindrical
 	!c fuel particle diameter dia, fire environment temperature tf, and mean
 	!c surface temperature, ts, subroutine returns film heat transfer coefficient
@@ -3309,23 +3310,29 @@ contains
 		real*4, intent(out) :: en	! Modified Nusselt number
 
 		! Locals:
-		real :: v, re, enuair, conair, fac, hfmin, hrad
+		real :: v		! Estimate of relative vertical air velocity over fuel element 
+		real :: re		! Reynolds number (air)
+		real :: enuair	! Nusselt number
+		real :: conair	! (Forced) convection of air?
+		real :: fac
+		real :: hfmin	! Film heat transfer coefficient for natural convection (used as minimum value)
+		real :: hrad	! Radiation contribution
 
 		! Constants:
 		real, parameter :: g = 9.8
-		real, parameter :: vis = 7.5e-05
+		real, parameter :: vis = 7.5e-05	! Kinematic viscosity of hot air
 		real, parameter :: a = 8.75e-03
 		real, parameter :: b = 5.75e-05
-		real, parameter :: rad = 5.67e-08
+		real, parameter :: rad = 5.67e-08	! Stefan-Boltzmann radiation constant(W/m^2-K^4)
 		real, parameter :: fmfac = 0.382
-		real, parameter :: hradf = 0.5
+		real, parameter :: hradf = 0.5		! View factor emissivity
 
 		hfm = 0.0
 
 		if (dia .gt. b) then
 			v = sqrt(u * u + 0.53 * g * d)
 			re = v * dia / vis
-			enuair = 0.344 * (re ** 0.56)
+			enuair = 0.344 * (re**0.56)
 			conair = a + b * tf
 			fac = sqrt(abs(tf - ts) / dia)
 			hfmin = fmfac * sqrt(fac)
