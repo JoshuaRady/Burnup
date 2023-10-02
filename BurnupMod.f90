@@ -3043,7 +3043,7 @@ contains
 			do m = 1, number
 				fmm = fmois(m)
 				wdm = 0.0
-				do n= 0, m
+				do n= 0, m					! JMR: Whitespace
 					mn = Loc(m, n)
 					wdm = wdm + wo(mn)
 				end do
@@ -3499,7 +3499,8 @@ contains
 		real :: qdavg ! Average heat transfer...
 		real :: deltim, dnext, wnext, rate, dryt, dqdt
 		real :: qd
-		real :: dteff, heff, delt, factor, he, dtef
+		real :: dteff, heff, delt, factor, dtef
+		real :: he		! qcum / tcum
 		real*4 :: tf, ts
 		real :: biot
 		real :: cpwet
