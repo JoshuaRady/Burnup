@@ -594,6 +594,9 @@ contains
 		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
 
+		print *, "tout", tout ! JMR_TEMP_REPORTING
+		print *, "toutR", toutR ! JMR_TEMP_REPORTING
+
 		fiReal = real(fi)
 		wdryOut = real(wdry)
 		ashOut = real(ash)
@@ -630,6 +633,9 @@ contains
 		tout = dble(toutR)
 		wo = dble(woR)
 		diam = dble(diamR)
+		
+		print *, "toutR", toutR ! JMR_TEMP_REPORTING
+		print *, "tout", tout ! JMR_TEMP_REPORTING
 
 	end subroutine SimulateR
 
@@ -4002,7 +4008,20 @@ contains
 		! Locals:
 		integer :: loc ! Return value: Index in a compact array representing the triangular matrix values.
 
+		! Validity checking:
+		if ((k .lt. 1) .or. (k .gt. maxno)) then
+			print *, "Loc(): Invalid value of k ", k
+		end if
+
+		if ((k .lt. 0) .or. (k .gt. k)) then
+			print *, "Loc(): Invalid value of l ", l
+		end if
+
 		loc = k * (k + 1) / 2 + l
+
+		if ((loc .lt. 1) .or. (loc .gt. maxkl)) then
+			print *, "Loc(): Invalid index returned ", loc
+		end if
 
 	end function Loc
 
