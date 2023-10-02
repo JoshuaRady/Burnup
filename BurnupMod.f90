@@ -2562,7 +2562,7 @@ contains
 				kl = Loc(k, l)
 				a = siga * dryld(l) / dryden(l) ! siga * ? units in meters
 				if (k .EQ. 1) then
-					bb = 1.0 - exp(-a)
+					bb = 1.0 - exp(-a)			! JMR: FOFEM suggests this can hit 0?
 					area (k) = bb				! JMR: Transcription!!!!
 				else
 					bb = min(1.0, a)
@@ -3178,16 +3178,19 @@ contains
 
 		! Locals:
 		real :: b03
-		real :: xlo, xhi, xav ! Binary search bounds and middle (average).
-		real :: fav ! Value of ff() for current search value.
-		real :: beta, conw, dtb, dti, ratio, rhoc
+		real :: xlo, xhi, xav	! Binary search bounds and middle (average).
+		real :: fav				! Value of ff() for current search value.
+		real :: beta, conw
+		real :: dtb				! The temperature increase required to reach the drying temperature.
+		real :: dti				! The temperature increase required to reach the ignition temperature.
+		real :: ratio, rhoc
 
 		! Constants:
-		real, parameter :: a03 = -1.3371565
-		real, parameter :: a13 = 0.4653628
-		real, parameter :: a23 = -0.1282064
+		real, parameter :: a03 = -1.3371565	! ff() parameter 1
+		real, parameter :: a13 = 0.4653628	! ff() parameter 2
+		real, parameter :: a23 = -0.1282064	! ff() parameter 3
 		real, parameter :: pinv = 2.125534
-		real, parameter :: small = 1.e-06
+		real, parameter :: small = 1.e-06	! Terminate the search when we are this close.
 		real, parameter :: hvap = 2.177e+06 ! Heat of vaporization of water J/kg.
 		real, parameter :: cpm = 4186.0
 		real, parameter :: conc = 4.27e-04
