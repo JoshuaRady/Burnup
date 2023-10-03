@@ -2727,7 +2727,7 @@ contains
 		real :: c			! Thermal conductivity for single element.
 		real :: tigk		! Ignition temperature for single element.
 		real :: en, e		! Modified Nusselt number obtained from HEATX() (in different places).
-		real :: trt
+		real :: trt			! Minimum ignition time across all fuels (initial estimate?).
 		real :: nlit		! Number of elements lit.
 		real :: factor
 		real :: hb		! "Effective" film heat transfer coefficient returned from HEATX().
@@ -2837,14 +2837,16 @@ contains
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 						if (kl .eq. 29) then! Loc(7,1) = 29
 							print *, "tign(kl) assignment 1:"
-							print *, "tpamb", tpamb
-							print *, "tpdry", tpdry
-							print *, "tpig(k)", tpig(k)
+							! Time should be the first timestep.
+							print *, "tign(kl)", tign(kl)
+							!print *, "tpamb", tpamb
+							!print *, "tpdry", tpdry
+							!print *, "tpig(k)", tpig(k)
 							print *, "tf", tf
-							print *, "condry(k)", condry(k)
-							print *, "cheat(k)", cheat(k)
-							print *, "fmois(k)", fmois(k)
-							print *, "dendry(k)", dendry(k)
+							!print *, "condry(k)", condry(k)
+							!print *, "cheat(k)", cheat(k)
+							!print *, "fmois(k)", fmois(k)
+							!print *, "dendry(k)", dendry(k)
 							print *, "hb", hb
 							print *, "dtign", dtign
 							print *, "dryt", dryt
@@ -3732,30 +3734,32 @@ contains
 					
 					! JMR_TEMP_REPORTING:
 					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-					if (kl .eq. 29) then ! Loc(7,1) = 29
+					!if (kl .eq. 29) then ! Loc(7,1) = 29
+					if (kl .eq. 7) then ! Loc(3,1)
 						print *, "tign(kl) assignment 2:"
 						print *, "tnow", tnow
+						print *, "tign(kl)", tign(kl)
 						!print *, "tpamb", tpamb
 						!print *, "tpdry", tpdry
 						!print *, "tpig(k)", tpig(k)
-						! print *, "tfe", tfe
-! 						! Inputs to tfe:
-! 						print *, "ts", ts
-! 						print *, "dteff", dteff
-! 						print *, "tcum(kl)", tcum(kl)
-! 						print *, "tnext", tnext
+						print *, "tfe", tfe
+						! Inputs to tfe:
+						!print *, "ts", ts
+						print *, "dteff", dteff
+						print *, "tcum(kl)", tcum(kl)
+						!print *, "tnext", tnext
 ! 						
 ! 						!print *, "condry(k)", condry(k)
 ! 						!print *, "cheat(k)", cheat(k)
 ! 						!print *, "fmois(k)", fmois(k)
 ! 						!print *, "dendry(k)", dendry(k)
-! 						print *, "heff", heff
-! 						! Inputs to heff:
-! 						! tcum(kl) is above.
-! 						print *, "qcum(kl)", qcum(kl)
+						print *, "heff", heff
+						! Inputs to heff:
+						! tcum(kl) is above.
+						print *, "qcum(kl)", qcum(kl)
 ! 						
-! 						print *, "dtlite", dtlite
-! 						print *, "dryt", dryt
+						print *, "dtlite", dtlite
+						print *, "dryt", dryt
 					end if ! JMR_TEMP_REPORTING end
 
 					!c If k will ignite before time step over, must interpolate
@@ -3869,14 +3873,16 @@ contains
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 						if (kl .eq. 29) then! Loc(7,1) = 29
 							print *, "tign(kl) assignment 3:"
-							print *, "tpamb", tpamb
-							print *, "tpdry", tpdry
-							print *, "tpig(k)", tpig(k)
+							print *, "tnow", tnow
+							print *, "tign(kl)", tign(kl)
+							!print *, "tpamb", tpamb
+							!print *, "tpdry", tpdry
+							!print *, "tpig(k)", tpig(k)
 							print *, "tf", tf
-							print *, "condry(k)", condry(k)
-							print *, "cheat(k)", cheat(k)
-							print *, "fmois(k)", fmois(k)
-							print *, "dendry(k)", dendry(k)
+							!print *, "condry(k)", condry(k)
+							!print *, "cheat(k)", cheat(k)
+							!print *, "fmois(k)", fmois(k)
+							!print *, "dendry(k)", dendry(k)
 							print *, "hb", hb
 							print *, "dtlite", dtlite
 							print *, "tdry(kl)", tdry(kl)
