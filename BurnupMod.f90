@@ -131,7 +131,7 @@ module BurnupMod
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
 
-
+	integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) =- 7
 
 
 contains
@@ -2802,7 +2802,7 @@ contains
 				tdry(kl) = dryt
 				
 				! JMR_TEMP_REPORTING:
-				if (kl .eq. 29) then ! Loc(7,1) = 29
+				if (kl .eq. klVal) then ! Loc(7,1) = 29
 					print *, "tdry(kl) assignment 1:"
 					print *, "tdry(kl)", tdry(kl)
 					print *, "fac", fac
@@ -2835,7 +2835,8 @@ contains
 						
 						! JMR_TEMP_REPORTING:
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						if (kl .eq. 29) then! Loc(7,1) = 29
+						!if (kl .eq. 29) then! Loc(7,1) = 29
+						if (kl .eq. klVal) then
 							print *, "tign(kl) assignment 1:"
 							! Time should be the first timestep.
 							print *, "tign(kl)", tign(kl)
@@ -2890,7 +2891,8 @@ contains
 					tdry(kl) = tdry (kl) - trt				! JMR: Whitespace!!!!!
 					
 					! JMR_TEMP_REPORTING:
-					if (kl .eq. 29) then ! Loc(7,1) = 29
+					!if (kl .eq. 29) then ! Loc(7,1) = 29
+					if (kl .eq. klVal) then
 						print *, "tdry(kl) assignment 2:"
 						print *, "tdry(kl)", tdry(kl)
 						print *, "trt", trt
@@ -3735,7 +3737,8 @@ contains
 					! JMR_TEMP_REPORTING:
 					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 					!if (kl .eq. 29) then ! Loc(7,1) = 29
-					if (kl .eq. 7) then ! Loc(3,1)
+					!if (kl .eq. 7) then ! Loc(3,1)
+					if (kl .eq. klVal) then
 						print *, "tign(kl) assignment 2:"
 						print *, "tnow", tnow
 						print *, "tign(kl)", tign(kl)
@@ -3748,7 +3751,7 @@ contains
 						print *, "dteff", dteff
 						print *, "tcum(kl)", tcum(kl)
 						!print *, "tnext", tnext
-! 						
+						
 ! 						!print *, "condry(k)", condry(k)
 ! 						!print *, "cheat(k)", cheat(k)
 ! 						!print *, "fmois(k)", fmois(k)
@@ -3757,7 +3760,7 @@ contains
 						! Inputs to heff:
 						! tcum(kl) is above.
 						print *, "qcum(kl)", qcum(kl)
-! 						
+						
 						print *, "dtlite", dtlite
 						print *, "dryt", dryt
 					end if ! JMR_TEMP_REPORTING end
@@ -3844,7 +3847,8 @@ contains
 					tdry(kl) = fac * dryt
 					
 					! JMR_TEMP_REPORTING:
-					if (kl .eq. 29) then ! Loc(7,1) = 29
+					!if (kl .eq. 29) then ! Loc(7,1) = 29
+					if (kl .eq. klVal) then
 						print *, "tdry(kl) assignment 3:"
 						print *, "tdry(kl)", tdry(kl)
 						print *, "fac", fac
@@ -3871,7 +3875,8 @@ contains
 						
 						! JMR_TEMP_REPORTING:
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						if (kl .eq. 29) then! Loc(7,1) = 29
+						!if (kl .eq. 29) then! Loc(7,1) = 29
+						if (kl .eq. klVal) then
 							print *, "tign(kl) assignment 3:"
 							print *, "tnow", tnow
 							print *, "tign(kl)", tign(kl)
