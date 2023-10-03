@@ -3718,15 +3718,26 @@ contains
 					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 					if (kl .eq. 29) then ! Loc(7,1) = 29
 						print *, "tign(kl) assignment 2:"
-						print *, "tpamb", tpamb
-						print *, "tpdry", tpdry
-						print *, "tpig(k)", tpig(k)
+						print *, "tnow", tnow
+						!print *, "tpamb", tpamb
+						!print *, "tpdry", tpdry
+						!print *, "tpig(k)", tpig(k)
 						print *, "tfe", tfe
-						print *, "condry(k)", condry(k)
-						print *, "cheat(k)", cheat(k)
-						print *, "fmois(k)", fmois(k)
-						print *, "dendry(k)", dendry(k)
+						! Inputs to tfe:
+						print *, "ts", ts
+						print *, "dteff", dteff
+						print *, "tcum(kl)", tcum(kl)
+						print *, "tnext", tnext
+						
+						!print *, "condry(k)", condry(k)
+						!print *, "cheat(k)", cheat(k)
+						!print *, "fmois(k)", fmois(k)
+						!print *, "dendry(k)", dendry(k)
 						print *, "heff", heff
+						! Inputs to heff:
+						! tcum(kl) is above.
+						print *, "qcum(kl)", qcum(kl)
+						
 						print *, "dtlite", dtlite
 						print *, "dryt", dryt
 					end if ! JMR_TEMP_REPORTING end
