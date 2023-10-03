@@ -594,8 +594,8 @@ contains
 		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
 
-		print *, "tout", tout ! JMR_TEMP_REPORTING
-		print *, "toutR", toutR ! JMR_TEMP_REPORTING
+		!print *, "tout", tout ! JMR_TEMP_REPORTING
+		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
 
 		fiReal = real(fi)
 		wdryOut = real(wdry)
@@ -634,8 +634,8 @@ contains
 		wo = dble(woR)
 		diam = dble(diamR)
 		
-		print *, "toutR", toutR ! JMR_TEMP_REPORTING
-		print *, "tout", tout ! JMR_TEMP_REPORTING
+		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
+		!print *, "tout", tout ! JMR_TEMP_REPORTING
 
 	end subroutine SimulateR
 
@@ -2824,6 +2824,24 @@ contains
 									 cheat(k), fmois(k), dendry(k), hb, dtign)
 						trt = dryt + dtign
 						tign(kl) = 0.5 * trt
+						
+						! JMR_TEMP_REPORTING:
+						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
+						if (kl .eq. 29) ! Loc(7,1) = 29
+							print "tign(kl) assignment 1:"
+							print *, "tpamb", tpamb
+							print *, "tpdry", tpdry
+							print *, "tpig(k)", tpig(k)
+							print *, "tf", tf
+							print *, "condry(k)", condry(k)
+							print *, "cheat(k)", cheat(k)
+							print *, "fmois(k)", fmois(k)
+							print *, "dendry(k)", dendry(k)
+							print *, "hb", hb
+							print *, "dtign", dtign
+							print *, "dryt", dryt
+						end if ! JMR_TEMP_REPORTING end
+						
 						if (dt .GT. trt) then
 							flit(k) = flit(k) + xmat(kl)
 						end if
@@ -3695,6 +3713,23 @@ contains
 							heff, dtlite)
 					endif
 					tign(kl) = 0.5 * (dryt + dtlite)
+					
+					! JMR_TEMP_REPORTING:
+					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
+					if (kl .eq. 29) ! Loc(7,1) = 29
+						print "tign(kl) assignment 2:"
+						print *, "tpamb", tpamb
+						print *, "tpdry", tpdry
+						print *, "tpig(k)", tpig(k)
+						print *, "tfe", tfe
+						print *, "condry(k)", condry(k)
+						print *, "cheat(k)", cheat(k)
+						print *, "fmois(k)", fmois(k)
+						print *, "dendry(k)", dendry(k)
+						print *, "heff", heff
+						print *, "dtlite", dtlite
+						print *, "dryt", dryt
+					end if ! JMR_TEMP_REPORTING end
 
 					!c If k will ignite before time step over, must interpolate
 
@@ -3718,7 +3753,7 @@ contains
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
 						end if
-						if (tout (kl) .GT.  now) then
+						if (tout (kl) .GT.  now) then				! JMR: Whitespace!!!!!
 							ddt = min(dt, (tout(kl) - tnow))
 							wodot(kl) = (wo(kl) - wnext) / ddt
 						else
@@ -3794,6 +3829,24 @@ contains
 									condry(k), cheat(k), fmois(k), dendry(k), &
 									hb, dtlite)
 						tign(kl) = 0.5 * (tdry(kl) + dtlite)
+						
+						! JMR_TEMP_REPORTING:
+						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
+						if (kl .eq. 29) ! Loc(7,1) = 29
+							print "tign(kl) assignment 3:"
+							print *, "tpamb", tpamb
+							print *, "tpdry", tpdry
+							print *, "tpig(k)", tpig(k)
+							print *, "tf", tf
+							print *, "condry(k)", condry(k)
+							print *, "cheat(k)", cheat(k)
+							print *, "fmois(k)", fmois(k)
+							print *, "dendry(k)", dendry(k)
+							print *, "hb", hb
+							print *, "dtlite", dtlite
+							print *, "tdry(kl)", tdry(kl)
+						end if ! JMR_TEMP_REPORTING end
+						
 						if (tnext .GT. tign(kl)) then
 							ts = tchar(k)
 							!qdot (kl, l) = hb * max ((tf - ts), 0.) ! JMR: Transcription: l for 1 substitution!!!!!
