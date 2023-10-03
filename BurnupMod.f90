@@ -2800,6 +2800,14 @@ contains
 				fac = fac * dendry(k) * cpwet
 				dryt = fac * dryt
 				tdry(kl) = dryt
+				
+				! JMR_TEMP_REPORTING:
+				if (kl .eq. 29) then ! Loc(7,1) = 29
+					print *, "tdry(kl) assignment 1:"
+					print *, "tdry(kl)", tdry(kl)
+					print *, "fac", fac
+				end if ! JMR_TEMP_REPORTING end
+				
 			end do
 		end do
 
@@ -2878,6 +2886,14 @@ contains
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
 					tdry(kl) = tdry (kl) - trt				! JMR: Whitespace!!!!!
+					
+					! JMR_TEMP_REPORTING:
+					if (kl .eq. 29) then ! Loc(7,1) = 29
+						print *, "tdry(kl) assignment 2:"
+						print *, "tdry(kl)", tdry(kl)
+						print *, "trt", trt
+					end if ! JMR_TEMP_REPORTING end
+					
 				end if
 				if (tign(kl) .LT. rindef) then
 					tign(kl) = tign(kl) - trt
@@ -3722,24 +3738,24 @@ contains
 						!print *, "tpamb", tpamb
 						!print *, "tpdry", tpdry
 						!print *, "tpig(k)", tpig(k)
-						print *, "tfe", tfe
-						! Inputs to tfe:
-						print *, "ts", ts
-						print *, "dteff", dteff
-						print *, "tcum(kl)", tcum(kl)
-						print *, "tnext", tnext
-						
-						!print *, "condry(k)", condry(k)
-						!print *, "cheat(k)", cheat(k)
-						!print *, "fmois(k)", fmois(k)
-						!print *, "dendry(k)", dendry(k)
-						print *, "heff", heff
-						! Inputs to heff:
-						! tcum(kl) is above.
-						print *, "qcum(kl)", qcum(kl)
-						
-						print *, "dtlite", dtlite
-						print *, "dryt", dryt
+						! print *, "tfe", tfe
+! 						! Inputs to tfe:
+! 						print *, "ts", ts
+! 						print *, "dteff", dteff
+! 						print *, "tcum(kl)", tcum(kl)
+! 						print *, "tnext", tnext
+! 						
+! 						!print *, "condry(k)", condry(k)
+! 						!print *, "cheat(k)", cheat(k)
+! 						!print *, "fmois(k)", fmois(k)
+! 						!print *, "dendry(k)", dendry(k)
+! 						print *, "heff", heff
+! 						! Inputs to heff:
+! 						! tcum(kl) is above.
+! 						print *, "qcum(kl)", qcum(kl)
+! 						
+! 						print *, "dtlite", dtlite
+! 						print *, "dryt", dryt
 					end if ! JMR_TEMP_REPORTING end
 
 					!c If k will ignite before time step over, must interpolate
@@ -3822,6 +3838,14 @@ contains
 					fac = ((0.5 * dia) ** 2) / conwet
 					fac = fac * cpwet * dendry(k)
 					tdry(kl) = fac * dryt
+					
+					! JMR_TEMP_REPORTING:
+					if (kl .eq. 29) then ! Loc(7,1) = 29
+						print *, "tdry(kl) assignment 3:"
+						print *, "tdry(kl)", tdry(kl)
+						print *, "fac", fac
+					end if ! JMR_TEMP_REPORTING end
+					
 					if (tdry(kl) .LT. tnext) then
 						ts = tpdry
 						call heatx(u, d, dia, tf, ts, hf, hb, c, e)
