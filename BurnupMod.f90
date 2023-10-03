@@ -2827,7 +2827,7 @@ contains
 						
 						! JMR_TEMP_REPORTING:
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						if (kl .eq. 29) ! Loc(7,1) = 29
+						if (kl .eq. 29) then! Loc(7,1) = 29
 							print *, "tign(kl) assignment 1:"
 							print *, "tpamb", tpamb
 							print *, "tpdry", tpdry
@@ -3716,7 +3716,7 @@ contains
 					
 					! JMR_TEMP_REPORTING:
 					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-					if (kl .eq. 29) ! Loc(7,1) = 29
+					if (kl .eq. 29) then ! Loc(7,1) = 29
 						print *, "tign(kl) assignment 2:"
 						print *, "tpamb", tpamb
 						print *, "tpdry", tpdry
@@ -3832,7 +3832,7 @@ contains
 						
 						! JMR_TEMP_REPORTING:
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						if (kl .eq. 29) ! Loc(7,1) = 29
+						if (kl .eq. 29) then! Loc(7,1) = 29
 							print *, "tign(kl) assignment 3:"
 							print *, "tpamb", tpamb
 							print *, "tpdry", tpdry
