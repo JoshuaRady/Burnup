@@ -131,7 +131,8 @@ module BurnupMod
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
 
-	integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) =- 7
+	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) =- 7
+	integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) =- 11
 
 
 contains
@@ -2803,6 +2804,7 @@ contains
 				
 				! JMR_TEMP_REPORTING:
 				if (kl .eq. klVal) then ! Loc(7,1) = 29
+					print *, "k, l =", k, l
 					print *, "tdry(kl) assignment 1:"
 					print *, "tdry(kl)", tdry(kl)
 					print *, "fac", fac
