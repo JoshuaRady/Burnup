@@ -131,8 +131,9 @@ module BurnupMod
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
 
-	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) =- 7
-	integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) =- 11
+	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) = 7
+	!integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) = 11
+	integer, parameter :: klVal = 29 ! JMR_TEMP_REPORTING: Loc(7,1) = 29
 
 
 contains
@@ -2805,7 +2806,7 @@ contains
 				! JMR_TEMP_REPORTING:
 				if (kl .eq. klVal) then ! Loc(7,1) = 29
 					print *, "k, l =", k, l
-					print *, "tdry(kl) assignment 1:"
+					print *, "tdry(kl) assignment 1: START()"
 					print *, "tdry(kl)", tdry(kl)
 					print *, "fac", fac
 				end if ! JMR_TEMP_REPORTING end
@@ -2839,7 +2840,7 @@ contains
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 						!if (kl .eq. 29) then! Loc(7,1) = 29
 						if (kl .eq. klVal) then
-							print *, "tign(kl) assignment 1:"
+							print *, "tign(kl) assignment 1: START()"
 							! Time should be the first timestep.
 							print *, "tign(kl)", tign(kl)
 							!print *, "tpamb", tpamb
@@ -2895,7 +2896,7 @@ contains
 					! JMR_TEMP_REPORTING:
 					!if (kl .eq. 29) then ! Loc(7,1) = 29
 					if (kl .eq. klVal) then
-						print *, "tdry(kl) assignment 2:"
+						print *, "tdry(kl) assignment 2: START()"
 						print *, "tdry(kl)", tdry(kl)
 						print *, "trt", trt
 					end if ! JMR_TEMP_REPORTING end
@@ -3741,7 +3742,7 @@ contains
 					!if (kl .eq. 29) then ! Loc(7,1) = 29
 					!if (kl .eq. 7) then ! Loc(3,1)
 					if (kl .eq. klVal) then
-						print *, "tign(kl) assignment 2:"
+						print *, "tign(kl) assignment 2: STEP()"
 						print *, "tnow", tnow
 						print *, "tign(kl)", tign(kl)
 						!print *, "tpamb", tpamb
@@ -3851,7 +3852,8 @@ contains
 					! JMR_TEMP_REPORTING:
 					!if (kl .eq. 29) then ! Loc(7,1) = 29
 					if (kl .eq. klVal) then
-						print *, "tdry(kl) assignment 3:"
+						print *, "tdry(kl) assignment 3: STEP()"
+						print *, "tnow", tnow
 						print *, "tdry(kl)", tdry(kl)
 						print *, "fac", fac
 					end if ! JMR_TEMP_REPORTING end
@@ -3879,7 +3881,7 @@ contains
 						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
 						!if (kl .eq. 29) then! Loc(7,1) = 29
 						if (kl .eq. klVal) then
-							print *, "tign(kl) assignment 3:"
+							print *, "tign(kl) assignment 3: STEP()"
 							print *, "tnow", tnow
 							print *, "tign(kl)", tign(kl)
 							!print *, "tpamb", tpamb
