@@ -2414,7 +2414,7 @@ contains
 		!c Replacement sort: order on increasing size, moisture, density
 		do j = 2, number
 			! Store the values for this fuel index:
-			s = 1.0 / sigma (j)
+			s = 1.0 / sigma (j)					! JMR: Whitespace!!!!!
 			fm = fmois(j)
 			de = dryden(j)
 			keep = key(j)
@@ -2794,7 +2794,7 @@ contains
 			conwet = condry(k) + 4.27e-04 * factor
 			do l = 0, k
 				kl = Loc(k, l)
-				dia = diam (kl)
+				dia = diam (kl)				! JMR: Whitespace!!!!!
 				call heatx(u, d, dia, tf, tx, hf, hb, conwet, en)
 				call DRYTIM(en, thd, dryt)
 				cpwet = cheat(k) + fmois(k) * ch2o
@@ -2926,13 +2926,13 @@ contains
 					kl = Loc(k, l)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qdot(kl, now) = hb * max((tf - ts), 0.)
+					qdot(kl, now) = hb * max((tf - ts), 0.)			! JMR: Trailing 0s!!!!!
 					aint = (c / hb) ** 2
 					ddt = dt - tign(kl)
 					acum(kl) = aint * ddt
 					ddot(kl) = qdot(kl, now) * work(k)
 					tout(kl) = dia / ddot(kl)
-					dnext = max(0., (dia - ddt * ddot(kl)))
+					dnext = max(0., (dia - ddt * ddot(kl)))			! JMR: Trailing 0s!!!!!
 					wnext = wo(kl) * ((dnext / dia) ** 2)
 					wodot(kl) = (wo(kl) - wnext) / ddt
 
@@ -2944,7 +2944,7 @@ contains
 					diam(kl) = dnext
 					wo(kl) = wnext
 					df = 0.0
-					if (dnext .LE. 0.) then
+					if (dnext .LE. 0.) then			! JMR: Trailing 0s!!!!!
 						df = xmat(kl)
 						wodot(kl) = 0.0
 						ddot(kl) = 0.0
