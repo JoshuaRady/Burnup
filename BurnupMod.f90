@@ -452,6 +452,37 @@ contains
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
 		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		alfa(maxno) = 0.0
+		flit(maxno) = 0.0
+		fout(maxno) = 0.0
+		work(maxno) = 0.0
+		elam(maxno, maxno) = 0.0
+		alone(maxno) = 0.0
+		area(maxno) = 0.0
+		fint(maxno) = 0.0
+		tdry(maxkl) = 0.0
+		wodot(maxkl) = 0.0
+		ddot(maxkl) = 0.0
+		qcum(maxkl) = 0.0
+		tcum(maxkl) = 0.0
+		acum(maxkl) = 0.0
+		qdot(maxkl, mxstep) = 0.0
+		key(maxno) = 0
+		
+		parts(maxno) = "123456789012"
+		list(maxno) =  "123456789012"
+		
+		dfi = 0.0
+		tdf = 0.0
+		now = 0
+		tis = 0.0
+		tpdry = 0.0
+		incalls = 0
+		ch2o = 0.0
+		fid = 0.0
+		! JMR_TESTING_END.
+		
 		! JMR: Temporary:
 		! Parts will be empty:
 ! 		parts = "Test"
@@ -2745,6 +2776,38 @@ contains
 		! Initialize constants:			! JMR: Make global parameters?????
 		ch2o = 4186.0
 		tpdry = 353.0
+		
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		!integer :: k, l, kl ! Counters
+		delm = 0.0
+		heatk = 0.0
+		r = 0.0
+		tf = 0.0
+		ts = 0.0
+		thd = 0.0
+		tx = 0.0
+		dia = 0.0
+		cpwet = 0.0
+		fac = 0.0
+		dryt = 0.0
+		tsd = 0.0
+		c = 0.0
+		tigk = 0.0
+		en, e = 0.0
+		trt = 0.0
+		nlit = 0.0
+		factor = 0.0
+		hb = 0.0
+		hf = 0.0
+		dtign = 0.0
+		conwet = 0.0
+		aint = 0.0
+		ddt = 0.0
+		dnext = 0.0
+		wnext = 0.0
+		df = 0.0
+		! JMR_TESTING_END.
 
 		!c Initialize time varying quantities and, set up work(k)
 		!c The diameter reduction rate of fuel component k is given
@@ -3571,6 +3634,62 @@ contains
 
 		! Constants:
 		real, parameter :: rindef = 1.0e+30
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		flag = .false.
+		tnow = 0.0
+		tnext = 0.0
+		tdun = 0.0
+		tgo = 0.0
+		tifi = 0.0
+		next = 0.0
+		gi = 0.0
+		nspan = 0
+		tst = 0.0
+		aint = 0.0
+		qqq = 0.0
+		tav1 = 0.0
+		tav2 = 0.0
+		tav3 = 0.0
+		tavg = 0.0
+		tbar = 0.0
+		iindex = 0
+		qdsum = 0.0
+		qdavg = 0.0
+		deltim = 0.0
+		dnext = 0.0
+		wnext = 0.0
+		rate = 0.0
+		dryt = 0.0
+		dqdt = 0.0
+		qd = 0.0
+		dteff = 0.0
+		heff = 0.0
+		delt = 0.0
+		factor = 0.0
+		dtef = 0.0
+		he = 0.0
+		tf = 0.0
+		ts = 0.0
+		biot = 0.0
+		cpwet = 0.0
+		c = 0.0
+		conwet = 0.0
+		ddt = 0.0
+		dia = 0.0
+		dtcum = 0.0
+		dtlite = 0.0
+		e = 0.0
+		fac = 0.0
+		hb = 0.0
+		hf = 0.0
+		r = 0.0
+		tfe = 0.0
+		thd = 0.0
+		tlit = 0.0
+		tspan = 0.0
+		dtemp = 0.0
+		! JMR_TESTING_END.
 
 		ncalls = ncalls + 1
 		tnow = tin
