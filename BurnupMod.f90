@@ -3314,6 +3314,17 @@ contains
 
 		xlo = 0.0
 		xhi = 1.0
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		xav = 0.0
+		fav = 0.0
+		beta = 0.0
+		conw = 0.0
+		dtb = 0.0
+		dti = 0.0
+		ratio = 0.0
+		rhoc = 0.0
+		! JMR_TESTING_END.
 
 		do
 			xav = 0.5 * (xlo + xhi)
@@ -3442,6 +3453,19 @@ contains
 		real, parameter :: hradf = 0.5		! View factor emissivity
 
 		hfm = 0.0
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		hbar = 0.0
+		en = 0.0
+		
+		v = 0.0
+		re = 0.0
+		enuair = 0.0
+		conair = 0.0
+		fac = 0.0
+		hfmin = 0.0
+		hrad = 0.0
+		! JMR_TESTING_END.
 
 		if (dia .gt. b) then
 			v = sqrt(u * u + 0.53 * g * d)
@@ -3484,6 +3508,14 @@ contains
 		! Constants:
 		real, parameter :: err = 1.0e-04
 		real, parameter :: aa = 20.0
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+		term = 0.0
+		rlast = 0.0
+		den = 0.0
+		rnext = 0.0
+		tempf = 0.0
+		! JMR_TESTING_END.
 
 		term = r / (aa * q)
 		rlast = r
