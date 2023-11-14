@@ -133,8 +133,8 @@ module BurnupMod
 
 	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) = 7
 	!integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) = 11
-	integer, parameter :: klVal = 29 ! JMR_TEMP_REPORTING: Loc(7,1) = 29
-
+	!integer, parameter :: klVal = 29 ! JMR_TEMP_REPORTING: Loc(7,1) = 29
+	integer, parameter :: klVal = -1 ! JMR_TEMP_REPORTING: This should disable reporting.
 
 contains
 
