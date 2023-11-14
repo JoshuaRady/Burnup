@@ -478,7 +478,7 @@ contains
 		now = 0
 		tis = 0.0
 		tpdry = 0.0
-		incalls = 0
+		ncalls = 0
 		ch2o = 0.0
 		fid = 0.0
 		! JMR_TESTING_END.
@@ -2794,7 +2794,8 @@ contains
 		tsd = 0.0
 		c = 0.0
 		tigk = 0.0
-		en, e = 0.0
+		en = 0.0
+		e = 0.0
 		trt = 0.0
 		nlit = 0.0
 		factor = 0.0
@@ -3653,7 +3654,7 @@ contains
 		tav3 = 0.0
 		tavg = 0.0
 		tbar = 0.0
-		iindex = 0
+		index = 0
 		qdsum = 0.0
 		qdavg = 0.0
 		deltim = 0.0
