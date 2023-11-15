@@ -2851,7 +2851,7 @@ contains
 			work(k) = 1.0 / (255.0 * heatk)
 			do l = 0, k
 				kl = Loc(k, l)
-				tout(kl) = rindef
+				tout(kl) = rindef			! JMR_NOTE: These are initialized to blank values so they are not inout??????!!!!!
 				tign(kl) = rindef
 				tdry(kl) = rindef
 				tcum(kl) = 0.0
@@ -3404,17 +3404,22 @@ contains
 		real, intent(out) :: tau	! Time required for the start of moisture loss.
 
 		! Locals:
-		real :: xl, xh, xm, x
+		real :: xl, xh, xm ! The binary search low and high bounds, and the search center.
+		real :: x
 		real*4 :: approx
 		integer n ! Counter
 
-		! Constants: Change to paramater?
+		! Constants:
 		real, parameter :: p = 0.47047
 
 		xl = 0.0
 		xh = 1.0
 
-		do n = 1, 15 ! JMR_NOTE: Why 15 cycles?
+		! No rationale is given for the use of 15 cycles in the binary search.  I assume that is was
+		! determined to be sufficient empirically.  Using a limit for convergence might be better.
+		! Additionally, since the search middle is calculated at the start ot the loop only 14
+		! cycles actually inform the result.
+		do n = 1, 15
 			xm = 0.5 * (xl + xh)
 			approx = ErrorApprox(xm, theta)
 			if (approx .LT. 0.) then ! or if (ErrorAppox(xm) .LT. 0.) then
@@ -4325,7 +4330,7 @@ contains
 		real*4, intent(in) :: theta	! Temperature rise required for the start of moisture loss.
 	
 		! Locals:
-		real*4 :: approx ! errorApprox ! Return value.
+		real*4 :: approx ! Return value.
 	
 		! Constants:
 		real*4, parameter :: a = 0.7478556
