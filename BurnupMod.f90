@@ -453,25 +453,32 @@ contains
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
-		alfa(maxno) = 0.0
-		flit(maxno) = 0.0
-		fout(maxno) = 0.0
-		work(maxno) = 0.0
-		elam(maxno, maxno) = 0.0
-		alone(maxno) = 0.0
-		area(maxno) = 0.0
-		fint(maxno) = 0.0
-		tdry(maxkl) = 0.0
-		wodot(maxkl) = 0.0
-		ddot(maxkl) = 0.0
-		qcum(maxkl) = 0.0
-		tcum(maxkl) = 0.0
-		acum(maxkl) = 0.0
-		qdot(maxkl, mxstep) = 0.0
-		key(maxno) = 0
+		! Outputs:
+		xmat = 0.0
+		tign = 0.0
+		tout = 0.0
+		wo = 0.0
+		diam = 0.0
+		! Locals:
+		alfa = 0.0
+		flit = 0.0
+		fout = 0.0
+		work = 0.0
+		elam = 0.0
+		alone = 0.0
+		area = 0.0
+		fint = 0.0
+		tdry = 0.0
+		wodot = 0.0
+		ddot = 0.0
+		qcum = 0.0
+		tcum = 0.0
+		acum = 0.0
+		qdot = 0.0
+		key = 0
 		
-		parts(maxno) = "123456789012"
-		list(maxno) =  "123456789012"
+		parts = "123456789012"
+		list =  "123456789012"
 		
 		dfi = 0.0
 		tdf = 0.0
@@ -2295,6 +2302,20 @@ contains
 		! Locals:
 		integer :: j, k, kl, kj ! Counters
 		real*4 :: diak, wtk
+		
+		! JMR_TESTING: Initialize all variables explicitly at start.
+! 		diam = 0.0
+! 		key = 0 ! This is initialized in SORTER().
+! 		work = 0.0
+! 		elam = 0.0
+! 		alone = 0.0
+! 		xmat = 0.0
+! 		wo = 0.0
+! 		list = "Empty"
+! 		! Skip counters.
+! 		diak = 0.0
+! 		wtk = 0.0
+		! JMR_TESTING_END.
 
 		call SORTER(maxno, number, sigma, fmois, dendry, key)
 
@@ -3316,6 +3337,9 @@ contains
 		xhi = 1.0
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
+		! Output:
+		tmig = 0.0
+		! Locals:
 		xav = 0.0
 		fav = 0.0
 		beta = 0.0
@@ -3457,7 +3481,7 @@ contains
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		hbar = 0.0
 		en = 0.0
-		
+		! Locals:
 		v = 0.0
 		re = 0.0
 		enuair = 0.0
@@ -3669,6 +3693,13 @@ contains
 		real, parameter :: rindef = 1.0e+30
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
+		! Outputs:
+		tcum = 0.0
+		acum = 0.0
+		qdot = 0.0
+		ddot = 0.0
+		wodot = 0.0
+		! Locals:
 		flag = .false.
 		tnow = 0.0
 		tnext = 0.0
