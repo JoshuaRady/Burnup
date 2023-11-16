@@ -3584,6 +3584,7 @@ contains
 		!c Input parameters:
 
 ! JMR_NOTE: All explicitly declared reals were real*4 but can probably be changed....
+		! JMR_NOTE: These are in original order, not argument order.
 		real*4, intent(in) :: dt				! time step, sec
 		integer, intent(in) :: mxstep			! max dimension of historical seouences
 		integer, intent(in) :: now				! index marks end of time step
@@ -3647,12 +3648,12 @@ contains
 ! Pg. 107:
 
 
-		real*4, intent(out) :: tcum(maxkl)	! cumulative temp integral for qcum (drying)
-		real*4, intent(out) :: acum(maxkl)	! heat pulse area for historical rate averaging
-		real*4, intent(out) :: qdot(maxkl, mxstep)	! history (post ignite) of heat transfer rate
+		real*4, intent(inout) :: tcum(maxkl)	! cumulative temp integral for qcum (drying)
+		real*4, intent(inout) :: acum(maxkl)	! heat pulse area for historical rate averaging
+		real*4, intent(inout) :: qdot(maxkl, mxstep)	! history (post ignite) of heat transfer rate
 													! to the larger of component pair, W / sq m
-		real*4, intent(out) :: ddot(maxkl)	! diameter reduction rate, larger of pair, m / s
-		real*4, intent(out) :: wodot(maxkl)	! dry loading loss rate for larger of pair
+		real*4, intent(inout) :: ddot(maxkl)	! diameter reduction rate, larger of pair, m / s
+		real*4, intent(inout) :: wodot(maxkl)	! dry loading loss rate for larger of pair
 
 		! Locals: (not in a consistant order.)
 		logical flag
