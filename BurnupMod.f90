@@ -3338,16 +3338,16 @@ contains
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		! Output:
-		tmig = 0.0
-		! Locals:
-		xav = 0.0
-		fav = 0.0
-		beta = 0.0
-		conw = 0.0
-		dtb = 0.0
-		dti = 0.0
-		ratio = 0.0
-		rhoc = 0.0
+! 		tmig = 0.0
+! 		! Locals:
+! 		xav = 0.0
+! 		fav = 0.0
+! 		beta = 0.0
+! 		conw = 0.0
+! 		dtb = 0.0
+! 		dti = 0.0
+! 		ratio = 0.0
+! 		rhoc = 0.0
 		! JMR_TESTING_END.
 
 		do
@@ -3484,16 +3484,16 @@ contains
 		hfm = 0.0
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
-		hbar = 0.0
-		en = 0.0
-		! Locals:
-		v = 0.0
-		re = 0.0
-		enuair = 0.0
-		conair = 0.0
-		fac = 0.0
-		hfmin = 0.0
-		hrad = 0.0
+! 		hbar = 0.0
+! 		en = 0.0
+! 		! Locals:
+! 		v = 0.0
+! 		re = 0.0
+! 		enuair = 0.0
+! 		conair = 0.0
+! 		fac = 0.0
+! 		hfmin = 0.0
+! 		hrad = 0.0
 		! JMR_TESTING_END.
 
 		if (dia .gt. b) then
@@ -3539,11 +3539,11 @@ contains
 		real, parameter :: aa = 20.0
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
-		term = 0.0
-		rlast = 0.0
-		den = 0.0
-		rnext = 0.0
-		tempf = 0.0
+! 		term = 0.0
+! 		rlast = 0.0
+! 		den = 0.0
+! 		rnext = 0.0
+! 		tempf = 0.0
 		! JMR_TESTING_END.
 
 		term = r / (aa * q)
@@ -3699,65 +3699,65 @@ contains
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		! Outputs:
-		tcum = 0.0
-		acum = 0.0
-		qdot = 0.0
-		ddot = 0.0
-		wodot = 0.0
-		! Locals:
-		flag = .false.
-		tnow = 0.0
-		tnext = 0.0
-		tdun = 0.0
-		tgo = 0.0
-		tifi = 0.0
-		next = 0.0
-		gi = 0.0
-		nspan = 0
-		tst = 0.0
-		aint = 0.0
-		qqq = 0.0
-		tav1 = 0.0
-		tav2 = 0.0
-		tav3 = 0.0
-		tavg = 0.0
-		tbar = 0.0
-		index = 0
-		qdsum = 0.0
-		qdavg = 0.0
-		deltim = 0.0
-		dnext = 0.0
-		wnext = 0.0
-		rate = 0.0
-		dryt = 0.0
-		dqdt = 0.0
-		qd = 0.0
-		dteff = 0.0
-		heff = 0.0
-		delt = 0.0
-		factor = 0.0
-		dtef = 0.0
-		he = 0.0
-		tf = 0.0
-		ts = 0.0
-		biot = 0.0
-		cpwet = 0.0
-		c = 0.0
-		conwet = 0.0
-		ddt = 0.0
-		dia = 0.0
-		dtcum = 0.0
-		dtlite = 0.0
-		e = 0.0
-		fac = 0.0
-		hb = 0.0
-		hf = 0.0
-		r = 0.0
-		tfe = 0.0
-		thd = 0.0
-		tlit = 0.0
-		tspan = 0.0
-		dtemp = 0.0
+! 		tcum = 0.0
+! 		acum = 0.0
+! 		qdot = 0.0
+! 		ddot = 0.0
+! 		wodot = 0.0
+! 		! Locals:
+! 		flag = .false.
+! 		tnow = 0.0
+! 		tnext = 0.0
+! 		tdun = 0.0
+! 		tgo = 0.0
+! 		tifi = 0.0
+! 		next = 0.0
+! 		gi = 0.0
+! 		nspan = 0
+! 		tst = 0.0
+! 		aint = 0.0
+! 		qqq = 0.0
+! 		tav1 = 0.0
+! 		tav2 = 0.0
+! 		tav3 = 0.0
+! 		tavg = 0.0
+! 		tbar = 0.0
+! 		index = 0
+! 		qdsum = 0.0
+! 		qdavg = 0.0
+! 		deltim = 0.0
+! 		dnext = 0.0
+! 		wnext = 0.0
+! 		rate = 0.0
+! 		dryt = 0.0
+! 		dqdt = 0.0
+! 		qd = 0.0
+! 		dteff = 0.0
+! 		heff = 0.0
+! 		delt = 0.0
+! 		factor = 0.0
+! 		dtef = 0.0
+! 		he = 0.0
+! 		tf = 0.0
+! 		ts = 0.0
+! 		biot = 0.0
+! 		cpwet = 0.0
+! 		c = 0.0
+! 		conwet = 0.0
+! 		ddt = 0.0
+! 		dia = 0.0
+! 		dtcum = 0.0
+! 		dtlite = 0.0
+! 		e = 0.0
+! 		fac = 0.0
+! 		hb = 0.0
+! 		hf = 0.0
+! 		r = 0.0
+! 		tfe = 0.0
+! 		thd = 0.0
+! 		tlit = 0.0
+! 		tspan = 0.0
+! 		dtemp = 0.0
 		! JMR_TESTING_END.
 
 		ncalls = ncalls + 1
