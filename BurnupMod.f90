@@ -3705,13 +3705,14 @@ contains
 ! 		ddot = 0.0
 ! 		wodot = 0.0
 ! 		! Locals:
-		flag = .false.
-		tnow = 0.0
-		tnext = 0.0
-		tdun = 0.0
-		tgo = 0.0
-		tifi = 0.0
-		next = 0.0
+		! The following seem to have no effect:
+! 		flag = .false.
+! 		tnow = 0.0
+! 		tnext = 0.0
+! 		tdun = 0.0
+! 		tgo = 0.0
+! 		tifi = 0.0
+! 		next = 0.0
 		! The following seem to have no effect:
 ! 		gi = 0.0
 ! 		nspan = 0
