@@ -3705,32 +3705,32 @@ contains
 ! 		ddot = 0.0
 ! 		wodot = 0.0
 ! 		! Locals:
-! 		flag = .false.
-! 		tnow = 0.0
-! 		tnext = 0.0
-! 		tdun = 0.0
-! 		tgo = 0.0
-! 		tifi = 0.0
-! 		next = 0.0
-		!
-		gi = 0.0
-		nspan = 0
-		tst = 0.0
-		aint = 0.0
-		qqq = 0.0
-		tav1 = 0.0
-		tav2 = 0.0
-		tav3 = 0.0
-		tavg = 0.0
-		tbar = 0.0
-		index = 0
-		qdsum = 0.0
-		qdavg = 0.0
-		deltim = 0.0
-		dnext = 0.0
-		wnext = 0.0
-		rate = 0.0
-		! The following seem to have no effect.
+		flag = .false.
+		tnow = 0.0
+		tnext = 0.0
+		tdun = 0.0
+		tgo = 0.0
+		tifi = 0.0
+		next = 0.0
+		! The following seem to have no effect:
+! 		gi = 0.0
+! 		nspan = 0
+! 		tst = 0.0
+! 		aint = 0.0
+! 		qqq = 0.0
+! 		tav1 = 0.0
+! 		tav2 = 0.0
+! 		tav3 = 0.0
+! 		tavg = 0.0
+! 		tbar = 0.0
+! 		index = 0
+! 		qdsum = 0.0
+! 		qdavg = 0.0
+! 		deltim = 0.0
+! 		dnext = 0.0
+! 		wnext = 0.0
+! 		rate = 0.0
+		! The following seem to have no effect:
 ! 		dryt = 0.0
 ! 		dqdt = 0.0
 ! 		qd = 0.0
