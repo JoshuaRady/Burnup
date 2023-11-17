@@ -382,8 +382,9 @@ contains
 		
 		! Fuel component property arrays:  The values will not change but they may be reordered.
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
-		! However, setting these to inout allows the values to bo modified for use interally in this
+		! However, setting these to inout allows the values to be modified for use interally in this
 		! routine, which is useful for now.
+		! JMR_NOTE: Some of these, e.g. SAV can safely be made in only!!!!!
 		
 		! Character strings can't be passed in from R so we leave part blank for now (see below):
 		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
@@ -4110,7 +4111,7 @@ contains
 				if (flag .AND. (tnext .LE. tout(kl))) then
 					flit(k) = flit(k) + xmat(kl)
 				end if
-				if (tnext .GT. tout (kl)) then
+				if (tnext .GT. tout (kl)) then			! JMR_NOTE: Whitespace!!!!!
 					fout(k) = fout(k) + xmat(kl)
 				end if
 			end do
@@ -4141,6 +4142,7 @@ contains
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		integer, intent(in) :: nun					! Summary file unit identifier
 		real, intent(in) :: tis						! Igniting surface fire residence time (s)		! JMR: This is a bit confusing.  The residence time (ti above) is output but tis is also the current time?
+													! JMR_NOTE: No, this is definitely the 'current time', which when this is called will be the time the fire went out!!!!!
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: wdry(maxno)			! Ovendry mass loading, kg/sq m
 		real*4, intent(in) :: fmois(maxno)			! Moisture content, fraction dry mass
