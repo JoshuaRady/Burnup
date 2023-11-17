@@ -371,7 +371,9 @@ contains
 		real*4, intent(in) :: ak		! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter
-		real*4, intent(in) :: dt		! Time step for integration of burning rates (s)
+		!real*4, intent(in) :: dt		! Time step for integration of burning rates (s)
+		real*4, intent(inout) :: dt		! Time step for integration of burning rates (s).
+										! On completion contains the time the fire went out.
 		
 		! Considering removing these two.  See below:
 		real*4, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
@@ -582,6 +584,13 @@ contains
 			end do
 		end if ! (fi .gt. fimin)
 
+		! The main fire properties are returned as output arguments...
+		! A replacement for SUMMARY() could go here.
+		! Return the time when the fire dropped below fimin as the time the fire "went out".
+		! We return the value in dt.  This may be changed in the future.
+		dt = tis
+		! We could also return the number of timesteps completed in ntimes but that doesn't add much.
+
 	end subroutine Simulate
 
 
@@ -602,7 +611,7 @@ contains
 		double precision, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
 		double precision, intent(in) :: r0			! Minimum value of mixing parameter
 		double precision, intent(in) :: dr			! Max - min value of mixing parameter
-		double precision, intent(in) :: dt			! Time step for integration of burning rates (s)
+		double precision, intent(inout) :: dt		! Time step for integration of burning rates (s)
 		double precision, intent(in) :: wdf			! Duff loading (kg/m^2, aka W sub d)
 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
 													! duff fractional moisture (aka R sub M).
@@ -630,7 +639,7 @@ contains
 															! fuel component pair, m
 
 		! Local type conversion intermediates:
-		real :: fiReal
+		real :: fiReal, dtReal
 		real, dimension(maxno) :: wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, sigmaOut
 		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
@@ -639,6 +648,7 @@ contains
 		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
 
 		fiReal = real(fi)
+		dtReal = real(dt)
 		wdryOut = real(wdry)
 		ashOut = real(ash)
 		htvalOut = real(htval)
@@ -651,13 +661,15 @@ contains
 		tcharOut = real(tchar)
 
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
-						real(ak), real(r0), real(dr), real(dt), &
+						!real(ak), real(r0), real(dr), real(dt), &
+						real(ak), real(r0), real(dr), dtReal, &
 						real(wdf), real(dfm), ntimes, number, &
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
 						xmatR, tignR, toutR, woR, diamR)
 
 		fi = dble(fiReal)
+		dt = dble(dtReal)
 		wdry = dble(wdryOut)
 		ash = dble(ashOut)
 		htval = dble(htvalOut)
