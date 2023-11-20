@@ -473,10 +473,10 @@ contains
 ! 		area = 0.0
 ! 		fint = 0.0
 		! Not sure:
-		tdry = 0.0
-		wodot = 0.0
-		ddot = 0.0
-		qcum = 0.0
+! 		tdry = 0.0
+! 		wodot = 0.0
+! 		ddot = 0.0
+! 		qcum = 0.0
 		tcum = 0.0
 		acum = 0.0
 		qdot = 0.0
