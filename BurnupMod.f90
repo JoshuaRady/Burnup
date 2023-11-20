@@ -463,22 +463,24 @@ contains
 		wo = 0.0
 		diam = 0.0
 		! Locals:
-		alfa = 0.0
-		flit = 0.0
-		fout = 0.0
-		work = 0.0
-		elam = 0.0
-		alone = 0.0
-		area = 0.0
-		fint = 0.0
-! 		tdry = 0.0
-! 		wodot = 0.0
-! 		ddot = 0.0
-! 		qcum = 0.0
-! 		tcum = 0.0
-! 		acum = 0.0
-! 		qdot = 0.0
-! 		key = 0
+		! Thse seem to have no effect:
+! 		alfa = 0.0
+! 		flit = 0.0
+! 		fout = 0.0
+! 		work = 0.0
+! 		elam = 0.0
+! 		alone = 0.0
+! 		area = 0.0
+! 		fint = 0.0
+		! Not sure:
+		tdry = 0.0
+		wodot = 0.0
+		ddot = 0.0
+		qcum = 0.0
+		tcum = 0.0
+		acum = 0.0
+		qdot = 0.0
+		key = 0
 		
 		! These don't seem to matter.
 		! parts = "123456789012"
