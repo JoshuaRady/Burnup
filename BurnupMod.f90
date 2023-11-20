@@ -463,14 +463,14 @@ contains
 		wo = 0.0
 		diam = 0.0
 		! Locals:
-! 		alfa = 0.0
-! 		flit = 0.0
-! 		fout = 0.0
-! 		work = 0.0
-! 		elam = 0.0
-! 		alone = 0.0
-! 		area = 0.0
-! 		fint = 0.0
+		alfa = 0.0
+		flit = 0.0
+		fout = 0.0
+		work = 0.0
+		elam = 0.0
+		alone = 0.0
+		area = 0.0
+		fint = 0.0
 ! 		tdry = 0.0
 ! 		wodot = 0.0
 ! 		ddot = 0.0
