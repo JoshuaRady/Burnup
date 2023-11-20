@@ -480,17 +480,17 @@ contains
 		qdot = 0.0
 		key = 0
 		
-		parts = "123456789012"
-		list =  "123456789012"
-		
-		dfi = 0.0
-		tdf = 0.0
-		now = 0
-		tis = 0.0
-		tpdry = 0.0
-		ncalls = 0
-		ch2o = 0.0
-		fid = 0.0
+		! parts = "123456789012"
+! 		list =  "123456789012"
+! 		
+! 		dfi = 0.0
+! 		tdf = 0.0
+! 		now = 0
+! 		tis = 0.0
+! 		tpdry = 0.0
+! 		ncalls = 0
+! 		ch2o = 0.0
+! 		fid = 0.0
 		! JMR_TESTING_END.
 		
 		! JMR: Temporary:
