@@ -457,40 +457,40 @@ contains
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		! Outputs:
-! 		xmat = 0.0
-! 		tign = 0.0
-! 		tout = 0.0
-! 		wo = 0.0
-! 		diam = 0.0
-! 		! Locals:
-! 		alfa = 0.0
-! 		flit = 0.0
-! 		fout = 0.0
-! 		work = 0.0
-! 		elam = 0.0
-! 		alone = 0.0
-! 		area = 0.0
-! 		fint = 0.0
-! 		tdry = 0.0
-! 		wodot = 0.0
-! 		ddot = 0.0
-! 		qcum = 0.0
-! 		tcum = 0.0
-! 		acum = 0.0
-! 		qdot = 0.0
-! 		key = 0
-! 		
-! 		parts = "123456789012"
-! 		list =  "123456789012"
-! 		
-! 		dfi = 0.0
-! 		tdf = 0.0
-! 		now = 0
-! 		tis = 0.0
-! 		tpdry = 0.0
-! 		ncalls = 0
-! 		ch2o = 0.0
-! 		fid = 0.0
+		xmat = 0.0
+		tign = 0.0
+		tout = 0.0
+		wo = 0.0
+		diam = 0.0
+		! Locals:
+		alfa = 0.0
+		flit = 0.0
+		fout = 0.0
+		work = 0.0
+		elam = 0.0
+		alone = 0.0
+		area = 0.0
+		fint = 0.0
+		tdry = 0.0
+		wodot = 0.0
+		ddot = 0.0
+		qcum = 0.0
+		tcum = 0.0
+		acum = 0.0
+		qdot = 0.0
+		key = 0
+		
+		parts = "123456789012"
+		list =  "123456789012"
+		
+		dfi = 0.0
+		tdf = 0.0
+		now = 0
+		tis = 0.0
+		tpdry = 0.0
+		ncalls = 0
+		ch2o = 0.0
+		fid = 0.0
 		! JMR_TESTING_END.
 		
 		! JMR: Temporary:
@@ -2814,34 +2814,34 @@ contains
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		!integer :: k, l, kl ! Counters
-		delm = 0.0
-		heatk = 0.0
-		r = 0.0
-		tf = 0.0
-		ts = 0.0
-		thd = 0.0
-		tx = 0.0
-		dia = 0.0
-		cpwet = 0.0
-		fac = 0.0
-		dryt = 0.0
-		tsd = 0.0
-		c = 0.0
-		tigk = 0.0
-		en = 0.0
-		e = 0.0
-		trt = 0.0
-		nlit = 0.0
-		factor = 0.0
-		hb = 0.0
-		hf = 0.0
-		dtign = 0.0
-		conwet = 0.0
-		aint = 0.0
-		ddt = 0.0
-		dnext = 0.0
-		wnext = 0.0
-		df = 0.0
+! 		delm = 0.0
+! 		heatk = 0.0
+! 		r = 0.0
+! 		tf = 0.0
+! 		ts = 0.0
+! 		thd = 0.0
+! 		tx = 0.0
+! 		dia = 0.0
+! 		cpwet = 0.0
+! 		fac = 0.0
+! 		dryt = 0.0
+! 		tsd = 0.0
+! 		c = 0.0
+! 		tigk = 0.0
+! 		en = 0.0
+! 		e = 0.0
+! 		trt = 0.0
+! 		nlit = 0.0
+! 		factor = 0.0
+! 		hb = 0.0
+! 		hf = 0.0
+! 		dtign = 0.0
+! 		conwet = 0.0
+! 		aint = 0.0
+! 		ddt = 0.0
+! 		dnext = 0.0
+! 		wnext = 0.0
+! 		df = 0.0
 		! JMR_TESTING_END.
 
 		!c Initialize time varying quantities and, set up work(k)
