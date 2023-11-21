@@ -2883,6 +2883,12 @@ contains
 			end do
 		end do
 
+		! The original code does not initialize acum and qdot but failure to do so leads to small
+		! variations between runs and changes to results.
+		acum = 0.0
+		qdot = 0.0
+		
+
 
 ! -- Pagebreak --
 ! Pg. 96: This page did not have OCR applied.  I extracted the page and ran OCR on it myself.
