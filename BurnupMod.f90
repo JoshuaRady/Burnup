@@ -457,11 +457,11 @@ contains
 		
 		! JMR_TESTING: Initialize all variables explicitly at start.
 		! Outputs:
-		xmat = 0.0
-		tign = 0.0
-		tout = 0.0
-		wo = 0.0
-		diam = 0.0
+		!xmat = 0.0 ! Initialized in OVLAPS() as beta.
+		!tign = 0.0 ! Initialized in START().
+		!tout = 0.0 ! Initialized in START().
+		!wo = 0.0 ! Calculated late in ARRAYS().
+		!diam = 0.0 ! Calculated from sigma in ARRAYS().
 		! Locals:
 		! Thse seem to have no effect:
 ! 		alfa = 0.0
@@ -479,8 +479,9 @@ contains
 ! 		qcum = 0.0
 		!
 		!tcum = 0.0 Done in START().
-		acum = 0.0
-		!qdot = 0.0
+		! These two need to be initialized.  Should be moved into START().
+		! acum = 0.0
+		! qdot = 0.0
 		!key = 0 Done in SORTER().
 		
 		! These don't seem to matter.
