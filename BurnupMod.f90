@@ -2672,14 +2672,14 @@ contains
 		integer, intent(in) :: maxno			! Max number of fuel components
 		integer, intent(in) :: number			! Actual number of fuel components
 		real*4, intent(inout) :: wo(maxkl)		! Current ovendry loading for the larger of
-												! each component pair, kg / sq m
+												! each component pair, kg / sq m.  Updated on return.
 		real*4, intent(out) :: alfa(maxno)		! Dry thermal diffusivity of component, sq m / s
 		real*4, intent(in) :: dendry(maxno)		! Ovendry density of component, kg /cu m
 		real*4, intent(in) :: fmois(maxno)		! Moisture fraction of component
 		real*4, intent(in) :: cheat(maxno)		! Specific heat capacity of component, J / kg K
 		real*4, intent(in) :: condry(maxno)		! Ovendry thermal conductivity, W / sq m K
 		real*4, intent(inout) :: diam(maxkl)	! Current diameter of the larger of each
-												! fuel component pair, m	
+												! fuel component pair, m.  Updated on return.
 		real*4, intent(in) :: tpig(maxno)		! Ignition temperature (K), by component
 		real*4, intent(in) :: tchar(maxno)		! tchar = end - pyrolysis temperature (K), by component
 		real*4, intent(in) :: xmat(maxkl)		! Table-of-influence fractions between components
@@ -2698,20 +2698,20 @@ contains
 												! initialized here to prevent isses related to
 												! persistance should more than one simulation be run in
 												! on interactive session.
-		real*4, intent(inout) :: flit(maxno)	! Fraction of each component currently alight
-		real*4, intent(inout) :: fout(maxno)	! Fraction of each component currently gone out
-		real*4, intent(inout) :: tdry(maxkl)	! Time of drying start of the larger of each
+		real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
+		real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
+		real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each
 												! fuel component pair
-		real*4, intent(inout) :: tign(maxkl)	! Ignition time for the larger of each
+		real*4, intent(out) :: tign(maxkl)		! Ignition time for the larger of each
 												! fuel component pair
-		real*4, intent(inout) :: tout(maxkl)	! Burnout time of larger component of pairs
-		real*4, intent(inout) :: qcum(maxkl)	! Cumulative heat input to larger of pair, J / sq m
-		real*4, intent(inout) :: tcum(maxkl)	! Cumulative temp integral for qcum (drying)
-		real*4, intent(inout) :: acum(maxkl)	! Heat pulse area for historical rate averaging
-		real*4, intent(inout) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
-														! to the larger of each component pair
-		real*4, intent(inout) :: ddot(maxkl)	! Diameter reduction rate, larger of pair, m / s
-		real*4, intent(inout) :: wodot(maxkl)	! Dry loading loss rate for larger of pair
+		real*4, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs
+		real*4, intent(out) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m
+		real*4, intent(out) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying)
+		real*4, intent(out) :: acum(maxkl)		! Heat pulse area for historical rate averaging
+		real*4, intent(out) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+													! to the larger of each component pair
+		real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
+		real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
 		real*4, intent(inout) :: work(maxno)	! Workspace array
 
 
@@ -2741,7 +2741,7 @@ contains
 		real :: delm		! Moisture effect on burning rate (scale factor)
 		real :: heatk		! Burn rate factor
 		real :: r, tf, ts, thd, tx
-		real :: dia		! Diameter for single element.
+		real :: dia			! Diameter for single element.
 		real :: cpwet, fac
 		real :: dryt		! Drying time for single element.
 		real :: tsd
@@ -2751,15 +2751,15 @@ contains
 		real :: trt			! Minimum ignition time across all fuels (initial estimate?).
 		real :: nlit		! Number of elements lit.
 		real :: factor
-		real :: hb		! "Effective" film heat transfer coefficient returned from HEATX().
-		real :: hf		! Film heat transfer coefficient returned from HEATX().
+		real :: hb			! "Effective" film heat transfer coefficient returned from HEATX().
+		real :: hf			! Film heat transfer coefficient returned from HEATX().
 		real :: dtign		! Time to piloted ignition returned from TIGNIT().
 		real :: conwet
 		real :: aint
-		real :: ddt
-		real :: dnext		! Diameter...
-		real :: wnext		! wo ...
-		real :: df		!
+		real :: ddt			! Timestep to calculate.  May be less that dt if fuel burns out sooner.
+		real :: dnext		! Diameter after combustion in this timestep.
+		real :: wnext		! wo after combustion in this timestep.
+		real :: df			!
 
 		! Initialize constants:			! JMR: Make global parameters?????
 		ch2o = 4186.0
@@ -2774,14 +2774,14 @@ contains
 			fout(k) = 0.0
 			flit(k) = 0.0
 			alfa(k) = condry(k) / (dendry(k) * cheat(k))
-		!c		effect of moisture content on burning rate (scale factor)
+			!c effect of moisture content on burning rate (scale factor)
 			delm = 1.67 * fmois(k)
-		!c		effect of component mass density (empirical)
+			!c effect of component mass density (empirical)
 			heatk = dendry(k) / 446.0
-		!c		empirical burn rate factor, J / cu m - K
+			!c empirical burn rate factor, J / cu m - K
 			heatk = heatk * 2.01e+06 * (1.0 + delm)
-		!c		normalize out driving temperature difference (Tfire - Tchar)
-		!c		to average value of lab experiments used to find above constants
+			!c normalize out driving temperature difference (Tfire - Tchar)
+			!c to average value of lab experiments used to find above constants
 			work(k) = 1.0 / (255.0 * heatk)
 			do l = 0, k
 				kl = Loc(k, l)
@@ -3578,32 +3578,34 @@ contains
 		real :: tav1, tav2, tav3, tavg ! Time over which to perform averaging
 		real :: tbar
 		integer :: index
-		real :: qdsum ! Sum of heat transfer (W/m^2 * s = J/m^2 ?).
-		real :: qdavg ! Average heat transfer...
-		real :: deltim, dnext, wnext, rate, dryt, dqdt
+		real :: qdsum	! Sum of heat transfer (W/m^2 * s = J/m^2 ?).
+		real :: qdavg	! Average heat transfer...
+		real :: deltim, rate, dryt, dqdt
 		real :: qd
 		real :: dteff, heff, delt, factor, dtef
 		real :: he		! qcum / tcum
 		real*4 :: tf, ts
 		real :: biot
 		real :: cpwet
-		real :: c ! condry for a single fuel component.
+		real :: c		! Thermal conductivity for a single fuel component.
 		real :: conwet
-		real :: ddt
-		real :: dia ! Diameter for a single fuel component (kl).
+		real :: ddt		! Timestep to calculate.  May be less that dt if fuel burns out sooner.
+		real :: dia		! Diameter for a single fuel component (kl).
+		real :: dnext	! Diameter after combustion in this timestep.
+		real :: wnext	! wo after combustion in this timestep.
 		real :: dtcum
-		real :: dtlite ! Time to ignition returned by TIGNIT().
+		real :: dtlite	! Time to ignition returned by TIGNIT().
 		real :: e
 		real :: fac
 		real :: hb, hf
 		real :: r
 		real :: tfe
 		real :: thd
-		real :: tlit
+		real :: tlit	! Ignition time for a single fuel component.
 		real :: tspan
 		real :: dtemp
 
-		integer :: k, l, mu, kl ! Counters (kl is a bit differnet)
+		integer :: k, l, mu, kl ! Counters (kl is a bit different)
 
 		! Constants:
 		real, parameter :: rindef = 1.0e+30
