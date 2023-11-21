@@ -472,16 +472,16 @@ contains
 ! 		alone = 0.0
 ! 		area = 0.0
 ! 		fint = 0.0
-		! Cleared:
-! 		tdry = 0.0
-! 		wodot = 0.0
-! 		ddot = 0.0
-! 		qcum = 0.0
-		! In these 4:
+		! In these 8:
+		tdry = 0.0
+		wodot = 0.0
+		ddot = 0.0
+		qcum = 0.0
+		!
 ! 		tcum = 0.0
 ! 		acum = 0.0
-		qdot = 0.0
-		key = 0
+! 		qdot = 0.0
+! 		key = 0
 		
 		! These don't seem to matter.
 		! parts = "123456789012"
