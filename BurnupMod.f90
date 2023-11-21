@@ -131,6 +131,11 @@ module BurnupMod
 	! The maximum dimension of historical sequences (primarily for qdot):
 	integer, parameter :: mxstep = 20
 
+	! Physical constants:
+	! In the original code these were defined as variables and shared through subroutine arguments.
+	real*4, parameter :: ch2o = 4186.0	! Specific heat capacity of water, J / kg K
+	real*4, parameter :: tpdry = 353.0	! Temperature (all components) start drying (K)
+
 	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) = 7
 	!integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) = 11
 	!integer, parameter :: klVal = 29 ! JMR_TEMP_REPORTING: Loc(7,1) = 29
@@ -209,9 +214,9 @@ contains
 		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
 		integer :: now			! Index marking the current time step.
 		real :: tis				! Current time (ti + number of time steps * dt).
-		real*4 :: tpdry			! Temperature (all components) start drying (K)
+		!real*4 :: tpdry			! Temperature (all components) start drying (K)
 		integer :: ncalls		! Counter of calls to this START().
-		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
+		!real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
 		integer :: nun			! Stash file unit identifier.
 		integer :: readStat		! IO error status.
@@ -257,9 +262,9 @@ contains
 			tis = ti
 			call START(tis, mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
-						tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, ch2o, &
+						ddot, wodot, work, u, d, r0, dr, &
 						ncalls, maxkl)
 
 			! If the duff burns longer than the passing fire front then have it's intensity
@@ -285,9 +290,9 @@ contains
 				do while (now .LT. ntimes)
 					call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 								dendry, fmois, cheat, condry, diam, tpig, &
-								tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+								tchar, xmat, tpamb, fi, flit, fout, &
 								tdry, tign, tout, qcum, tcum, acum, qdot, &
-								ddot, wodot, work, u, d, r0, dr, ch2o, &
+								ddot, wodot, work, u, d, r0, dr, &
 								ncalls, maxkl, tis, fint, fid)
 	
 					! Update time trackers:
@@ -446,9 +451,7 @@ contains
 		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
 		integer :: now			! Index marking the current time step.
 		real :: tis				! Current time (ti + number of time steps * dt).
-		real*4 :: tpdry			! Temperature (all components) start drying (K)
 		integer :: ncalls		! Counter of calls to START().
-		real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
 		
 		
@@ -489,9 +492,9 @@ contains
 		!print *, "START:" ! JMR: Temp reporting.
 		call START(tis, mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
-					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
-					ddot, wodot, work, u, d, r0, dr, ch2o, &
+					ddot, wodot, work, u, d, r0, dr, &
 					ncalls, maxkl)
 		
 		! If the duff burns longer than the passing fire front then have it's intensity
@@ -517,9 +520,9 @@ contains
 				!print *, "STEP:" ! JMR: Temp reporting.
 				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
-							tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+							tchar, xmat, tpamb, fi, flit, fout, &
 							tdry, tign, tout, qcum, tcum, acum, qdot, &
-							ddot, wodot, work, u, d, r0, dr, ch2o, &
+							ddot, wodot, work, u, d, r0, dr, &
 							ncalls, maxkl, tis, fint, fid)
 
 				
@@ -2656,9 +2659,9 @@ contains
 	! History: Modernized original Burnup subroutine.
 	subroutine START(dt, mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
-						tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, ch2o, &
+						ddot, wodot, work, u, d, r0, dr, &
 						ncalls, maxkl)
 		implicit none
 
@@ -2725,11 +2728,8 @@ contains
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter
 
-		! These variables are a little odd.  They are treated as constants but are declared as
-		! arguments that are initialized and returned for use elsewhere in the program.  It would be
-		! better to define them at program or global scope as true constants (parameter ::):
-		real*4, intent(inout) :: ch2o	! Specific heat capacity of water, J / kg K
-		real*4, intent(inout) :: tpdry	! Temperature (all components) start drying (K)
+		! The constants ch2o and tpdry were included as arguments in the original code.  They have
+		! chnaged to globals.
 		! The original comments include hvap as a constant, but is not actually used:
 		! hvap = heat of vaporization of water J / kg
 
@@ -2760,10 +2760,6 @@ contains
 		real :: dnext		! Diameter after combustion in this timestep.
 		real :: wnext		! wo after combustion in this timestep.
 		real :: df			!
-
-		! Initialize constants:			! JMR: Make global parameters?????
-		ch2o = 4186.0
-		tpdry = 353.0
 
 		!c Initialize time varying quantities and, set up work(k)
 		!c The diameter reduction rate of fuel component k is given
@@ -3240,6 +3236,7 @@ contains
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
 		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K			! JMR: Spelling!!!!!
+									! Currently this is always tpdry, so this argument could be cut.
 		real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
 		real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
@@ -3483,9 +3480,9 @@ contains
 	! with input and output parameters mixed in the order.
 	subroutine STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
-					tchar, xmat, tpamb, tpdry, fi, flit, fout, &
+					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
-					ddot, wodot, work, u, d, r0, dr, ch2o, &
+					ddot, wodot, work, u, d, r0, dr, &
 					ncalls, maxkl, tin, fint, fid)
 		implicit none
 
@@ -3513,7 +3510,6 @@ contains
 		real*4, intent(in) :: tchar(maxno)		! end - pyrolysis temperature (K), by component
 		real*4, intent(in) :: xmat(maxkl)		! table of influence fractions between components
 		real*4, intent(in) :: tpamb				! ambient temperature (K)
-		real*4, intent(in) :: tpdry				! temperature (all components) start drying (K)
 		real*4, intent(in) :: fi				! current fire intensity (site avg), kW / sq m
 		real*4, intent(in) :: work(maxno)		! factor of heat transfer rate hbar * (Tfire - Tebar)
 												! that yields ddot (k)
@@ -3526,9 +3522,6 @@ contains
 		real*4, intent(in) :: d					! Fuelbed depth (m)
 		real*4, intent(in) :: r0				! minimum value of mixing parameter
 		real*4, intent(in) :: dr				! max - min value of mixing parameter
-		real*4, intent(in) :: ch2o				! specific heat capacity of water, J / kg K
-		! Note: The original code documents the following variable, but it is mot actually used.
-		!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg
 
 		integer, intent(in) :: maxkl			! Max triangular matrix size.
 		real*4, intent(in) :: tin				! start of current time step
@@ -3552,6 +3545,11 @@ contains
 												! fuel component pair
 		real*4, intent(inout) :: tout(maxkl)	! burnout time of larger component of pairs
 		real*4, intent(inout) :: qcum(maxkl)	! cumulative heat input to larger of pair, J / sq m
+
+		! The constants ch2o and tpdry were included as arguments in the original code.  They have
+		! chnaged to globals.
+		! Note: The original code documents the following variable, but it is mot actually used.
+		!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg
 
 
 ! -- Pagebreak --
@@ -3866,7 +3864,7 @@ contains
 						cycle lLoop
 					endif
 					dia = diam(kl)
-					ts = 0.5*(tpamb + tpdry)
+					ts = 0.5*(tpamb + tpdry)				! JMR: Whitespace!!!!!
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					dtcum = max((tf - ts) * dt, 0.)
 					tcum(kl) = tcum(kl) + dtcum
