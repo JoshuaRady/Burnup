@@ -454,50 +454,11 @@ contains
 		
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
 		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		! Outputs:
-		!xmat = 0.0 ! Initialized in OVLAPS() as beta.
-		!tign = 0.0 ! Initialized in START().
-		!tout = 0.0 ! Initialized in START().
-		wo = 0.0 ! Calculated late in ARRAYS().
-		!diam = 0.0 ! Calculated from sigma in ARRAYS().
-		! Locals:
-		! Thse seem to have no effect:
-		alfa = 0.0
-		flit = 0.0
-		fout = 0.0
-		work = 0.0
-		elam = 0.0
-		alone = 0.0
-		area = 0.0
-		fint = 0.0
-		! In these 8:
-		tdry = 0.0
-		wodot = 0.0
-		ddot = 0.0
-		qcum = 0.0
-		!
-		!tcum = 0.0 Done in START().
-		! These two need to be initialized.  Should be moved into START().
-		! acum = 0.0
-		! qdot = 0.0
-		!key = 0 Done in SORTER().
-		
-		! These don't seem to matter.
-		parts = "123456789012"
-		list =  "123456789012"
-		
-		dfi = 0.0
-		tdf = 0.0
-		now = 0
-		tis = 0.0
-		tpdry = 0.0
-		ncalls = 0
-		ch2o = 0.0
-		fid = 0.0
-		! JMR_TESTING_END.
-		
+
+		! There are a large number of locals in this routine that are not explictly initialized.
+		! Most are initialized in ARRAYS() and START.  Testing was done to confrim that explicit
+		! initialization was not needed for the remaining locals.
+
 		! JMR: Temporary:
 		! Parts will be empty:
 ! 		parts = "Test"
@@ -595,12 +556,6 @@ contains
 		! We return the value in dt.  This may be changed in the future.
 		dt = tis
 		! We could also return the number of timesteps completed in ntimes but that doesn't add much.
-		
-		! JMR_TESTING:
-! 		print *, "acum:"
-! 		print *, acum
-! 		print *, "qdot:"
-! 		print *, qdot
 
 	end subroutine Simulate
 
@@ -2326,20 +2281,8 @@ contains
 		! Locals:
 		integer :: j, k, kl, kj ! Counters
 		real*4 :: diak, wtk
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		diam = 0.0
-! 		key = 0 ! This is initialized in SORTER().
-		work = 0.0
-		elam = 0.0
-		alone = 0.0
-		xmat = 0.0
-		wo = 0.0
-		list = "Empty"
-! 		! Skip counters.
-		diak = 0.0
-		wtk = 0.0
-		! JMR_TESTING_END.
+
+		! Testing was done to confrim that explicit initialization of locals was not needed here.
 
 		call SORTER(maxno, number, sigma, fmois, dendry, key)
 
@@ -2821,39 +2764,6 @@ contains
 		! Initialize constants:			! JMR: Make global parameters?????
 		ch2o = 4186.0
 		tpdry = 353.0
-		
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		!integer :: k, l, kl ! Counters
-		delm = 0.0
-		heatk = 0.0
-		r = 0.0
-		tf = 0.0
-		ts = 0.0
-		thd = 0.0
-		tx = 0.0
-		dia = 0.0
-		cpwet = 0.0
-		fac = 0.0
-		dryt = 0.0
-		tsd = 0.0
-		c = 0.0
-		tigk = 0.0
-		en = 0.0
-		e = 0.0
-		trt = 0.0
-		nlit = 0.0
-		factor = 0.0
-		hb = 0.0
-		hf = 0.0
-		dtign = 0.0
-		conwet = 0.0
-		aint = 0.0
-		ddt = 0.0
-		dnext = 0.0
-		wnext = 0.0
-		df = 0.0
-		! JMR_TESTING_END.
 
 		!c Initialize time varying quantities and, set up work(k)
 		!c The diameter reduction rate of fuel component k is given
@@ -2883,11 +2793,12 @@ contains
 			end do
 		end do
 
-		! The original code does not initialize acum and qdot but failure to do so leads to small
+		! The original code does not initialize acum and qdot.  Failure to do so leads to small
 		! variations between runs and changes to results.
 		acum = 0.0
 		qdot = 0.0
-		
+		! There are a large number of other locals that are not explictly initialized.  Testing was
+		! done to confrim that explicit initialization was not needed.
 
 
 ! -- Pagebreak --
@@ -3365,20 +3276,7 @@ contains
 
 		xlo = 0.0
 		xhi = 1.0
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		! Output:
-		tmig = 0.0
-		! Locals:
-		xav = 0.0
-		fav = 0.0
-		beta = 0.0
-		conw = 0.0
-		dtb = 0.0
-		dti = 0.0
-		ratio = 0.0
-		rhoc = 0.0
-		! JMR_TESTING_END.
+		! Testing was done to confrim that explicit initialization of other locals was not needed.
 
 		do
 			xav = 0.5 * (xlo + xhi)
@@ -3512,19 +3410,7 @@ contains
 		real, parameter :: hradf = 0.5		! View factor emissivity
 
 		hfm = 0.0
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		hbar = 0.0
-		en = 0.0
-		! Locals:
-		v = 0.0
-		re = 0.0
-		enuair = 0.0
-		conair = 0.0
-		fac = 0.0
-		hfmin = 0.0
-		hrad = 0.0
-		! JMR_TESTING_END.
+		! Testing was done to confrim that explicit initialization of other locals was not needed.
 
 		if (dia .gt. b) then
 			v = sqrt(u * u + 0.53 * g * d)
@@ -3567,14 +3453,8 @@ contains
 		! Constants:
 		real, parameter :: err = 1.0e-04
 		real, parameter :: aa = 20.0
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		term = 0.0
-		rlast = 0.0
-		den = 0.0
-		rnext = 0.0
-		tempf = 0.0
-		! JMR_TESTING_END.
+
+		! Testing was done to confrim that explicit initialization of locals was not needed here.
 
 		term = r / (aa * q)
 		rlast = r
@@ -3727,72 +3607,9 @@ contains
 
 		! Constants:
 		real, parameter :: rindef = 1.0e+30
-		
-		! JMR_TESTING: Initialize all variables explicitly at start.
-		! Outputs:
-! 		tcum = 0.0
-! 		acum = 0.0
-! 		qdot = 0.0
-! 		ddot = 0.0
-! 		wodot = 0.0
-! 		! Locals:
-		! The following seem to have no effect:
-		flag = .false.
-		tnow = 0.0
-		tnext = 0.0
-		tdun = 0.0
-		tgo = 0.0
-		tifi = 0.0
-		next = 0.0
-		! The following seem to have no effect:
-		gi = 0.0
-		nspan = 0
-		tst = 0.0
-		aint = 0.0
-		qqq = 0.0
-		tav1 = 0.0
-		tav2 = 0.0
-		tav3 = 0.0
-		tavg = 0.0
-		tbar = 0.0
-		index = 0
-		qdsum = 0.0
-		qdavg = 0.0
-		deltim = 0.0
-		dnext = 0.0
-		wnext = 0.0
-		rate = 0.0
-		! The following seem to have no effect:
-		dryt = 0.0
-		dqdt = 0.0
-		qd = 0.0
-		dteff = 0.0
-		heff = 0.0
-		delt = 0.0
-		factor = 0.0
-		dtef = 0.0
-		he = 0.0
-		tf = 0.0
-		ts = 0.0
-		biot = 0.0
-		cpwet = 0.0
-		c = 0.0
-		conwet = 0.0
-		ddt = 0.0
-		dia = 0.0
-		dtcum = 0.0
-		dtlite = 0.0
-		e = 0.0
-		fac = 0.0
-		hb = 0.0
-		hf = 0.0
-		r = 0.0
-		tfe = 0.0
-		thd = 0.0
-		tlit = 0.0
-		tspan = 0.0
-		dtemp = 0.0
-		! JMR_TESTING_END.
+
+		! There are a large number of locals in this routine that are not explictly initialized.
+		! Testing was done to confrim that explicit initialization was not needed.
 
 		ncalls = ncalls + 1
 		tnow = tin
