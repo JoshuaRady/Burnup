@@ -597,10 +597,10 @@ contains
 		! We could also return the number of timesteps completed in ntimes but that doesn't add much.
 		
 		! JMR_TESTING:
-		print *, "acum:"
-		print *, acum
-		print *, "qdot:"
-		print *, qdot
+! 		print *, "acum:"
+! 		print *, acum
+! 		print *, "qdot:"
+! 		print *, qdot
 
 	end subroutine Simulate
 
