@@ -479,8 +479,8 @@ contains
 ! 		qcum = 0.0
 		!
 		!tcum = 0.0 Done in START().
-		!acum = 0.0
-		qdot = 0.0
+		acum = 0.0
+		!qdot = 0.0
 		!key = 0 Done in SORTER().
 		
 		! These don't seem to matter.
