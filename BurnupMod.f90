@@ -356,7 +356,7 @@ contains
 	! ToDo:
 	! - Provide a way to specify if fire history should be stored and returned.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
-						wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
+						parts, wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
 						xmat, tign, tout, wo, diam)
 		implicit none
 
@@ -394,7 +394,7 @@ contains
 		! JMR_NOTE: Some of these, e.g. SAV can safely be made in only!!!!!
 		
 		! Character strings can't be passed in from R so we leave part blank for now (see below):
-		!character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
+		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
 		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
 		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg,					AKA heat content
@@ -442,7 +442,7 @@ contains
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
 		integer :: key(maxno)			! Ordered index list
 		! Temporary: Leave the fuel component names blank.
-		character*12 :: parts(maxno)	! Fuel component names / labels
+		!character*12 :: parts(maxno)	! Fuel component names / labels
 		character*12 :: list(maxno)		!
 		!logical :: nohist				! Flag indicating if history output should be not be stored.
 		
@@ -613,8 +613,16 @@ contains
 		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
 		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
 
+		integer :: i ! Counter
+		character*12 :: parts(maxno) = ""	! Fuel component names / labels
+
 		!print *, "tout", tout ! JMR_TEMP_REPORTING
 		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
+		do i = 1, 3
+			!parts(i) = "Fuel " // char(i)
+			print *, char(i)
+			print *, "Fuel " // char(i)
+		end do
 
 		fiReal = real(fi)
 		dtReal = real(dt)
@@ -633,6 +641,7 @@ contains
 						!real(ak), real(r0), real(dr), real(dt), &
 						real(ak), real(r0), real(dr), dtReal, &
 						real(wdf), real(dfm), ntimes, number, &
+						parts, &
 						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
 						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
 						xmatR, tignR, toutR, woR, diamR)
