@@ -362,12 +362,12 @@ contains
 
 		! Arguments:
 		! Igniting fire and environmental data:
-		
-		! The value passed in for fi is the fire front intensity.  The variable is later reused and
-		! updated by FIRINT().  It is passed on to other routines that use bu do not change it.
-		! These two uses could be separated.  The value returned the value, is the final intensity,
-		! which might be of use.  A history would be more valuable.
 		real*4, intent(inout) :: fi		! Current fire intensity (site avg), kW / sq m
+		! The value passed in for fi is the fire front intensity.  The variable is later reused and
+		! updated by FIRINT().  It is passed on to other routines that use but do not change it.
+		! These two uses could be separated.  The value returned is the final intensity, which might
+		! be of use.  A history would be more valuable.
+		
 		real*4, intent(in) :: ti		! Igniting fire residence time (s).
 		real*4, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
 		real*4, intent(in) :: d			! Fuelbed depth (m)
@@ -389,11 +389,8 @@ contains
 		
 		! Fuel component property arrays:  The values will not change but they may be reordered.
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
-		! However, setting these to inout allows the values to be modified for use interally in this
-		! routine, which is useful for now.
-		! JMR_NOTE: Some of these, e.g. SAV can safely be made in only!!!!!
-		
-		! Character strings can't be passed in from R so we leave part blank for now (see below):
+		! However, setting these to inout allows the values to be reordered internally by SORTER(),
+		! which eliminates the need for parallel local variables.
 		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
 		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
@@ -403,14 +400,8 @@ contains
 		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
 		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K
 		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
-		
-		
 		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K
 		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K
-		
-		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
-		! Could try to remove?:
-		!integer, intent(in) :: number			! The number of fuel classes.  Move up?
 		
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
@@ -441,8 +432,6 @@ contains
 		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
 		integer :: key(maxno)			! Ordered index list
-		! Temporary: Leave the fuel component names blank.
-		!character*12 :: parts(maxno)	! Fuel component names / labels
 		character*12 :: list(maxno)		!
 		!logical :: nohist				! Flag indicating if history output should be not be stored.
 		
@@ -454,9 +443,8 @@ contains
 		integer :: ncalls		! Counter of calls to START().
 		real :: fid				! Fire intensity due to duff burning.
 		
-		
 		! In the original code fmin was a local treated as a constant.  Passing it in might be good:
-		real, parameter :: fimin = 0.1 ! Fire intensity (kW / sq m) at which fire goes out.
+		real, parameter :: fimin = 0.1	! Fire intensity (kW / sq m) at which fire goes out.
 
 		! There are a large number of locals in this routine that are not explictly initialized.
 		! Most are initialized in ARRAYS() and START.  Testing was done to confrim that explicit
@@ -609,64 +597,58 @@ contains
 
 		! Local type conversion intermediates:
 		real :: fiReal, dtReal
-		real, dimension(maxno) :: wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, sigmaOut
-		real, dimension(maxno) :: cheatOut, condryOut, tpigOut, tcharOut
-		real, dimension(maxkl) :: xmatR, tignR, toutR, woR, diamR
+		real, dimension(maxno) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal
+		real, dimension(maxno) :: cheatReal, condryReal, tpigReal, tcharReal
+		real, dimension(maxkl) :: xmatReal, tignReal, toutReal, woReal, diamReal
 
+		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
-		character*12 :: parts(maxno) = ""	! Fuel component names / labels
+		character*12 :: parts(maxno)	! Fuel component names / labels
 
-		!print *, "tout", tout ! JMR_TEMP_REPORTING
-		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
 		do i = 1, maxno
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
 		end do
-		print *, parts
-		return
 
+		! Convert variables that will be returned:
 		fiReal = real(fi)
 		dtReal = real(dt)
-		wdryOut = real(wdry)
-		ashOut = real(ash)
-		htvalOut = real(htval)
-		fmoisOut = real(fmois)
-		dendryOut = real(dendry)
-		sigmaOut = real(sigma)
-		cheatOut = real(cheat)
-		condryOut = real(condry)
-		tpigOut = real(tpig)
-		tcharOut = real(tchar)
+		wdryReal = real(wdry)
+		ashReal = real(ash)
+		htvalReal = real(htval)
+		fmoisReal = real(fmois)
+		dendryReal = real(dendry)
+		sigmaReal = real(sigma)
+		cheatReal = real(cheat)
+		condryReal = real(condry)
+		tpigReal = real(tpig)
+		tcharReal = real(tchar)
 
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
-						!real(ak), real(r0), real(dr), real(dt), &
 						real(ak), real(r0), real(dr), dtReal, &
 						real(wdf), real(dfm), ntimes, number, &
 						parts, &
-						wdryOut, ashOut, htvalOut, fmoisOut, dendryOut, &
-						sigmaOut, cheatOut, condryOut, tpigOut, tcharOut, &
-						xmatR, tignR, toutR, woR, diamR)
+						wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, &
+						sigmaReal, cheatReal, condryReal, tpigReal, tcharReal, &
+						xmatReal, tignReal, toutReal, woReal, diamReal)
 
+		! Convert back:
 		fi = dble(fiReal)
 		dt = dble(dtReal)
-		wdry = dble(wdryOut)
-		ash = dble(ashOut)
-		htval = dble(htvalOut)
-		fmois = dble(fmoisOut)
-		dendry = dble(dendryOut)
-		sigma = dble(sigmaOut)
-		cheat = dble(cheatOut)
-		condry = dble(condryOut)
-		tpig = dble(tpigOut)
-		tchar = dble(tcharOut)
-		
-		xmat = dble(xmatR)
-		tign = dble(tignR)
-		tout = dble(toutR)
-		wo = dble(woR)
-		diam = dble(diamR)
-		
-		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
-		!print *, "tout", tout ! JMR_TEMP_REPORTING
+		wdry = dble(wdryReal)
+		ash = dble(ashReal)
+		htval = dble(htvalReal)
+		fmois = dble(fmoisReal)
+		dendry = dble(dendryReal)
+		sigma = dble(sigmaReal)
+		cheat = dble(cheatReal)
+		condry = dble(condryReal)
+		tpig = dble(tpigReal)
+		tchar = dble(tcharReal)
+		xmat = dble(xmatReal)
+		tign = dble(tignReal)
+		tout = dble(toutReal)
+		wo = dble(woReal)
+		diam = dble(diamReal)
 
 	end subroutine SimulateR
 
