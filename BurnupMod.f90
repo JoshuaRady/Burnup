@@ -618,11 +618,11 @@ contains
 
 		!print *, "tout", tout ! JMR_TEMP_REPORTING
 		!print *, "toutR", toutR ! JMR_TEMP_REPORTING
-		do i = 1, 3
-			!parts(i) = "Fuel " // char(i)
-			print *, char(i)
-			print *, "Fuel " // char(i)
+		do i = 1, maxno
+			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
 		end do
+		print *, parts
+		return
 
 		fiReal = real(fi)
 		dtReal = real(dt)
