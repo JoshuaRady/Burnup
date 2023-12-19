@@ -3664,7 +3664,6 @@ contains
 					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq ! JMR: Oneliner!!!!! Connect with next if...
 					if (nspan .GT. mxstep) then
 						do mu = 2, mxstep
-							!qdot(kl, mu - l) = qdot (kl, mu) ! JMR: Transcription: l for 1 substitution!!!!!
 							qdot(kl, mu - 1) = qdot(kl, mu)
 						end do
 						qdot(kl, mxstep) = qqq
@@ -3678,7 +3677,6 @@ contains
 					tav3 = ((dia / 4.) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 					
-					!index = l + min(nspan, mxstep) ! JMR: Transcription: l for 1 substitution!!!!!
 					index = 1 + min(nspan, mxstep)
 					qdsum = 0.0
 					tspan = 0.0
@@ -3929,8 +3927,7 @@ contains
 						
 						if (tnext .GT. tign(kl)) then
 							ts = tchar(k)
-							!qdot (kl, l) = hb * max ((tf - ts), 0.) ! JMR: Transcription: l for 1 substitution!!!!!
-							qdot (kl, 1) = hb * max((tf - ts), 0.0)
+							qdot(kl, 1) = hb * max((tf - ts), 0.0)
 						end if
 					end if
 				end if

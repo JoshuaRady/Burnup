@@ -1812,7 +1812,7 @@
       			if( nspan .LE. mxstep) qdot( kl , nspan ) = qqq
       			if( nspan .GT. mxstep) then
       				do mu = 2, mxstep
-      					qdot( kl , mu - l ) = qdot ( kl , mu )
+      					qdot( kl , mu - 1 ) = qdot ( kl , mu )
       				end do
       				qdot( kl , mxstep) = qqq
       			end if
@@ -1822,7 +1822,7 @@
       			tav2 = acum( kl ) / alfa( k )
       			tav3 = ( ( dia / 4. ) ** 2 ) / alfa ( k )
       			tavg = min( tav1 , tav2 , tav3 )
-      			index = l + min( nspan , mxstep )
+      			index = 1 + min( nspan , mxstep )
       			qdsum = 0.
       			tspan = 0.
       			deltim = dt
@@ -1984,7 +1984,7 @@
       				tign( kl ) = 0.5 * ( tdry( kl ) + dtlite )
       				if( tnext .GT. tign( kl ) ) then
       					ts = tchar( k)
-      					qdot ( kl , l ) = hb * max ( ( tf - ts ) , 0. )
+      					qdot( kl , 1 ) = hb * max ( ( tf - ts ) , 0. )
       				end if
       			end if
       		end if
@@ -2004,7 +2004,7 @@
       			flit( k) = flit( k ) + xmat( kl )
       		end if
       		if ( tnext .GT. tout ( kl ) ) then
-      			fout( k) = fout( k ) + xmat( kl )
+      			fout( k ) = fout( k ) + xmat( kl )
       		end if
       	end do
       end do
