@@ -80,7 +80,8 @@ module BurnupMod
 
 	! Contain original menu based UI.  Probably not runnable in most contexts.
 	! Should these just be removed?
-	private :: BurnupMain
+	!private :: BurnupMain
+	public :: BurnupMain
 	private :: GETDAT
 	private :: GetComponentParameters
 	private :: GetFireAndSimProperties
