@@ -349,6 +349,15 @@ contains
 	end subroutine BurnupMain
 
 
+	! In progress...
+	subroutine BurnupMainR() bind(C, name = "burnupmainr")
+		implicit none
+		
+		call BurnupMain()
+		
+	end subroutine BurnupMainR
+
+
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
 	!
 	! History: Added as an programatic alternative entry point to the original interactive program.
