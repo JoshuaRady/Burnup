@@ -1210,10 +1210,6 @@
       		qcum( kl ) = 0.
       	end do
       end do
-      
-      ! Testing: initialize acum and qdot...
-      acum = 0.0
-      qdot = 0.0
 
 
 ! -- Pagebreak --
