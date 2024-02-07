@@ -2835,14 +2835,19 @@ contains
 		!c Determine minimum ignition time and verify ignition exists
 
 		do k = 1, number
-			if (flit(k) .GT. 0.0) nlit = nlit + 1			! JMR: Oneliner!!!!!
+			if (flit(k) .GT. 0.0)then
+				nlit = nlit + 1
+			end if
+
 			do l = 0, k
 				kl = Loc(k, l)
 				trt = min(trt, tign(kl))
 			end do
 		end do
 
-			if (nlit .EQ. 0) stop' START ignites no fuel'		! JMR: Oneliner!!!!!, indenting!
+		if (nlit .EQ. 0) then
+			stop' START ignites no fuel'
+		end if
 
 		!c Deduct trt from all time estimates, resetting time origin
 
@@ -3598,8 +3603,9 @@ contains
 					qqq = hb * max((tf - ts),  0.0)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
-					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq ! JMR: Oneliner!!!!! Connect with next if...
-					if (nspan .GT. mxstep) then
+					if (nspan .LE. mxstep) then
+						qdot(kl, nspan) = qqq
+					else ! if (nspan .GT. mxstep) then
 						do mu = 2, mxstep
 							qdot(kl, mu - 1) = qdot(kl, mu)
 						end do
