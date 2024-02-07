@@ -137,11 +137,6 @@ module BurnupMod
 	real*4, parameter :: ch2o = 4186.0	! Specific heat capacity of water, J / kg K
 	real*4, parameter :: tpdry = 353.0	! Temperature (all components) start drying (K)
 
-	!integer, parameter :: klVal = 7 ! JMR_TEMP_REPORTING: Loc(3,1) = 7
-	!integer, parameter :: klVal = 11 ! JMR_TEMP_REPORTING: Loc(4,1) = 11
-	!integer, parameter :: klVal = 29 ! JMR_TEMP_REPORTING: Loc(7,1) = 29
-	integer, parameter :: klVal = -1 ! JMR_TEMP_REPORTING: This should disable reporting.
-
 contains
 
 
@@ -471,14 +466,12 @@ contains
 ! 		return
 		
 		
-		!print *, "ARRAYS:" ! JMR: Temp reporting.
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					maxkl, parts, list, area)
 
-		!print *, "DUFBRN:" ! JMR: Temp reporting.
 		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
 		! running but it would probably better to pass the output of DUFBRN() in instead.
 		call DUFBRN(wdf, dfm, dfi, tdf)
@@ -487,7 +480,6 @@ contains
 		! Which of these variables need to be declared?????
 		now = 1
 		tis = ti
-		!print *, "START:" ! JMR: Temp reporting.
 		call START(tis, mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
@@ -507,15 +499,12 @@ contains
 		
 		
 		! Calculate the initial fire intensity:
-		!print *, "FIRINT:" ! JMR: Temp reporting.
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 		
-		!print *, "Loop:" ! JMR: Temp reporting.
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
 			do while (now .LT. ntimes)
-				!print *, "STEP:" ! JMR: Temp reporting.
 				call STEP(dt, mxstep, now, maxno, number, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
 							tchar, xmat, tpamb, fi, flit, fout, &
@@ -523,12 +512,6 @@ contains
 							ddot, wodot, work, u, d, r0, dr, &
 							ncalls, maxkl, tis, fint, fid)
 
-				
-				! JMR: Temp reporting:
-				if (now .eq. 1 .or. mod(now, 100) .eq. 0) then
-					!print *, "Next"
-				end if
-				
 				! Update time trackers:
 				now = now + 1
 				tis = tis + dt
@@ -2386,15 +2369,6 @@ contains
 			end do
 		end do
 
-		! JMR: Temporary reporting:
-		! print *, "ARRAYS()"
-! 		print *, "diam:"
-! 		print *, diam
-! 		print *, "xmat:"
-! 		print *, xmat
-! 		print *, "wo:"
-! 		print *, wo
-
 	end subroutine ARRAYS
 
 
@@ -2635,15 +2609,6 @@ contains
 			end if
 		end do
 
-		! JMR: Temporary reporting:
-		! print *, "OVLAPS()"
-! 		print *, "beta:"
-! 		print *, beta
-! 		print *, "alone:"
-! 		print *, alone
-! 		print *, "elam:"
-! 		print *, elam
-
 	end subroutine OVLAPS
 
 
@@ -2825,15 +2790,6 @@ contains
 				fac = fac * dendry(k) * cpwet
 				dryt = fac * dryt
 				tdry(kl) = dryt
-				
-				! JMR_TEMP_REPORTING:
-				if (kl .eq. klVal) then ! Loc(7,1) = 29
-					print *, "k, l =", k, l
-					print *, "tdry(kl) assignment 1: START()"
-					print *, "tdry(kl)", tdry(kl)
-					print *, "fac", fac
-				end if ! JMR_TEMP_REPORTING end
-				
 			end do
 		end do
 
@@ -2858,26 +2814,6 @@ contains
 									 cheat(k), fmois(k), dendry(k), hb, dtign)
 						trt = dryt + dtign
 						tign(kl) = 0.5 * trt
-						
-						! JMR_TEMP_REPORTING:
-						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						!if (kl .eq. 29) then! Loc(7,1) = 29
-						if (kl .eq. klVal) then
-							print *, "tign(kl) assignment 1: START()"
-							! Time should be the first timestep.
-							print *, "tign(kl)", tign(kl)
-							!print *, "tpamb", tpamb
-							!print *, "tpdry", tpdry
-							!print *, "tpig(k)", tpig(k)
-							print *, "tf", tf
-							!print *, "condry(k)", condry(k)
-							!print *, "cheat(k)", cheat(k)
-							!print *, "fmois(k)", fmois(k)
-							!print *, "dendry(k)", dendry(k)
-							print *, "hb", hb
-							print *, "dtign", dtign
-							print *, "dryt", dryt
-						end if ! JMR_TEMP_REPORTING end
 						
 						if (dt .GT. trt) then
 							flit(k) = flit(k) + xmat(kl)
@@ -2915,15 +2851,6 @@ contains
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
 					tdry(kl) = tdry (kl) - trt				! JMR: Whitespace!!!!!
-					
-					! JMR_TEMP_REPORTING:
-					!if (kl .eq. 29) then ! Loc(7,1) = 29
-					if (kl .eq. klVal) then
-						print *, "tdry(kl) assignment 2: START()"
-						print *, "tdry(kl)", tdry(kl)
-						print *, "trt", trt
-					end if ! JMR_TEMP_REPORTING end
-					
 				end if
 				if (tign(kl) .LT. rindef) then
 					tign(kl) = tign(kl) - trt
@@ -3775,37 +3702,6 @@ contains
 					endif
 					tign(kl) = 0.5 * (dryt + dtlite)
 					
-					! JMR_TEMP_REPORTING:
-					!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-					!if (kl .eq. 29) then ! Loc(7,1) = 29
-					!if (kl .eq. 7) then ! Loc(3,1)
-					if (kl .eq. klVal) then
-						print *, "tign(kl) assignment 2: STEP()"
-						print *, "tnow", tnow
-						print *, "tign(kl)", tign(kl)
-						!print *, "tpamb", tpamb
-						!print *, "tpdry", tpdry
-						!print *, "tpig(k)", tpig(k)
-						print *, "tfe", tfe
-						! Inputs to tfe:
-						!print *, "ts", ts
-						print *, "dteff", dteff
-						print *, "tcum(kl)", tcum(kl)
-						!print *, "tnext", tnext
-						
-! 						!print *, "condry(k)", condry(k)
-! 						!print *, "cheat(k)", cheat(k)
-! 						!print *, "fmois(k)", fmois(k)
-! 						!print *, "dendry(k)", dendry(k)
-						print *, "heff", heff
-						! Inputs to heff:
-						! tcum(kl) is above.
-						print *, "qcum(kl)", qcum(kl)
-						
-						print *, "dtlite", dtlite
-						print *, "dryt", dryt
-					end if ! JMR_TEMP_REPORTING end
-
 					!c If k will ignite before time step over, must interpolate
 
 					if (tnext .GT. tign(kl)) then
@@ -3887,15 +3783,6 @@ contains
 					fac = fac * cpwet * dendry(k)
 					tdry(kl) = fac * dryt
 					
-					! JMR_TEMP_REPORTING:
-					!if (kl .eq. 29) then ! Loc(7,1) = 29
-					if (kl .eq. klVal) then
-						print *, "tdry(kl) assignment 3: STEP()"
-						print *, "tnow", tnow
-						print *, "tdry(kl)", tdry(kl)
-						print *, "fac", fac
-					end if ! JMR_TEMP_REPORTING end
-					
 					if (tdry(kl) .LT. tnext) then
 						ts = tpdry
 						call heatx(u, d, dia, tf, ts, hf, hb, c, e)
@@ -3914,26 +3801,6 @@ contains
 									condry(k), cheat(k), fmois(k), dendry(k), &
 									hb, dtlite)
 						tign(kl) = 0.5 * (tdry(kl) + dtlite)
-						
-						! JMR_TEMP_REPORTING:
-						!if (k .eq. 7) then ! Fuel type 7 is the first fuel showing issues.
-						!if (kl .eq. 29) then! Loc(7,1) = 29
-						if (kl .eq. klVal) then
-							print *, "tign(kl) assignment 3: STEP()"
-							print *, "tnow", tnow
-							print *, "tign(kl)", tign(kl)
-							!print *, "tpamb", tpamb
-							!print *, "tpdry", tpdry
-							!print *, "tpig(k)", tpig(k)
-							print *, "tf", tf
-							!print *, "condry(k)", condry(k)
-							!print *, "cheat(k)", cheat(k)
-							!print *, "fmois(k)", fmois(k)
-							!print *, "dendry(k)", dendry(k)
-							print *, "hb", hb
-							print *, "dtlite", dtlite
-							print *, "tdry(kl)", tdry(kl)
-						end if ! JMR_TEMP_REPORTING end
 						
 						if (tnext .GT. tign(kl)) then
 							ts = tchar(k)
