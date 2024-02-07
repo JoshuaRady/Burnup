@@ -2237,7 +2237,7 @@ contains
 		! Arguments:
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/ sq m				! JMR: Transcription!!!!
+		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg / sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
 		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
 		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
@@ -2295,7 +2295,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)						! JMR: Whitespace!!!!!
+			k = key(j)
 			work(j) = ash(k)
 		end do
 		do j = 1, number
@@ -2303,7 +2303,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)						! JMR: Whitespace!!!!!
+			k = key(j)
 			work(j) = htval(k)
 		end do
 		do j = 1, number
@@ -2319,7 +2319,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)						! JMR: Whitespace!!!!!
+			k = key(j)
 			work(j) = condry(k)
 		end do
 		do j = 1, number
@@ -2335,7 +2335,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)						! JMR: Whitespace!!!!!
+			k = key(j)
 			work(j) = tchar(k)
 		end do
 		do j = 1, number
@@ -2364,7 +2364,7 @@ contains
 			do j = 1, k
 				kj = Loc(k, j)
 				diam(kj) = diak
-				xmat(kj) = elam (k, j)					! JMR: Transcription!!!!!!
+				xmat(kj) = elam(k, j)
 				wo(kj) = wtk * xmat(kj)
 			end do
 		end do
@@ -2411,7 +2411,7 @@ contains
 		!c Replacement sort: order on increasing size, moisture, density
 		do j = 2, number
 			! Store the values for this fuel index:
-			s = 1.0 / sigma (j)					! JMR: Whitespace!!!!!
+			s = 1.0 / sigma(j)
 			fm = fmois(j)
 			de = dryden(j)
 			keep = key(j)
@@ -2568,7 +2568,7 @@ contains
 				a = siga * dryld(l) / dryden(l) ! siga * ? units in meters
 				if (k .EQ. 1) then
 					bb = 1.0 - exp(-a)			! JMR: FOFEM suggests this can hit 0?
-					area (k) = bb				! JMR: Transcription!!!!
+					area(k) = bb
 				else
 					bb = min(1.0, a)
 				end if
@@ -2577,7 +2577,7 @@ contains
 		end do
 
 		if (number .EQ. 1) then
-			elam (1, 1) = beta (2)				! JMR: Transcription!!!!
+			elam(1, 1) = beta (2)
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if
@@ -2782,7 +2782,7 @@ contains
 			conwet = condry(k) + 4.27e-04 * factor
 			do l = 0, k
 				kl = Loc(k, l)
-				dia = diam (kl)				! JMR: Whitespace!!!!!
+				dia = diam(kl)
 				call heatx(u, d, dia, tf, tx, hf, hb, conwet, en)
 				call DRYTIM(en, thd, dryt)
 				cpwet = cheat(k) + fmois(k) * ch2o
@@ -2804,10 +2804,10 @@ contains
 				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
-					dia = diam (kl)									! JMR: Whitespace!!!!!
+					dia = diam(kl)
 					ts = 0.5 * (tsd + tigk)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)		! JMR: Trailing 0s!!!!!
+					tcum(kl) = max((tf - ts) * (dt - dryt), 0.0)
 					qcum(kl) = hb * tcum(kl)
 					if (tf .GT. (tigk + 10.)) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tf, condry(k), &
@@ -2850,7 +2850,7 @@ contains
 			do l = 0, k
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
-					tdry(kl) = tdry (kl) - trt				! JMR: Whitespace!!!!!
+					tdry(kl) = tdry(kl) - trt
 				end if
 				if (tign(kl) .LT. rindef) then
 					tign(kl) = tign(kl) - trt
@@ -2876,13 +2876,13 @@ contains
 					kl = Loc(k, l)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qdot(kl, now) = hb * max((tf - ts), 0.)			! JMR: Trailing 0s!!!!!
+					qdot(kl, now) = hb * max((tf - ts), 0.0)
 					aint = (c / hb) ** 2
 					ddt = dt - tign(kl)
 					acum(kl) = aint * ddt
 					ddot(kl) = qdot(kl, now) * work(k)
 					tout(kl) = dia / ddot(kl)
-					dnext = max(0., (dia - ddt * ddot(kl)))			! JMR: Trailing 0s!!!!!
+					dnext = max(0.0, (dia - ddt * ddot(kl)))
 					wnext = wo(kl) * ((dnext / dia) ** 2)
 					wodot(kl) = (wo(kl) - wnext) / ddt
 
@@ -2894,7 +2894,7 @@ contains
 					diam(kl) = dnext
 					wo(kl) = wnext
 					df = 0.0
-					if (dnext .LE. 0.) then			! JMR: Trailing 0s!!!!!
+					if (dnext .LE. 0.0) then
 						df = xmat(kl)
 						wodot(kl) = 0.0
 						ddot(kl) = 0.0
@@ -3040,7 +3040,7 @@ contains
 			do m = 1, number
 				fmm = fmois(m)
 				wdm = 0.0
-				do n= 0, m					! JMR: Whitespace
+				do n = 0, m	
 					mn = Loc(m, n)
 					wdm = wdm + wo(mn)
 				end do
@@ -3163,7 +3163,7 @@ contains
 
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
-		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K			! JMR: Spelling!!!!!
+		real*4, intent(in) :: tpdr	! fuel temperature at start of drying, K
 									! Currently this is always tpdry, so this argument could be cut.
 		real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
@@ -3219,9 +3219,9 @@ contains
 	
 			if (abs(fav) .LE. small) then
 				exit
-			else if (fav .LT. 0.) then		! JMR: Trailing 0s!!!!!
+			else if (fav .LT. 0.0) then
 				xlo = xav
-			else if (fav .GT. 0.) then
+			else if (fav .GT. 0.0) then
 				xhi = xav
 			end if
 		end do
@@ -3571,11 +3571,11 @@ contains
 
 					wodot(kl) = wo(kl) / tgo
 					wo(kl) = 0.0
-					diam (kl) = 0.0 ! JMR: Whitespace!!!!!
+					diam(kl) = 0.0
 					cycle lLoop
 				end if
 
-				!c k has not yet burned out ... see if k of (k, 1) pair is ignited ! JMR: Transcription!!!!!
+				!c k has not yet burned out ... see if k of (k, l) pair is ignited
 
 				tlit = tign(kl)
 				if (tnow .GE. tlit) then
@@ -3631,19 +3631,19 @@ contains
 							deltim = tavg - tspan
 						end if
 						
-						qdsum = qdsum + qdot (kl, index) * deltim ! JMR: Whitespace!!!!!
+						qdsum = qdsum + qdot(kl, index) * deltim 
 						tspan = tspan + deltim
 						
-						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! Will this pass the first time?  Yes!
+						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! JMR:  Will this pass the first time?  Yes!
 							cycle
 						else
 							exit
 						endif
 					end do
 
-					qdavg = max (qdsum / tspan, 0.) ! JMR: trailing zeros!!!!!
+					qdavg = max (qdsum / tspan, 0.0)
 					ddot(kl) = qdavg * work(k)
-					dnext = max(0., dia - dt * ddot(kl)) ! JMR: trailing zeros!!!!!
+					dnext = max(0.0, dia - dt * ddot(kl))
 
 
 ! -- Pagebreak --
@@ -3651,14 +3651,14 @@ contains
 
 
 					wnext = wo(kl) * ((dnext / dia) ** 2)
-					if ((dnext .EQ. 0.) .AND. (ddot(kl) .GT. 0.)) then
+					if ((dnext .EQ. 0.0) .AND. (ddot(kl) .GT. 0.0)) then
 						tout(kl) = tnow + dia / ddot(kl)
 					end if
-					if ((dnext .GT. 0.) .AND. (dnext .LT. dia)) then
+					if ((dnext .GT. 0.0) .AND. (dnext .LT. dia)) then
 						rate = dia / (dia - dnext)
 						tout(kl) = tnow + rate * dt
 					end if
-					if (qdavg .LE. 20.) tout(kl) = 0.5*(tnow + tnext) ! JMR: Whitespace...
+					if (qdavg .LE. 20.0) tout(kl) = 0.5 * (tnow + tnext)
 					ddt = min(dt, (tout(kl) - tnow))
 					wodot(kl) = (wo(kl) - wnext) / ddt
 					diam(kl) = dnext
@@ -3684,7 +3684,7 @@ contains
 					end if
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
-					dia = diam (kl) ! JMR: Transcription!!!!!
+					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					dtemp = max(0., (tf - ts))
 					dqdt = hb * dtemp
@@ -3724,7 +3724,7 @@ contains
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
 						end if
-						if (tout (kl) .GT.  now) then				! JMR: Whitespace!!!!!
+						if (tout(kl) .GT.  now) then
 							ddt = min(dt, (tout(kl) - tnow))
 							wodot(kl) = (wo(kl) - wnext) / ddt
 						else
@@ -3759,7 +3759,7 @@ contains
 						cycle lLoop
 					endif
 					dia = diam(kl)
-					ts = 0.5*(tpamb + tpdry)				! JMR: Whitespace!!!!!
+					ts = 0.5 * (tpamb + tpdry)				! JMR: Whitespace!!!!!
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					dtcum = max((tf - ts) * dt, 0.)
 					tcum(kl) = tcum(kl) + dtcum
@@ -3822,7 +3822,7 @@ contains
 				if (flag .AND. (tnext .LE. tout(kl))) then
 					flit(k) = flit(k) + xmat(kl)
 				end if
-				if (tnext .GT. tout (kl)) then			! JMR_NOTE: Whitespace!!!!!
+				if (tnext .GT. tout(kl)) then
 					fout(k) = fout(k) + xmat(kl)
 				end if
 			end do

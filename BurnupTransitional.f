@@ -1788,7 +1788,7 @@
       ! Arguments:
       integer, intent(in) :: maxno					! The maximum number of fuel classes allowed.
       integer, intent(in) :: number					! The actual number of fuel classes.
-      real*4, intent(inout) :: wdry(maxno)			! Ovendry mass loading , kg/ sq m
+      real*4, intent(inout) :: wdry(maxno)			! Ovendry mass loading , kg / sq m
       real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
       real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
       real*4, intent(inout) :: fmois(maxno)			! Moisture content, fraction dry mass
@@ -1840,7 +1840,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = ash( k )
       end do
       do j = 1 , number
@@ -1848,7 +1848,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = htval( k )
       end do
       do j = 1 , number
@@ -1864,7 +1864,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = condry( k )
       end do
       do j = 1 , number
@@ -1880,7 +1880,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = tchar( k )
       end do
       do j = 1 , number
@@ -1904,7 +1904,7 @@
       	do j = 1 , k
       		kj = Loc( k , j )
       		diam( kj ) = diak
-      		xmat( kj ) = elam ( k , j )
+      		xmat( kj ) = elam( k , j )
       		wo( kj ) = wtk * xmat( kj )
       	end do
       end do
@@ -1952,7 +1952,7 @@
 
       do j = 2, number
       	! Store the values for this fuel index:
-      	s = 1. / sigma ( j )
+      	s = 1. / sigma( j )
       	fm = fmois( j )
       	de = dryden( j )
       	keep = key( j )
@@ -2074,7 +2074,7 @@
       		a = siga * dryld( l ) / dryden( l )
       		if ( k .EQ. 1 ) then
       			bb = 1. - exp( - a )
-      			area ( k ) = bb
+      			area( k ) = bb
       		else
       			bb = min(1.0 , a)
       		end if
@@ -2083,7 +2083,7 @@
       end do
 
       if ( number .EQ. 1 ) then
-      	elam ( 1 , 1 ) = beta ( 2 )
+      	elam( 1 , 1 ) = beta ( 2 )
       	alone( 1 ) = 1. - elam( 1 , 1 )
       	return
       end if
@@ -2288,7 +2288,7 @@
       	conwet = condry( k ) + 4.27e-04 * factor
       	do l = 0 , k
       		kl = Loc( k , l )
-      		dia = diam ( kl )
+      		dia = diam( kl )
       		call heatx( u , d , dia , tf , tx , hf , hb , conwet , en )
       		call DRYTIM( en , thd , dryt )
       		cpwet = cheat( k ) + fmois( k ) * ch2o
@@ -2310,7 +2310,7 @@
       		kl = Loc( k , l )
       		dryt = tdry( kl )
       		if (dryt .LT. dt) then
-      			dia = diam ( kl )
+      			dia = diam( kl )
       			ts = 0.5 * (tsd + tigk)
       			call heatx( u , d , dia , tf , ts , hf , hb , c , e )
       			tcum( kl ) = max( ( tf - ts ) * ( dt - dryt ) , 0. )
@@ -2356,7 +2356,7 @@
       	do l = 0 , k
       		kl = Loc( k , l )
       		if( tdry( kl ) .LT. rindef ) then
-      			tdry( kl ) = tdry ( kl ) - trt
+      			tdry( kl ) = tdry( kl ) - trt
       		end if
       		if( tign( kl ) .LT. rindef) then
       			tign( kl ) = tign( kl ) - trt
@@ -2546,7 +2546,7 @@
       	do m = 1 , number
       		fmm = fmois( m )
       		wdm = 0.
-      		do n= 0 , m
+      		do n = 0 , m
       			mn = Loc( m, n)
       			wdm = wdm + wo( mn )
       		end do
@@ -2673,7 +2673,7 @@
 
       ! Arguments:
       real*4, intent(in) :: tpam	! ambient temperature , K
-      real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig , K
+      real*4, intent(in) :: tpdr	! fuel temperature at start of drying , K
       real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
       real*4, intent(in) :: tpfi	! fire enviroriment temperature , K
       real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
@@ -3046,11 +3046,11 @@
 
       			wodot( kl ) = wo( kl ) / tgo
       			wo( kl ) = 0.
-      			diam ( kl ) = 0.
+      			diam( kl ) = 0.
       			cycle lLoop
       		end if
 
-!c k has not yet burned out ... see if k of ( k, 1) pair is ignited
+!c k has not yet burned out ... see if k of ( k, l ) pair is ignited
 
       		tlit = tign( kl )
       		if( tnow .GE. tlit ) then
@@ -3095,7 +3095,7 @@
       				index = index - 1
       				if( index .EQ. 1 ) deltim = tnext - tspan - tlit
       				if( ( tspan + deltim) .GE. tavg ) deltim = tavg - tspan
-      				qdsum = qdsum + qdot ( kl , index ) * deltim
+      				qdsum = qdsum + qdot( kl , index ) * deltim
       				tspan = tspan + deltim
       				if(( tspan .LT. tavg ) .AND. ( index .GT. 1 )) then ! Will this pass the first time?
       					cycle
@@ -3184,7 +3184,7 @@
       					rate = dia / ( dia - dnext )
       					tout( kl ) = tnow + rate * dt
       				end if
-      				if ( tout ( kl ) .GT.  now ) then
+      				if ( tout( kl ) .GT.  now ) then
       					ddt = min( dt , ( tout( kl ) - tnow ) )
       					wodot( kl ) = ( wo( kl ) - wnext ) / ddt
       				else
@@ -3282,7 +3282,7 @@
       		if ( flag .AND. ( tnext .LE. tout( kl ) ) ) then
       			flit( k ) = flit( k ) + xmat( kl )
       		end if
-      		if ( tnext .GT. tout ( kl ) ) then
+      		if ( tnext .GT. tout( kl ) ) then
       			fout( k) = fout( k ) + xmat( kl )
       		end if
       	end do

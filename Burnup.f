@@ -819,7 +819,7 @@
 !c subroutine SORTER and computes the interaction matrix xmat from the array
 !c elam and the list alone returned from subroutine OVLAPS.  Parameters in
 !c arrays are defined in terms of initial values as:
-!c		wdry		ovendry mass loading , kg/ sq m
+!c		wdry		ovendry mass loading , kg / sq m
 !c		ash			mineral content , fraction dry mass
 !c		dendry		ovendry mass density , kg / cu m
 !c		fmois		moisture content , fraction dry mass
@@ -877,7 +877,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = ash( k )
       end do
       do j = 1 , number
@@ -885,7 +885,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = htval( k )
       end do
       do j = 1 , number
@@ -901,7 +901,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = condry( k )
       end do
       do j = 1 , number
@@ -917,7 +917,7 @@
       end do
 
       do j = 1 , number
-      	k = key ( j )
+      	k = key( j )
       	work( j ) = tchar( k )
       end do
       do j = 1 , number
@@ -941,7 +941,7 @@
       	do j = 1 , k
       		kj = loc( k , j )
       		diam( kj ) = diak
-      		xmat( kj ) = elam ( k , j )
+      		xmat( kj ) = elam( k , j )
       		wo( kj ) = wtk * xmat( kj )
       	end do
       end do
@@ -975,7 +975,7 @@
 !c Replacement sort: order on increasing size , moisture , density
 
       do j = 2, number
-      	s = 1. / sigma ( j )
+      	s = 1. / sigma( j )
       	fm = fmois( j )
       	de = dryden( j )
       	keep = key( j )
@@ -1050,7 +1050,7 @@
       		a = siga * dryld( l ) / dryden( l )
       		if ( k .EQ. 1 ) then
       			bb = 1. - exp( - a )
-      			area ( k ) = bb
+      			area( k ) = bb
       		end if
       		if ( k .NE. 1 ) bb = min( 1. , a )
       		beta( kl ) = bb
@@ -1058,7 +1058,7 @@
       end do
 
       if ( number .EQ. 1 ) then
-      	elam ( 1 , 1 ) = beta ( 2 )
+      	elam( 1 , 1 ) = beta( 2 )
       	alone( 1 ) = 1. - elam( 1 , 1 )
       	return
       end if
@@ -1231,7 +1231,7 @@
       	conwet = condry( k ) + 4.27e-04 * factor
       	do l = 0 , k
       		kl = loc( k , l )
-      		dia = diam ( kl )
+      		dia = diam( kl )
       		call heatx( u , d , dia , tf , tx , hf , hb , conwet , en )
       		call DRYTIM( en , thd , dryt )
       		cpwet = cheat( k ) + fmois( k ) * ch2o
@@ -1253,7 +1253,7 @@
       		kl = loc( k , l )
       		dryt = tdry( kl )
       		if( dryt .GE. dt) goto 10
-      		dia = diam ( kl )
+      		dia = diam( kl )
       		ts = 0.5*( tsd + tigk )
       		call heatx( u , d , dia , tf , ts , hf , hb , c , e )
       		tcum( kl ) = max( ( tf - ts ) * ( dt - dryt ) , 0. )
@@ -1428,7 +1428,7 @@
       	do m = 1 , number
       		fmm = fmois( m )
       		wdm = 0.
-      		do n= 0 , m
+      		do n = 0 , m
       			mn = loc( m, n)
       			wdm = wdm + wo( mn )
       		end do
@@ -1512,7 +1512,7 @@
      +                   chtd, fmof , dend, hbar , tmig )
 
 !c tpam = ambient temperature , K
-!c tpdr = fuel temperature at start of dryirig , K
+!c tpdr = fuel temperature at start of drying , K
 !c tpig = fuel surface temperature at iinition, K
 !c tpfi = fire enviroriment temperature , K
 !c cond = fuel ovendry thermal conductivity, W / m K
@@ -1782,11 +1782,11 @@
 
       			wodot( kl ) = wo( kl ) / tgo
       			wo( kl ) = 0.
-      			diam ( kl ) = 0.
+      			diam( kl ) = 0.
       			goto 10
       		end if
 
-!c k has not yet burned out ... see if k of ( k, 1) pair is ignited
+!c k has not yet burned out ... see if k of ( k, l ) pair is ignited
 
       		tlit = tign( kl )
       		if( tnow .GE. tlit ) then
@@ -1829,7 +1829,7 @@
 01    			index = index - 1
       			if( index .EQ. 1 ) deltim = tnext - tspan - tlit
       			if( ( tspan + deltim) .GE. tavg ) deltim = tavg - tspan
-      			qdsum = qdsum + qdot ( kl , index ) * deltim
+      			qdsum = qdsum + qdot( kl , index ) * deltim
       			tspan = tspan + deltim
       			if( ( tspan .LT. tavg ) .AND. ( index .GT. 1 ) ) goto 01
       			qdavg = max ( qdsum / tspan , 0. )
@@ -1912,7 +1912,7 @@
       					rate = dia / ( dia - dnext )
       					tout( kl ) = tnow + rate * dt
       				end if
-      				if ( tout ( kl ) .GT.  now ) then
+      				if ( tout( kl ) .GT.  now ) then
       					ddt = min( dt , ( tout( kl ) - tnow ) )
       					wodot( kl ) = ( wo( kl ) - wnext ) / ddt
       				else
@@ -2003,7 +2003,7 @@
       		if ( flag .AND. ( tnext .LE. tout( kl ) ) ) then
       			flit( k) = flit( k ) + xmat( kl )
       		end if
-      		if ( tnext .GT. tout ( kl ) ) then
+      		if ( tnext .GT. tout( kl ) ) then
       			fout( k ) = fout( k ) + xmat( kl )
       		end if
       	end do
