@@ -664,7 +664,7 @@ contains
 
 		dfi = 0.0
 		tdf = 0.0
-		if ((wdf .LE. 0.) .OR. (dfm .GE. 1.96)) return
+		if ((wdf .LE. 0.0) .OR. (dfm .GE. 1.96)) return
 		dfi = 11.25 - 4.05 * dfm
 		ff = 0.837 - 0.426 * dfm
 		tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm)
@@ -2773,7 +2773,7 @@ contains
 		r = r0 + 0.25 * dr
 		tf = tempf(fi, r, tpamb)
 		ts = tpamb
-		if (tf .LE. (tpdry + 10.)) stop' Igniting fire cannot dry fuel'
+		if (tf .LE. (tpdry + 10.0)) stop' Igniting fire cannot dry fuel'
 		thd = (tpdry - ts) / (tf - ts)
 		tx = 0.5 * (ts + tpdry)
 
@@ -2809,7 +2809,7 @@ contains
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					tcum(kl) = max((tf - ts) * (dt - dryt), 0.0)
 					qcum(kl) = hb * tcum(kl)
-					if (tf .GT. (tigk + 10.)) then
+					if (tf .GT. (tigk + 10.0)) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tf, condry(k), &
 									 cheat(k), fmois(k), dendry(k), hb, dtign)
 						trt = dryt + dtign
@@ -2835,7 +2835,7 @@ contains
 		!c Determine minimum ignition time and verify ignition exists
 
 		do k = 1, number
-			if (flit(k) .GT. 0.) nlit = nlit + 1			! JMR: Oneliner!!!!!
+			if (flit(k) .GT. 0.0) nlit = nlit + 1			! JMR: Oneliner!!!!!
 			do l = 0, k
 				kl = Loc(k, l)
 				trt = min(trt, tign(kl))
@@ -2862,7 +2862,7 @@ contains
 		!c for all the components that are ignited; extrapolate to end time dt
 
 		do k = 1, number
-			if (flit(k) .EQ. 0.) then
+			if (flit(k) .EQ. 0.0) then
 				do l = 0, k
 					kl = Loc(k, l)
 					ddot(kl) = 0.0
@@ -3275,7 +3275,7 @@ contains
 		do n = 1, 15
 			xm = 0.5 * (xl + xh)
 			approx = ErrorApprox(xm, theta)
-			if (approx .LT. 0.) then ! or if (ErrorAppox(xm) .LT. 0.) then
+			if (approx .LT. 0.0) then ! or if (ErrorAppox(xm) .LT. 0.0) then
 				xl = xm
 			else
 				xh = xm
@@ -3595,7 +3595,7 @@ contains
 					tf = tempf(gi, r, tpamb)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qqq = hb * max((tf - ts),  0.)
+					qqq = hb * max((tf - ts),  0.0)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
 					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq ! JMR: Oneliner!!!!! Connect with next if...
@@ -3611,7 +3611,7 @@ contains
 					! Time over which to perform averaging:
 					tav1 = tnext - tlit ! Time since ignition.
 					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
-					tav3 = ((dia / 4.) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
+					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 					
 					index = 1 + min(nspan, mxstep)
@@ -3686,7 +3686,7 @@ contains
 					ts = tpamb
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					dtemp = max(0., (tf - ts))
+					dtemp = max(0.0, (tf - ts))
 					dqdt = hb * dtemp
 					qcum(kl) = qcum(kl) + dqdt * dt
 					tcum(kl) = tcum(kl) + dtemp * dt
@@ -3695,7 +3695,7 @@ contains
 					tfe = ts + dteff
 					dtlite = rindef
 			
-					if (.not. (tfe .LE. (tpig (k) + 10.))) then
+					if (.not. (tfe .LE. (tpig (k) + 10.0))) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tfe, &
 							condry(k), cheat(k), fmois(k), dendry(k), &
 							heff, dtlite)
@@ -3713,14 +3713,14 @@ contains
 ! Pg. 110:
 
 
-						qdot(kl, 1) = hb * max((tf - ts), 0.)
+						qdot(kl, 1) = hb * max((tf - ts), 0.0)
 						qd = qdot(kl, 1)
 						ddot(kl) = qd * work(k)
 						delt = tnext - tign(kl)
-						dnext = max(0., dia - delt * ddot(kl))
+						dnext = max(0.0, dia - delt * ddot(kl))
 						wnext = wo(kl) * ((dnext / dia) ** 2)
-						if (dnext .EQ. 0.) tout(kl) = tnow + dia / ddot(kl)
-						if ((dnext .GT. 0.) .AND. (dnext .LT. dia)) then
+						if (dnext .EQ. 0.0) tout(kl) = tnow + dia / ddot(kl)
+						if ((dnext .GT. 0.0) .AND. (dnext .LT. dia)) then
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
 						end if
@@ -3755,13 +3755,13 @@ contains
 						gi = fi + flit(l) * fint(l)
 					end if
 					tf = tempf(gi, r, tpamb)
-					if (tf .LE. (tpdry + 10.)) then
+					if (tf .LE. (tpdry + 10.0)) then
 						cycle lLoop
 					endif
 					dia = diam(kl)
-					ts = 0.5 * (tpamb + tpdry)				! JMR: Whitespace!!!!!
+					ts = 0.5 * (tpamb + tpdry)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					dtcum = max((tf - ts) * dt, 0.)
+					dtcum = max((tf - ts) * dt, 0.0)
 					tcum(kl) = tcum(kl) + dtcum
 					qcum(kl) = qcum(kl) + hb * dtcum
 					he = qcum(kl) / tcum(kl)
