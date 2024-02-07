@@ -2487,6 +2487,8 @@ contains
 	!c that is not influenced by any other category.
 	!
 	! History: Modernized original Burnup subroutine.
+	! We modify the original behavior such that a negative value for ak indicates the the value of
+	! ak / K_a should be calculated.
 	subroutine OVLAPS(dryld, sigma, dryden, ak, number, &
 						maxno, maxkl, &
 						fmois, &
@@ -2504,13 +2506,11 @@ contains
 		
 		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
 		
-		!real*4, intent(out) :: beta(maxno)			! Consolidated interaction matrix (elsewhere = xmat). ! JMR: not quite right!!!!!
-		real*4, intent(out) :: beta(maxkl)
+		real*4, intent(out) :: beta(maxkl)			!
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
-		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
+		real*4, intent(out) :: area(maxno)		! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
-													! JMR: Change to out!!!!!
 
 		! Locals:
 		real :: pi ! Convert to a constant?
@@ -2519,9 +2519,6 @@ contains
 		real :: a
 		real :: bb
 		real :: frac ! Intermediate for calculating alone().
-		
-		!real :: akDyn ! Calculated value of K_a (ak) parameter.
-		!real :: akVal ! Value of K_a (ak) parameter, fixed or calculated depending on the mode.
 		real :: K_a ! Value of K_a (ak) parameter, fixed or calculated depending on the mode.
 
 		pi = abs(acos(-1.0)) ! Calculate pi.
@@ -2539,19 +2536,7 @@ contains
 		end do
 
 		do k = 1, number
-			!siga = ak * sigma(k) / pi
 			do l = 1, k
-				
-				!kl = Loc(k, l)
-				
-				! Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
-				! Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
-				!akDyn = 3.25 * exp(-20 * fmois(l)**2)
-				
-				! SAV / pi = diameter (units are carried by ak)
-				!siga = ak * sigma(k) / pi
-				!siga = akDyn * sigma(k) / pi
-				
 				if (ak .gt. 0) then! or .ge. ?
 					! If a valid value has been supplied use a fixed K_a as in the original Burnup:
 					K_a = ak
@@ -2562,6 +2547,7 @@ contains
 					K_a = 3.25 * exp(-20 * fmois(l)**2)
 				end if
 				
+				! SAV / pi = diameter (units are carried by ak):
 				siga = K_a * sigma(k) / pi
 				
 				kl = Loc(k, l)
