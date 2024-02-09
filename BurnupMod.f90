@@ -455,17 +455,6 @@ contains
 		! Most are initialized in ARRAYS() and START.  Testing was done to confrim that explicit
 		! initialization was not needed for the remaining locals.
 
-		! JMR: Temporary:
-		! Parts will be empty:
-! 		parts = "Test"
-! 		call ArchiveSettings(parts, wdry, ash, htval, fmois, dendry, &
-! 								sigma, cheat, condry, tpig, tchar, maxno, number, &
-! 								fi, ti, u, d, tpamb, &
-! 								ak, r0, dr, dt, wdf, dfm, ntimes)
-! 		
-! 		return
-		
-		
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
@@ -477,7 +466,6 @@ contains
 		call DUFBRN(wdf, dfm, dfi, tdf)
 		
 		! Initialize variables and data structures:
-		! Which of these variables need to be declared?????
 		now = 1
 		tis = ti
 		call START(tis, mxstep, now, maxno, number, wo, alfa, &
@@ -1271,8 +1259,7 @@ contains
 					! Note: This means the data remains.
 					number = number - 1
 					cycle ! Back to top menu.
-				else
-					! The else in the orignal is implied.
+				else! The else in the orignal code is implied.
 				
 					! Otherwise overwrite the item to be removed with the last element:
 					! This changes the order but this doesn't matter because th list will be sorted
@@ -1288,7 +1275,7 @@ contains
 					condry(ind) = condry(number)
 					tpig(ind) = tpig(number)
 					tchar(ind) = tchar(number)
-					number = number - 1 ! JMR_NOTE: Could be combined with previous else.
+					number = number - 1
 					cycle ! Back to top menu.
 				end if
 
@@ -2257,7 +2244,7 @@ contains
 		real*4, intent(out) :: wo(maxkl)			! Initial dry loading by interaction pairs
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
-		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array?????
+		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array.
 													! This is passed in but is not initialized prior
 													! to that.  It doesn't appear that it is used
 													! after it is returned.  It appears to only be
@@ -2733,7 +2720,7 @@ contains
 			work(k) = 1.0 / (255.0 * heatk)
 			do l = 0, k
 				kl = Loc(k, l)
-				tout(kl) = rindef			! JMR_NOTE: These are initialized to blank values so they are not inout??????!!!!!
+				tout(kl) = rindef
 				tign(kl) = rindef
 				tdry(kl) = rindef
 				tcum(kl) = 0.0
@@ -3005,7 +2992,6 @@ contains
 												! passed in for subsequent.
 
 		! Locals:
-		!character*12 :: outfil
 		character*12 :: histry
 		logical snaps
 
@@ -3147,7 +3133,7 @@ contains
 	! surface film cooling.
 	! History: Modernized original Burnup subroutine.
 	!
-	! JMR_NOTE: If this only has one return value it could be turned into a function.
+	! JMR_NOTE: Since this only has one return value it could be turned into a function.
 	subroutine TIGNIT(tpam, tpdr, tpig, tpfi, cond, &
 						chtd, fmof, dend, hbar, tmig)
 		implicit none
@@ -3423,8 +3409,8 @@ contains
 		real*4, intent(in) :: fmois(maxno)		! moisture fraction of component
 		real*4, intent(in) :: cheat(maxno)		! specific heat capacity of component, J / kg K
 		real*4, intent(in) :: condry(maxno)		! ovendry thermal conductivity, w / sq m K
-		real*4, intent(inout) :: diam(maxkl)	! current diameter of the larger of each			! JMR: Intent?????
-												! fuel component pair, m
+		real*4, intent(inout) :: diam(maxkl)	! current diameter of the larger of each
+												! fuel component pair, m.  Updated on return.
 		real*4, intent(in) :: tpig(maxno)		! ignition temperature (K), by component
 		real*4, intent(in) :: tchar(maxno)		! end - pyrolysis temperature (K), by component
 		real*4, intent(in) :: xmat(maxkl)		! table of influence fractions between components
@@ -3548,7 +3534,6 @@ contains
 				if (tnow .GE. tdun) then
 					ddot(kl) = 0.0
 					wodot(kl) = 0.0
-					!goto 10 ! JMR: Remove!!!!!
 					cycle lLoop
 				end if
 				if (tnext .GE. tdun) then
@@ -3626,7 +3611,7 @@ contains
 						qdsum = qdsum + qdot(kl, index) * deltim 
 						tspan = tspan + deltim
 						
-						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! JMR:  Will this pass the first time?  Yes!
+						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then
 							cycle
 						else
 							exit
@@ -3844,8 +3829,8 @@ contains
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		integer, intent(in) :: nun					! Summary file unit identifier
-		real, intent(in) :: tis						! Igniting surface fire residence time (s)		! JMR: This is a bit confusing.  The residence time (ti above) is output but tis is also the current time?
-													! JMR_NOTE: No, this is definitely the 'current time', which when this is called will be the time the fire went out!!!!!
+		real, intent(in) :: tis						! Current time (ti + number of time steps * dt)
+													! When this is called this will be the time the fire went out.
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: wdry(maxno)			! Ovendry mass loading, kg/sq m
 		real*4, intent(in) :: fmois(maxno)			! Moisture content, fraction dry mass
