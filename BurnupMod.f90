@@ -140,9 +140,10 @@ module BurnupMod
 contains
 
 
-	! Run Burnup as an interactive menu based command line program.
-	! This routine contains the original contents of the main Burnup program.  It provides an entry
-	! point for the original command line UI.  It should be accessed by compiling the
+	! Run Burnup as an interactive menu based command line program:
+	!
+	! History: This routine contains the original contents of the main Burnup program.  It provides
+	! an entry point for the original command line UI.  It should be accessed by compiling the
 	! BurnupInteractive.f90 wrapper program.
 	subroutine InteractiveUI()
 		implicit none
