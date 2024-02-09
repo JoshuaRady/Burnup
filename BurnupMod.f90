@@ -345,16 +345,16 @@ contains
 			close(mum)
 		end do ! Main program loop.
 
-	end subroutine BurnupMain
+	end subroutine InteractiveUI
 
 
 	! In progress...
-	subroutine BurnupMainR() bind(C, name = "burnupmainr")
-		implicit none
-		
-		call BurnupMain()
-		
-	end subroutine BurnupMainR
+! 	subroutine BurnupMainR() bind(C, name = "burnupmainr")
+! 		implicit none
+! 		
+! 		call BurnupMain()
+! 		
+! 	end subroutine BurnupMainR
 
 
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
