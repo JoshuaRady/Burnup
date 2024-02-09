@@ -97,6 +97,7 @@ module BurnupMod
 	! File IO:
 	private :: STASH
 	private :: SUMMARY
+	private :: SaveState
 	
 	! Utilities:
 	private :: Loc
@@ -487,7 +488,7 @@ contains
 		end if
 		
 		! Record the state at this timepoint somehow...
-		
+		call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis?
 		
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
@@ -527,6 +528,8 @@ contains
 
 		! The main fire properties are returned as output arguments...
 		! A replacement for SUMMARY() could go here.
+		call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
+		
 		! Return the time when the fire dropped below fimin as the time the fire "went out".
 		! We return the value in dt.  This may be changed in the future.
 		dt = tis
@@ -4180,6 +4183,97 @@ contains
 		end do
 
 	end function AskForReal
+
+
+	! Output the state of the simulation at the current timestep:
+	!
+	! History: Added for module.
+	subroutine SaveState(time, number, parts, wo, diam) ! Name????? SaveHistory?
+		implicit none
+
+		! Arguments:
+		integer, intent(in) :: time					! Current time (s)
+		integer, intent(in) :: number				! Actual number of fuel components
+		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
+		
+		! All the outputs from START() and STEP()...
+		real*4, intent(in) :: wo(maxkl)		! Current ovendry loading for the larger of
+												! each component pair, kg / sq m.
+		real*4, intent(in) :: diam(maxkl)	! Current diameter of the larger of each
+												! fuel component pair, m.
+		!integer, intent(inout) :: ncalls		! Counter of calls to this routine		?????
+		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
+		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
+		!real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each
+												! fuel component pair
+		!real*4, intent(out) :: tign(maxkl)		! Ignition time for the larger of each
+												! fuel component pair
+		!real*4, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs
+		!real*4, intent(out) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m
+		!real*4, intent(out) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying)
+		!real*4, intent(out) :: acum(maxkl)		! Heat pulse area for historical rate averaging
+		!real*4, intent(out) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+													! to the larger of each component pair
+		!real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
+		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
+		!real*4, intent(inout) :: work(maxno)	! Workspace array
+
+		! Locals:
+		character(len = 1), parameter :: delim = achar(9) ! Delimiter = tab character
+		
+		! Format string for the variable output:
+		! Write the data in long format with
+		! time (integer), variable (string), value (float), and IDs (string)...
+		!character(len = *), parameter :: formatDelim = '(i0,' // delim // ',a,' // delim // ',f0,' &
+		!												// delim // ',a,' // delim // ',a)'
+		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',f0.0,'" &
+														// delim // "',a,'" // delim // "',a)'"
+		
+		integer, parameter :: hUnit = 111! History file unit identifier
+		
+		integer :: k, l, kl ! Counters.
+		
+		character*12 :: fuelName
+		character*12 :: compName
+		
+		integer :: openStat		! IO status.
+		integer :: writeStat	! IO status. 
+		character(len = 80) :: ioMsg
+		
+		! Open the file...
+		open(hUnit, file = 'HistoryDraft.txt', status = 'UNKNOWN', iostat = openStat)
+		if (openStat .ne. 0) then
+			print *, "Can't open file..."
+			stop
+			
+			! Add code to ask for or select a new name...
+		end if
+		
+		! Write header if this is the first timestep...
+		! Add code...
+		
+		do k = 1, number
+			fuelName = parts(k)
+		
+			do l = 0, k
+				compName = parts(l)
+				kl = Loc(k, l)
+				
+				! The most important is the fuel loading and inversely its consumption...
+				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+					time, "w_o", wo(kl), trim(fuelName), trim(compName)
+				if (writeStat /= 0) then
+					print *, "Write error: ", writeStat, ", Message: ", ioMsg
+				end if
+
+				write(hUnit, formatDelim) time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+
+			end do
+		end do
+		
+		close(hUnit)! Close the file.
+
+	end subroutine SaveState
 
 !end program BURNUP
 end module BurnupMod
