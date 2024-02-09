@@ -3928,7 +3928,7 @@ contains
 			name = parts(m)
 			win = wdry(m)
 			fmi = fmois(m)
-			dim = 4. / sigma(m)
+			dim = 4.0 / sigma(m)
 			if (v) then
 				write(nun, format20) name, win, fmi, dim
 			end if
