@@ -9,12 +9,12 @@
 !
 !---------------------------------------------------------------------------------------------------
 
-program Wrapper
+program BurnupInteractive
 
-	use BurnupMod, only : BurnupMain
+	use BurnupMod, only : InteractiveUI
 
 	implicit none
 
-	call BurnupMain()
+	call InteractiveUI()
 
-end program Wrapper
+end program BurnupInteractive

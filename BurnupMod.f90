@@ -77,11 +77,8 @@ module BurnupMod
 	public :: TEMPF
 	public :: STEP
 
-
-	! Contain original menu based UI.  Probably not runnable in most contexts.
-	! Should these just be removed?
-	!private :: BurnupMain
-	public :: BurnupMain
+	! Routines for the original menu based UI:
+	public :: InteractiveUI
 	private :: GETDAT
 	private :: GetComponentParameters
 	private :: GetFireAndSimProperties
@@ -143,9 +140,11 @@ module BurnupMod
 contains
 
 
-	! The original contents of the main Burnup program.  At the moment this code has just beeen
-	! moved here.  It can't be expected to work as is.
-	subroutine BurnupMain()
+	! Run Burnup as an interactive menu based command line program.
+	! This routine contains the original contents of the main Burnup program.  It provides an entry
+	! point for the original command line UI.  It should be accessed by compiling the
+	! BurnupInteractive.f90 wrapper program.
+	subroutine InteractiveUI()
 		implicit none
 
 		! Locals:
