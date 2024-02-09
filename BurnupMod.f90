@@ -136,6 +136,9 @@ module BurnupMod
 	! In the original code these were defined as variables and shared through subroutine arguments.
 	real*4, parameter :: ch2o = 4186.0	! Specific heat capacity of water, J / kg K
 	real*4, parameter :: tpdry = 353.0	! Temperature (all components) start drying (K)
+	
+	! Empty / undefined value constant:
+	real, parameter :: rindef = 1.0e+30 ! In the original code this defined both in START() and STEP().
 
 contains
 
@@ -2672,9 +2675,6 @@ contains
 		! The original comments include hvap as a constant, but is not actually used:
 		! hvap = heat of vaporization of water J / kg
 
-		! Local constants:
-		real, parameter :: rindef = 1.0e+30 ! JMR_NOTE: Make this global?
-
 		! Locals:
 		integer :: k, l, kl ! Counters
 		real :: delm		! Moisture effect on burning rate (scale factor)
@@ -3509,9 +3509,6 @@ contains
 		real :: dtemp
 
 		integer :: k, l, mu, kl ! Counters (kl is a bit different)
-
-		! Constants:
-		real, parameter :: rindef = 1.0e+30
 
 		! There are a large number of locals in this routine that are not explictly initialized.
 		! Testing was done to confrim that explicit initialization was not needed.
