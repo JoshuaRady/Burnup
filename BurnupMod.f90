@@ -138,6 +138,12 @@ module BurnupMod
 	! Empty / undefined value constant:
 	real, parameter :: rindef = 1.0e+30 ! In the original code this defined both in START() and STEP().
 
+	! Names:
+	character*12, parameter :: noCmpStr = 'no companion'	! The name for no companion pairs.
+															! In the original code this was declared
+															! as a variable 'none' in Summary().
+															! 'none' is a keyword so it was renamed.
+
 contains
 
 
@@ -3868,9 +3874,6 @@ contains
 		character(len = *), parameter :: format30 = '(5x,a12,e9.3,e11.3,e10.3,e11.3,e9.3)'
 		character(len = *), parameter :: format40 = '(5x,a12,e9.3,e11.3,e10.3,e11.3)'
 
-		character*12, parameter :: noCmpStr = 'no companion'	! (Was a variable 'none', which is a
-																!  keyword, in the original code.)
-		
 		nuname = outfil
 		stat = 'NEW'
 
@@ -4280,7 +4283,7 @@ contains
 				if (l .lt. k) then
 					compName = parts(l + 1)
 				else
-					compName = "none (temp)" ! Replace with constant!!!!!
+					compName = noCmpStr
 				end if
 
 				! Fuel loading:
