@@ -4220,7 +4220,11 @@ contains
 		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
 		!real*4, intent(inout) :: work(maxno)	! Workspace array
 
-		! Locals:
+		! Local constants:
+		! The file name is currently fixed.  In the future we may allow it be specified or
+		! automatically number the file if it already exists.
+		character(len = *), parameter :: histFile = "BurnupHistory.txt"
+		
 		character(len = 1), parameter :: delim = achar(9) ! Delimiter = tab character
 		
 		! Format string for the variable output:
@@ -4231,8 +4235,9 @@ contains
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',g0,'" &
 														// delim // "',a,'" // delim // "',a)'"
 
-		integer, parameter :: hUnit = 21! History file unit identifier
+		integer, parameter :: hUnit = 21! History file unit identifier.
 		
+		! Locals:
 		integer :: k, l, kl ! Counters.
 		
 		character*12 :: fuelName ! Name of the fuel type.
@@ -4244,7 +4249,7 @@ contains
 		
 		! Create or open the history file:
 		if (time == 1) then ! In the first timestep create and set up the file:
-			open(hUnit, file = 'HistoryDraft.txt', status = 'NEW', iostat = openStat)
+			open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
 				stop 'Abort'
@@ -4258,7 +4263,7 @@ contains
 			
 			
 		else ! Reopen the file and append:
-			open(hUnit, file = 'HistoryDraft.txt', position = 'APPEND', status = 'OLD', iostat = openStat)
+			open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
 				stop 'Abort'
