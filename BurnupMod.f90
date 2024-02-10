@@ -4187,7 +4187,7 @@ contains
 	end function AskForReal
 
 
-	! Output the state of the simulation at the current timestep:
+	! Output the state of the simulation at the current timestep to file:
 	!
 	! History: Added for module.
 	subroutine SaveState(time, number, parts, wo, diam) ! Name????? SaveHistory?
@@ -4198,10 +4198,10 @@ contains
 		integer, intent(in) :: number				! Actual number of fuel components
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		
-		! All the outputs from START() and STEP()...
-		real*4, intent(in) :: wo(maxkl)		! Current ovendry loading for the larger of
+		! All the outputs from START() and STEP():
+		real*4, intent(in) :: wo(maxkl)			! Current ovendry loading for the larger of
 												! each component pair, kg / sq m.
-		real*4, intent(in) :: diam(maxkl)	! Current diameter of the larger of each
+		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each
 												! fuel component pair, m.
 		!integer, intent(inout) :: ncalls		! Counter of calls to this routine		?????
 		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
@@ -4224,85 +4224,78 @@ contains
 		character(len = 1), parameter :: delim = achar(9) ! Delimiter = tab character
 		
 		! Format string for the variable output:
-		! Write the data in long format with
+		! Write the data in long format with tab delimited fields:
 		! time (integer), variable (string), value (float), and IDs (string)...
-		!character(len = *), parameter :: formatDelim = '(i0,' // delim // ',a,' // delim // ',f0,' &
-		!												// delim // ',a,' // delim // ',a)'
-		!character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',f0.0,'" &
-		!												// delim // "',a,'" // delim // "',a)'"
-		!character(len = *), parameter :: formatDelim = "(i4,'" // delim // "',a,'" // delim // "',f6.6,'" &
-		!												// delim // "',a,'" // delim // "',a)'"
+		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
+		! tabs may be the issue.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',g0,'" &
 														// delim // "',a,'" // delim // "',a)'"
 
-		
 		integer, parameter :: hUnit = 21! History file unit identifier
 		
 		integer :: k, l, kl ! Counters.
 		
-		character*12 :: fuelName
+		character*12 :: fuelName ! Name of the fuel type.
 		character*12 :: compName ! The name of the companion fuel.
 		
-		integer :: openStat		! IO status.
-		integer :: writeStat	! IO status. 
-		character(len = 80) :: ioMsg
+		integer :: openStat ! IO status.
+		integer :: writeStat ! IO status. 
+		character(len = 80) :: ioMsg ! IO error message.
 		
-		print *, "Time step", time ! Temporary reporting!!!!!
-		
-		! Open the file...
-		! open(hUnit, file = 'HistoryDraft.txt', status = 'UNKNOWN', iostat = openStat)
-! 		if (openStat .ne. 0) then
-! 			print *, "Can't open file..."
-! 			stop
-! 			
-! 			! Add code to ask for or select a new name...
-! 		end if
-		if (time == 1) then
+		! Create or open the history file:
+		if (time == 1) then ! In the first timestep create and set up the file:
 			open(hUnit, file = 'HistoryDraft.txt', status = 'NEW', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
-				stop
+				stop 'Abort'
+				! Not being able to write this output should not necessarily terminate execution.
+				! It might be better to notify and return from this routine.
 			
 				! Add code to ask for or select a new name...
 			end if
-		else
+			
+			! Write a header for the file:
+			
+			
+		else ! Reopen the file and append:
 			open(hUnit, file = 'HistoryDraft.txt', position = 'APPEND', status = 'OLD', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
-				stop
+				stop 'Abort'
 			end if
 		end if
-		
-		! Write header if this is the first timestep...
-		! Add code...
-		
+
 		do k = 1, number
 			fuelName = parts(k)
 		
 			do l = 0, k
+				kl = Loc(k, l)
 				
+				! Get the name of paired component:
 				if (l .lt. k) then
 					compName = parts(l + 1)
 				else
 					compName = "none (temp)" ! Replace with constant!!!!!
 				end if
-				
-				
-				kl = Loc(k, l)
-				
-				! The most important is the fuel loading and inversely its consumption...
+
+				! Fuel loading:
 				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-					time, "w_o", wo(kl), trim(fuelName), trim(compName)
+						time, "w_o", wo(kl), trim(fuelName), trim(compName)
 				if (writeStat /= 0) then
 					print *, "Write error: ", writeStat, ", Message: ", ioMsg
 				end if
 
-				write(hUnit, formatDelim) time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+				! Particle diameter:
+				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+						time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+				if (writeStat /= 0) then
+					print *, "Write error: ", writeStat, ", Message: ", ioMsg
+				end if
 
 			end do
 		end do
 		
-		close(hUnit)! Close the file.
+		close(hUnit) ! Close the file.
 
 	end subroutine SaveState
 
