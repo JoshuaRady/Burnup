@@ -4232,7 +4232,7 @@ contains
 		
 		! Format string for the variable output:
 		! Write the data in long format with tab delimited fields:
-		! timestep (integer), time (floar), variable (string), value (float), and IDs (strings)...
+		! timestep (integer), time (float), variable (string), value (float), and IDs (strings)...
 		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
 		! tabs may be the issue.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
@@ -4264,7 +4264,7 @@ contains
 			end if
 			
 			! Write a header for the file:
-			
+			write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
 			
 		else ! Reopen the file and append:
 			open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
