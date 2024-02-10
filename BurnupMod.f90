@@ -97,7 +97,7 @@ module BurnupMod
 	! File IO:
 	private :: STASH
 	private :: SUMMARY
-	private :: SaveState
+	private :: SaveStateToFile
 	
 	! Utilities:
 	private :: Loc
@@ -494,7 +494,7 @@ contains
 		end if
 		
 		! Record the state after START: Make optional!!!!!
-		call SaveState(now, tis, number, parts, wo, diam, fi)
+		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 		
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
@@ -525,7 +525,7 @@ contains
 				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
 				! Save the state at each timestep: Make optional!!!!!
-				call SaveState(now, tis, number, parts, wo, diam, fi)
+				call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 
 				if (fi .LE. fimin) then
 					exit
@@ -4192,7 +4192,7 @@ contains
 	! Output the state of the simulation at the current timestep to file:
 	!
 	! History: Added for module.
-	subroutine SaveState(ts, time, number, parts, wo, diam, fi)
+	subroutine SaveStateToFile(ts, time, number, parts, wo, diam, fi)
 		implicit none
 
 		! Arguments:
@@ -4313,7 +4313,7 @@ contains
 
 		close(hUnit) ! Close the file.
 
-	end subroutine SaveState
+	end subroutine SaveStateToFile
 
 !end program BURNUP
 end module BurnupMod
