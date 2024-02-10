@@ -4228,15 +4228,18 @@ contains
 		! time (integer), variable (string), value (float), and IDs (string)...
 		!character(len = *), parameter :: formatDelim = '(i0,' // delim // ',a,' // delim // ',f0,' &
 		!												// delim // ',a,' // delim // ',a)'
-		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',f0.0,'" &
+		!character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',f0.0,'" &
+		!												// delim // "',a,'" // delim // "',a)'"
+		character(len = *), parameter :: formatDelim = "(i4,'" // delim // "',a,'" // delim // "',f6.6,'" &
 														// delim // "',a,'" // delim // "',a)'"
+
 		
-		integer, parameter :: hUnit = 111! History file unit identifier
+		integer, parameter :: hUnit = 21! History file unit identifier
 		
 		integer :: k, l, kl ! Counters.
 		
 		character*12 :: fuelName
-		character*12 :: compName
+		character*12 :: compName ! The name of the companion fuel.
 		
 		integer :: openStat		! IO status.
 		integer :: writeStat	! IO status. 
@@ -4262,6 +4265,10 @@ contains
 			end if
 		else
 			open(hUnit, file = 'HistoryDraft.txt', status = 'OLD', iostat = openStat)
+			if (openStat .ne. 0) then
+				print *, "Can't open file..."
+				stop
+			end if
 		end if
 		
 		! Write header if this is the first timestep...
