@@ -518,6 +518,8 @@ contains
 				! Calculate the fire intensity at this time step:
 				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
+				call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
+
 				if (fi .LE. fimin) then
 					exit
 				else
@@ -528,7 +530,7 @@ contains
 
 		! The main fire properties are returned as output arguments...
 		! A replacement for SUMMARY() could go here.
-		call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
+		!call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
 		
 		! Return the time when the fire dropped below fimin as the time the fire "went out".
 		! We return the value in dt.  This may be changed in the future.
@@ -4240,13 +4242,26 @@ contains
 		integer :: writeStat	! IO status. 
 		character(len = 80) :: ioMsg
 		
+		print *, "Time step", time ! Temporary reporting!!!!!
+		
 		! Open the file...
-		open(hUnit, file = 'HistoryDraft.txt', status = 'UNKNOWN', iostat = openStat)
-		if (openStat .ne. 0) then
-			print *, "Can't open file..."
-			stop
+		! open(hUnit, file = 'HistoryDraft.txt', status = 'UNKNOWN', iostat = openStat)
+! 		if (openStat .ne. 0) then
+! 			print *, "Can't open file..."
+! 			stop
+! 			
+! 			! Add code to ask for or select a new name...
+! 		end if
+		if (time == 1) then
+			open(hUnit, file = 'HistoryDraft.txt', status = 'NEW', iostat = openStat)
+			if (openStat .ne. 0) then
+				print *, "Can't open file..."
+				stop
 			
-			! Add code to ask for or select a new name...
+				! Add code to ask for or select a new name...
+			end if
+		else
+			open(hUnit, file = 'HistoryDraft.txt', status = 'OLD', iostat = openStat)
 		end if
 		
 		! Write header if this is the first timestep...
@@ -4256,7 +4271,14 @@ contains
 			fuelName = parts(k)
 		
 			do l = 0, k
-				compName = parts(l)
+				
+				if (l .lt. k) then
+					compName = parts(l + 1)
+				else
+					compName = "none (temp)" ! Replace with constant!!!!!
+				end if
+				
+				
 				kl = Loc(k, l)
 				
 				! The most important is the fuel loading and inversely its consumption...
