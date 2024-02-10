@@ -493,8 +493,8 @@ contains
 			fid = 0.0
 		end if
 		
-		! Record the state at this timepoint somehow...
-		call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis?
+		! Record the state after START: Make optional!!!!!
+		call SaveState(now, tis, number, parts, wo, diam, fi)
 		
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
@@ -524,7 +524,8 @@ contains
 				! Calculate the fire intensity at this time step:
 				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
-				call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
+				! Save the state at each timestep: Make optional!!!!!
+				call SaveState(now, tis, number, parts, wo, diam, fi)
 
 				if (fi .LE. fimin) then
 					exit
@@ -536,8 +537,6 @@ contains
 
 		! The main fire properties are returned as output arguments...
 		! A replacement for SUMMARY() could go here.
-		!call SaveState(now, number, parts, wo, diam) ! JMR_NOTE: now doesn't = time.  Temporary!!!!! tis
-		
 		! Return the time when the fire dropped below fimin as the time the fire "went out".
 		! We return the value in dt.  This may be changed in the future.
 		dt = tis
@@ -4193,11 +4192,12 @@ contains
 	! Output the state of the simulation at the current timestep to file:
 	!
 	! History: Added for module.
-	subroutine SaveState(time, number, parts, wo, diam) ! Name????? SaveHistory?
+	subroutine SaveState(ts, time, number, parts, wo, diam, fi)
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: time					! Current time (s)
+		integer, intent(in) :: ts					! Current timestep count
+		double, intent(in) :: time					! Current time (s)
 		integer, intent(in) :: number				! Actual number of fuel components
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		
@@ -4206,7 +4206,6 @@ contains
 												! each component pair, kg / sq m.
 		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each
 												! fuel component pair, m.
-		!integer, intent(inout) :: ncalls		! Counter of calls to this routine		?????
 		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
 		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
 		!real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each
@@ -4222,6 +4221,7 @@ contains
 		!real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
 		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
 		!real*4, intent(inout) :: work(maxno)	! Workspace array
+		real*4, intent(in) :: fi					! Current fire intensity (site avg), kW / sq m
 
 		! Local constants:
 		! The file name is currently fixed.  In the future we may allow it be specified or
@@ -4232,11 +4232,12 @@ contains
 		
 		! Format string for the variable output:
 		! Write the data in long format with tab delimited fields:
-		! time (integer), variable (string), value (float), and IDs (string)...
+		! timestep (integer), time (floar), variable (string), value (float), and IDs (strings)...
 		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
 		! tabs may be the issue.
-		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',g0,'" &
-														// delim // "',a,'" // delim // "',a)'"
+		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
+														"',a,'" // delim // "',g0,'"  // delim // &
+														"',a,'" // delim // "',a)'"
 
 		integer, parameter :: hUnit = 21! History file unit identifier.
 		
@@ -4251,7 +4252,7 @@ contains
 		character(len = 80) :: ioMsg ! IO error message.
 		
 		! Create or open the history file:
-		if (time == 1) then ! In the first timestep create and set up the file:
+		if (ts == 1) then ! In the first timestep create and set up the file:
 			open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
@@ -4288,21 +4289,28 @@ contains
 
 				! Fuel loading:
 				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-						time, "w_o", wo(kl), trim(fuelName), trim(compName)
+						ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
 				if (writeStat /= 0) then
 					print *, "Write error: ", writeStat, ", Message: ", ioMsg
 				end if
 
 				! Particle diameter:
 				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-						time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+						ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
 				if (writeStat /= 0) then
 					print *, "Write error: ", writeStat, ", Message: ", ioMsg
 				end if
 
 			end do
 		end do
-		
+
+		! Average fire intensity:
+		write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+				ts, time, "FireIntensity", fi, "NA", "NA"
+		if (writeStat /= 0) then
+			print *, "Write error: ", writeStat, ", Message: ", ioMsg
+		end if
+
 		close(hUnit) ! Close the file.
 
 	end subroutine SaveState
