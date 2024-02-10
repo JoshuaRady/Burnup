@@ -4230,7 +4230,9 @@ contains
 		!												// delim // ',a,' // delim // ',a)'
 		!character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',f0.0,'" &
 		!												// delim // "',a,'" // delim // "',a)'"
-		character(len = *), parameter :: formatDelim = "(i4,'" // delim // "',a,'" // delim // "',f6.6,'" &
+		!character(len = *), parameter :: formatDelim = "(i4,'" // delim // "',a,'" // delim // "',f6.6,'" &
+		!												// delim // "',a,'" // delim // "',a)'"
+		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',a,'" // delim // "',g0,'" &
 														// delim // "',a,'" // delim // "',a)'"
 
 		
@@ -4264,7 +4266,7 @@ contains
 				! Add code to ask for or select a new name...
 			end if
 		else
-			open(hUnit, file = 'HistoryDraft.txt', status = 'OLD', iostat = openStat)
+			open(hUnit, file = 'HistoryDraft.txt', position = 'APPEND', status = 'OLD', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
 				stop
