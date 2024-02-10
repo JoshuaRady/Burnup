@@ -4197,7 +4197,7 @@ contains
 
 		! Arguments:
 		integer, intent(in) :: ts					! Current timestep count
-		double, intent(in) :: time					! Current time (s)
+		real*4, intent(in) :: time					! Current time (s)
 		integer, intent(in) :: number				! Actual number of fuel components
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		
