@@ -3980,7 +3980,7 @@ contains
 	! This function coverts the indexes of the pairwise fuel interaction triangular matrix space
 	! to indexes of the arrays used to represent it for several computed variables.
 	!
-	! Note: This will only return valid value valid (occupied) coordinates of the triangular matrix.
+	! Note: This will only return valid (occupied) coordinates of the triangular matrix.
 	! Error checking would require that the number of fuel classes be know. 
 	!
 	! History: This function was originally implemented as a statement function defined in seven places
@@ -4235,6 +4235,8 @@ contains
 		! timestep (integer), time (float), variable (string), value (float), and IDs (strings)...
 		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
 		! tabs may be the issue.
+		! The IDs are currently only used to identify the fule pairs.  If that is the only use they
+		! should be renamed.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
 														"',a,'" // delim // "',g0,'"  // delim // &
 														"',a,'" // delim // "',a)'"
@@ -4244,8 +4246,8 @@ contains
 		! Locals:
 		integer :: k, l, kl ! Counters.
 		
-		character*12 :: fuelName ! Name of the fuel type.
-		character*12 :: compName ! The name of the companion fuel.
+		character*12 :: fuelName ! Name of the (larger) fuel type.
+		character*12 :: compName ! The name of the companion/partner fuel.
 		
 		integer :: openStat ! IO status.
 		integer :: writeStat ! IO status. 
@@ -4281,10 +4283,16 @@ contains
 				kl = Loc(k, l)
 				
 				! Get the name of paired component:
-				if (l .lt. k) then
-					compName = parts(l + 1)
-				else
+! 				if (l .lt. k) then						! This is wrong????? !!!!!
+! 					compName = parts(l + 1)
+! 				else
+! 					compName = noCmpStr
+! 				end if
+				! Get the name of the partner component:
+				if (l == 0) then
 					compName = noCmpStr
+				else
+					compName = parts(l)
 				end if
 
 				! Fuel loading:
