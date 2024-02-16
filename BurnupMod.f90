@@ -341,7 +341,7 @@ contains
 
 					if (next .eq. 0) then
 						close(mum)
-						stop' Terminated'
+						stop ' Terminated'
 					else if (next .eq. 1) then
 						exit
 					!Otherwise an invalid value was provided. Ask again.
@@ -2769,7 +2769,7 @@ contains
 		r = r0 + 0.25 * dr
 		tf = tempf(fi, r, tpamb)
 		ts = tpamb
-		if (tf .LE. (tpdry + 10.0)) stop' Igniting fire cannot dry fuel'
+		if (tf .LE. (tpdry + 10.0)) stop ' Igniting fire cannot dry fuel'
 		thd = (tpdry - ts) / (tf - ts)
 		tx = 0.5 * (ts + tpdry)
 
@@ -2842,7 +2842,7 @@ contains
 		end do
 
 		if (nlit .EQ. 0) then
-			stop' START ignites no fuel'
+			stop ' START ignites no fuel'
 		end if
 
 		!c Deduct trt from all time estimates, resetting time origin
@@ -3100,7 +3100,7 @@ contains
 							open(nun, file = outfil, status = 'NEW', form = 'FORMATTED', iostat = openStat)
 
 						else if (ido .EQ. 2) then
-							stop' Program ended'
+							stop ' Program ended'
 						!else ! Implied.
 						!	cycle
 						end if
