@@ -4267,7 +4267,7 @@ contains
 		character(len = 80) :: ioMsg ! IO error message.
 		
 		! Create or open the history file:
-		if (ts == 1) then ! In the first timestep create and set up the file:
+		if (ts == 0) then ! In the first timestep create and set up the file:
 			open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
 			if (openStat .ne. 0) then
 				print *, "Can't open file..."
