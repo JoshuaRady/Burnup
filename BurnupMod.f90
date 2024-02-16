@@ -471,6 +471,14 @@ contains
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					maxkl, parts, list, area)
 
+		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
+		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet.  The
+		! first time point starts after at the end the residence time so we need to 
+		call SaveStateToFile(0, 0.0, number, parts, wo, diam, fi)
+		! It would be nice to make another record at the end of the residence time but the state of
+		! fuels is not well defined at this point.  Is is unchanged from initial values still? Also
+		! what is the time?  We can't have two states at timestep 1.
+
 		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
 		! running but it would probably better to pass the output of DUFBRN() in instead.
 		call DUFBRN(wdf, dfm, dfi, tdf)
@@ -494,10 +502,13 @@ contains
 		end if
 		
 		! Record the state after START: Make optional!!!!!
-		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
+		!call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 		
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+		
+		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
+		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 		
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
 		! the fire goes out or the number of timesteps is reached:
@@ -513,6 +524,8 @@ contains
 				! Update time trackers:
 				now = now + 1
 				tis = tis + dt
+				! JMR_NOTE: It is a bit strange that START() and STEP() both start at the same
+				! time step.  Think on this a bit!!!!!
 				
 				! Get the duff contribution while it remains burning:
 				if (tis .lt. tdf) then
