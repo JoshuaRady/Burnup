@@ -282,7 +282,7 @@ contains
 
 		dfi = 0.0
 		tdf = 0.0
-		if ((wdf .LE. 0.) .OR. (dfm .GE. 1.96)) return
+		if ((wdf .LE. 0.0) .OR. (dfm .GE. 1.96)) return
 		dfi = 11.25 - 4.05 * dfm
 		ff = 0.837 - 0.426 * dfm
 		tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm)
@@ -864,8 +864,7 @@ contains
 					! Note: This means the data remains.
 					number = number - 1
 					cycle ! Back to top menu.
-				else
-					! The else in the orignal is implied.
+				else! The else in the orignal code is implied.
 				
 					! Otherwise overwrite the item to be removed with the last element:
 					! This changes the order but this doesn't matter because th list will be sorted
@@ -881,7 +880,7 @@ contains
 					condry(ind) = condry(number)
 					tpig(ind) = tpig(number)
 					tchar(ind) = tchar(number)
-					number = number - 1 ! JMR_NOTE: Could be combined with previous else.
+					number = number - 1
 					cycle ! Back to top menu.
 				end if
 
@@ -1688,7 +1687,7 @@ contains
 		! Arguments:
 		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/ sq m
+		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg / sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
 		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
 		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
@@ -1708,7 +1707,7 @@ contains
 		real*4, intent(out) :: wo(maxkl)			! Initial dry loading by interaction pairs
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
-		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array?????
+		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array.
 													! This is passed in but is not initialized prior
 													! to that.  It doesn't appear that it is used
 													! after it is returned.  It appears to only be
@@ -1744,7 +1743,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key(j)
 			work(j) = ash(k)
 		end do
 		do j = 1, number
@@ -1752,7 +1751,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key(j)
 			work(j) = htval(k)
 		end do
 		do j = 1, number
@@ -1768,7 +1767,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key(j)
 			work(j) = condry(k)
 		end do
 		do j = 1, number
@@ -1784,7 +1783,7 @@ contains
 		end do
 
 		do j = 1, number
-			k = key (j)
+			k = key(j)
 			work(j) = tchar(k)
 		end do
 		do j = 1, number
@@ -1808,7 +1807,7 @@ contains
 			do j = 1, k
 				kj = Loc(k, j)
 				diam(kj) = diak
-				xmat(kj) = elam (k, j)
+				xmat(kj) = elam(k, j)
 				wo(kj) = wtk * xmat(kj)
 			end do
 		end do
@@ -1855,7 +1854,7 @@ contains
 		!c Replacement sort: order on increasing size, moisture, density
 		do j = 2, number
 			! Store the values for this fuel index:
-			s = 1.0 / sigma (j)
+			s = 1.0 / sigma(j)
 			fm = fmois(j)
 			de = dryden(j)
 			keep = key(j)
@@ -1946,7 +1945,7 @@ contains
 		real*4, intent(out) :: beta(maxkl)			! Consolidated interaction matrix (elsewhere = xmat).
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
-		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
+		real*4, intent(out) :: area(maxno)			! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
 
 		! Locals:
@@ -1977,7 +1976,7 @@ contains
 				a = siga * dryld(l) / dryden(l)
 				if (k .EQ. 1) then
 					bb = 1.0 - exp(-a)
-					area (k) = bb
+					area(k) = bb
 				else
 					bb = min(1.0, a)
 				end if
@@ -1986,7 +1985,7 @@ contains
 		end do
 
 		if (number .EQ. 1) then
-			elam (1, 1) = beta (2)
+			elam (1, 1) = beta(2)
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if
@@ -2119,7 +2118,7 @@ contains
 		real :: delm		! Moisture effect on burning rate (scale factor)
 		real :: heatk		! Burn rate factor
 		real :: r, tf, ts, thd, tx
-		real :: dia		! Diameter for single element.
+		real :: dia			! Diameter for single element.
 		real :: cpwet, fac
 		real :: dryt		! Drying time for single element.
 		real :: tsd
@@ -2129,15 +2128,15 @@ contains
 		real :: trt
 		real :: nlit		! Number of elements lit.
 		real :: factor
-		real :: hb		! "Effective" film heat transfer coefficient returned from HEATX().
-		real :: hf		! Film heat transfer coefficient returned from HEATX().
+		real :: hb			! "Effective" film heat transfer coefficient returned from HEATX().
+		real :: hf			! Film heat transfer coefficient returned from HEATX().
 		real :: dtign		! Time to piloted ignition returned from TIGNIT().
 		real :: conwet
 		real :: aint
 		real :: ddt
-		real :: dnext		! Diameter...
-		real :: wnext		! wo ...
-		real :: df		!
+		real :: dnext		! Diameter after combustion in this timestep.
+		real :: wnext		! wo after combustion in this timestep.
+		real :: df			!
 
 		! Initialize constants:
 		ch2o = 4186.0
@@ -2182,7 +2181,7 @@ contains
 		r = r0 + 0.25 * dr
 		tf = tempf(fi, r, tpamb)
 		ts = tpamb
-		if (tf .LE. (tpdry + 10.)) stop' Igniting fire cannot dry fuel'
+		if (tf .LE. (tpdry + 10.)) stop ' Igniting fire cannot dry fuel'
 		thd = (tpdry - ts) / (tf - ts)
 		tx = 0.5 * (ts + tpdry)
 
@@ -2191,7 +2190,7 @@ contains
 			conwet = condry(k) + 4.27e-04 * factor
 			do l = 0, k
 				kl = Loc(k, l)
-				dia = diam (kl)
+				dia = diam(kl)
 				call heatx(u, d, dia, tf, tx, hf, hb, conwet, en)
 				call DRYTIM(en, thd, dryt)
 				cpwet = cheat(k) + fmois(k) * ch2o
@@ -2213,12 +2212,12 @@ contains
 				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
-					dia = diam (kl)
+					dia = diam0(kl)
 					ts = 0.5 * (tsd + tigk)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)
 					qcum(kl) = hb * tcum(kl)
-					if (tf .GT. (tigk + 10.)) then
+					if (tf .GT. (tigk + 10.0)) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tf, condry(k), &
 									 cheat(k), fmois(k), dendry(k), hb, dtign)
 						trt = dryt + dtign
@@ -2250,7 +2249,7 @@ contains
 			end do
 		end do
 
-			if (nlit .EQ. 0) stop' START ignites no fuel'
+			if (nlit .EQ. 0) stop ' START ignites no fuel'
 
 		!c Deduct trt from all time estimates, resetting time origin
 
@@ -2258,7 +2257,7 @@ contains
 			do l = 0, k
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
-					tdry(kl) = tdry (kl) - trt
+					tdry(kl) = tdry(kl) - trt
 				end if
 				if (tign(kl) .LT. rindef) then
 					tign(kl) = tign(kl) - trt
@@ -2270,7 +2269,7 @@ contains
 		!c for all the components that are ignited; extrapolate to end time dt
 
 		do k = 1, number
-			if (flit(k) .EQ. 0.) then
+			if (flit(k) .EQ. 0.0) then
 				do l = 0, k
 					kl = Loc(k, l)
 					ddot(kl) = 0.0
@@ -2284,13 +2283,13 @@ contains
 					kl = Loc(k, l)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qdot(kl, now) = hb * max((tf - ts), 0.)
+					qdot(kl, now) = hb * max((tf - ts), 0.0)
 					aint = (c / hb) ** 2
 					ddt = dt - tign(kl)
 					acum(kl) = aint * ddt
 					ddot(kl) = qdot(kl, now) * work(k)
 					tout(kl) = dia / ddot(kl)
-					dnext = max(0., (dia - ddt * ddot(kl)))
+					dnext = max(0.0, (dia - ddt * ddot(kl)))
 					wnext = wo(kl) * ((dnext / dia) ** 2)
 					wodot(kl) = (wo(kl) - wnext) / ddt
 
@@ -2302,7 +2301,7 @@ contains
 					diam(kl) = dnext
 					wo(kl) = wnext
 					df = 0.0
-					if (dnext .LE. 0.) then
+					if (dnext .LE. 0.0) then
 						df = xmat(kl)
 						wodot(kl) = 0.0
 						ddot(kl) = 0.0
@@ -2422,7 +2421,6 @@ contains
 												! passed in for subsequent.
 
 		! Locals:
-		!character*12 :: outfil
 		character*12 :: histry
 		logical snaps
 
@@ -2448,7 +2446,7 @@ contains
 			do m = 1, number
 				fmm = fmois(m)
 				wdm = 0.0
-				do n= 0, m
+				do n = 0, m
 					mn = Loc(m, n)
 					wdm = wdm + wo(mn)
 				end do
@@ -2508,7 +2506,7 @@ contains
 							open(nun, file = outfil, status = 'NEW', form = 'FORMATTED', iostat = openStat)
 
 						else if (ido .EQ. 2) then
-							stop' Program ended'
+							stop ' Program ended'
 						!else ! Implied.
 						!	cycle
 						end if
@@ -2564,14 +2562,14 @@ contains
 	! surface film cooling.
 	! History: Modernized original Burnup subroutine.
 	!
-	! JMR_NOTE: If this only has one return value it could be turned into a function.
+	! JMR_NOTE: Since this only has one return value it could be turned into a function.
 	subroutine TIGNIT(tpam, tpdr, tpig, tpfi, cond, &
 						chtd, fmof, dend, hbar, tmig)
 		implicit none
 
 		! Arguments:
 		real*4, intent(in) :: tpam	! ambient temperature, K
-		real*4, intent(in) :: tpdr	! fuel temperature at start of dryirig, K
+		real*4, intent(in) :: tpdr	! fuel temperature at start of drying, K
 		real*4, intent(in) :: tpig	! fuel surface temperature at ignition, K
 		real*4, intent(in) :: tpfi	! fire enviroriment temperature, K
 		real*4, intent(in) :: cond	! fuel ovendry thermal conductivity, W / m K
@@ -2622,9 +2620,9 @@ contains
 	
 			if (abs(fav) .LE. small) then
 				exit
-			else if (fav .LT. 0.) then
+			else if (fav .LT. 0.0) then
 				xlo = xav
-			else if (fav .GT. 0.) then
+			else if (fav .GT. 0.0) then
 				xhi = xav
 			end if
 		end do
@@ -2673,7 +2671,7 @@ contains
 		do n = 1, 15 ! JMR_NOTE: Why 15 cycles?
 			xm = 0.5 * (xl + xh)
 			approx = ErrorApprox(xm, theta)
-			if (approx .LT. 0.) then ! or if (ErrorAppox(xm) .LT. 0.) then
+			if (approx .LT. 0.0) then ! or if (ErrorAppox(xm) .LT. 0.0) then
 				xl = xm
 			else
 				xh = xm
@@ -2819,8 +2817,8 @@ contains
 		real*4, intent(in) :: fmois(maxno)		! moisture fraction of component
 		real*4, intent(in) :: cheat(maxno)		! specific heat capacity of component, J / kg K
 		real*4, intent(in) :: condry(maxno)		! ovendry thermal conductivity, w / sq m K
-		real*4, intent(inout) :: diam(maxkl)	! current diameter of the larger of each			! JMR: Intent?????
-												! fuel component pair, m
+		real*4, intent(inout) :: diam(maxkl)	! current diameter of the larger of each
+												! fuel component pair, m.  Updated on return.
 		real*4, intent(in) :: tpig(maxno)		! ignition temperature (K), by component
 		real*4, intent(in) :: tchar(maxno)		! end - pyrolysis temperature (K), by component
 		real*4, intent(in) :: xmat(maxkl)		! table of influence fractions between components
@@ -2933,7 +2931,6 @@ contains
 				if (tnow .GE. tdun) then
 					ddot(kl) = 0.0
 					wodot(kl) = 0.0
-					!goto 10
 					cycle lLoop
 				end if
 				if (tnext .GE. tdun) then
@@ -2947,11 +2944,11 @@ contains
 
 					wodot(kl) = wo(kl) / tgo
 					wo(kl) = 0.0
-					diam (kl) = 0.0
+					diam(kl) = 0.0
 					cycle lLoop
 				end if
 
-				!c k has not yet burned out ... see if k of (k, 1) pair is ignited ! JMR: Transcription!!!!!
+				!c k has not yet burned out ... see if k of (k, l) pair is ignited
 
 				tlit = tign(kl)
 				if (tnow .GE. tlit) then
@@ -2971,13 +2968,12 @@ contains
 					tf = tempf(gi, r, tpamb)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qqq = hb * max((tf - ts),  0.)
+					qqq = hb * max((tf - ts),  0.0)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
 					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq
 					if (nspan .GT. mxstep) then
 						do mu = 2, mxstep
-							!qdot(kl, mu - l) = qdot (kl, mu) ! JMR: Transcription: l for 1 substitution!!!!!
 							qdot(kl, mu - 1) = qdot(kl, mu)
 						end do
 						qdot(kl, mxstep) = qqq
@@ -2988,7 +2984,7 @@ contains
 					! Time over which to perform averaging:
 					tav1 = tnext - tlit ! Time since ignition.
 					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
-					tav3 = ((dia / 4.) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
+					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 					
 					!index = l + min(nspan, mxstep) ! JMR: Transcription: l for 1 substitution!!!!!
@@ -3009,19 +3005,19 @@ contains
 							deltim = tavg - tspan
 						end if
 						
-						qdsum = qdsum + qdot (kl, index) * deltim ! JMR: Whitespace!!!!!
+						qdsum = qdsum + qdot(kl, index) * deltim
 						tspan = tspan + deltim
 						
-						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then ! Will this pass the first time?  Yes!
+						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then
 							cycle
 						else
 							exit
 						endif
 					end do
 
-					qdavg = max (qdsum / tspan, 0.) ! JMR: trailing zeros!!!!!
+					qdavg = max (qdsum / tspan, 0.0)
 					ddot(kl) = qdavg * work(k)
-					dnext = max(0., dia - dt * ddot(kl)) ! JMR: trailing zeros!!!!!
+					dnext = max(0.0, dia - dt * ddot(kl))
 
 
 ! -- Pagebreak --
@@ -3029,14 +3025,14 @@ contains
 
 
 					wnext = wo(kl) * ((dnext / dia) ** 2)
-					if ((dnext .EQ. 0.) .AND. (ddot(kl) .GT. 0.)) then
+					if ((dnext .EQ. 0.0) .AND. (ddot(kl) .GT. 0.0)) then
 						tout(kl) = tnow + dia / ddot(kl)
 					end if
-					if ((dnext .GT. 0.) .AND. (dnext .LT. dia)) then
+					if ((dnext .GT. 0.0) .AND. (dnext .LT. dia)) then
 						rate = dia / (dia - dnext)
 						tout(kl) = tnow + rate * dt
 					end if
-					if (qdavg .LE. 20.) tout(kl) = 0.5*(tnow + tnext) ! JMR: Whitespace...
+					if (qdavg .LE. 20.0) tout(kl) = 0.5*(tnow + tnext) ! JMR: Whitespace...
 					ddt = min(dt, (tout(kl) - tnow))
 					wodot(kl) = (wo(kl) - wnext) / ddt
 					diam(kl) = dnext
@@ -3062,9 +3058,9 @@ contains
 					end if
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
-					dia = diam (kl)
+					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					dtemp = max(0., (tf - ts))
+					dtemp = max(0.0, (tf - ts))
 					dqdt = hb * dtemp
 					qcum(kl) = qcum(kl) + dqdt * dt
 					tcum(kl) = tcum(kl) + dtemp * dt
@@ -3073,7 +3069,7 @@ contains
 					tfe = ts + dteff
 					dtlite = rindef
 			
-					if (.not. (tfe .LE. (tpig (k) + 10.))) then
+					if (.not. (tfe .LE. (tpig (k) + 10.0))) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tfe, &
 							condry(k), cheat(k), fmois(k), dendry(k), &
 							heff, dtlite)
@@ -3091,18 +3087,18 @@ contains
 ! Pg. 110:
 
 
-						qdot(kl, 1) = hb * max((tf - ts), 0.)
+						qdot(kl, 1) = hb * max((tf - ts), 0.0)
 						qd = qdot(kl, 1)
 						ddot(kl) = qd * work(k)
 						delt = tnext - tign(kl)
-						dnext = max(0., dia - delt * ddot(kl))
+						dnext = max(0.0, dia - delt * ddot(kl))
 						wnext = wo(kl) * ((dnext / dia) ** 2)
-						if (dnext .EQ. 0.) tout(kl) = tnow + dia / ddot(kl)
-						if ((dnext .GT. 0.) .AND. (dnext .LT. dia)) then
+						if (dnext .EQ. 0.0) tout(kl) = tnow + dia / ddot(kl)
+						if ((dnext .GT. 0.0) .AND. (dnext .LT. dia)) then
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
 						end if
-						if (tout (kl) .GT.  now) then
+						if (tout(kl) .GT.  now) then
 							ddt = min(dt, (tout(kl) - tnow))
 							wodot(kl) = (wo(kl) - wnext) / ddt
 						else
@@ -3133,13 +3129,13 @@ contains
 						gi = fi + flit(l) * fint(l)
 					end if
 					tf = tempf(gi, r, tpamb)
-					if (tf .LE. (tpdry + 10.)) then
+					if (tf .LE. (tpdry + 10.0)) then
 						cycle lLoop
 					endif
 					dia = diam(kl)
-					ts = 0.5*(tpamb + tpdry)
+					ts = 0.5 * (tpamb + tpdry)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					dtcum = max((tf - ts) * dt, 0.)
+					dtcum = max((tf - ts) * dt, 0.0)
 					tcum(kl) = tcum(kl) + dtcum
 					qcum(kl) = qcum(kl) + hb * dtcum
 					he = qcum(kl) / tcum(kl)
@@ -3198,7 +3194,7 @@ contains
 				if (flag .AND. (tnext .LE. tout(kl))) then
 					flit(k) = flit(k) + xmat(kl)
 				end if
-				if (tnext .GT. tout (kl)) then
+				if (tnext .GT. tout(kl)) then
 					fout(k) = fout(k) + xmat(kl)
 				end if
 			end do
@@ -3228,7 +3224,8 @@ contains
 		integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		integer, intent(in) :: nun					! Summary file unit identifier
-		real, intent(in) :: tis						! Igniting surface fire residence time (s)
+		real, intent(in) :: tis						! Current time (ti + number of time steps * dt)
+													! When this is called this will be the time the fire went out.
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: wdry(maxno)			! Ovendry mass loading, kg/sq m
 		real*4, intent(in) :: fmois(maxno)			! Moisture content, fraction dry mass
@@ -3328,7 +3325,7 @@ contains
 			name = parts(m)
 			win = wdry(m)
 			fmi = fmois(m)
-			dim = 4. / sigma(m)
+			dim = 4.0 / sigma(m)
 			if (v) then
 				write(nun, format20) name, win, fmi, dim
 			end if
