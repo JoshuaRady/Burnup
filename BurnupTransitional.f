@@ -1945,7 +1945,7 @@
       newIndexFound = .false.
 
       do j = 1 , maxno
-      	key ( j ) = j
+      	key( j ) = j
       end do
 
 !c Replacement sort: order on increasing size , moisture , density
@@ -3184,7 +3184,7 @@
       					rate = dia / ( dia - dnext )
       					tout( kl ) = tnow + rate * dt
       				end if
-      				if ( tout( kl ) .GT.  now ) then
+      				if ( tout( kl ) .GT. now ) then
       					ddt = min( dt , ( tout( kl ) - tnow ) )
       					wodot( kl ) = ( wo( kl ) - wnext ) / ddt
       				else
@@ -3463,7 +3463,7 @@
 
 ! JMR_MOD_START:
 
-      ! This function coverts the indexes of the pairwise fuel interaction triangular matrix space
+      ! This function converts the indexes of the pairwise fuel interaction triangular matrix space
       ! to indexes of the arrays used to represent it for several computed variables.
       !
       ! History: This function was originally implemented as a statement function in defined in

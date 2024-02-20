@@ -2418,7 +2418,7 @@ contains
 		newIndexFound = .false.
 
 		do j = 1, maxno
-			key (j) = j
+			key(j) = j
 		end do
 
 		!c Replacement sort: order on increasing size, moisture, density
@@ -2519,10 +2519,10 @@ contains
 		
 		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
 		
-		real*4, intent(out) :: beta(maxkl)			!
+		real*4, intent(out) :: beta(maxkl)			! Consolidated interaction matrix (elsewhere = xmat).
 		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
 		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
-		real*4, intent(out) :: area(maxno)		! Fraction of site area expected to be covered at
+		real*4, intent(out) :: area(maxno)			! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
 
 		! Locals:
@@ -3721,7 +3721,7 @@ contains
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
 						end if
-						if (tout(kl) .GT.  now) then
+						if (tout(kl) .GT. now) then
 							ddt = min(dt, (tout(kl) - tnow))
 							wodot(kl) = (wo(kl) - wnext) / ddt
 						else
@@ -3990,7 +3990,7 @@ contains
 
 ! End of original source code.
 
-	! This function coverts the indexes of the pairwise fuel interaction triangular matrix space
+	! This function converts the indexes of the pairwise fuel interaction triangular matrix space
 	! to indexes of the arrays used to represent it for several computed variables.
 	!
 	! Note: This will only return valid (occupied) coordinates of the triangular matrix.

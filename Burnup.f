@@ -969,7 +969,7 @@
       logical diam , mois , dens , tied
 
       do j = 1 , maxno
-      	key ( j ) = j
+      	key( j ) = j
       end do
 
 !c Replacement sort: order on increasing size , moisture , density
@@ -1912,7 +1912,7 @@
       					rate = dia / ( dia - dnext )
       					tout( kl ) = tnow + rate * dt
       				end if
-      				if ( tout( kl ) .GT.  now ) then
+      				if ( tout( kl ) .GT. now ) then
       					ddt = min( dt , ( tout( kl ) - tnow ) )
       					wodot( kl ) = ( wo( kl ) - wnext ) / ddt
       				else
