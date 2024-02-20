@@ -4336,6 +4336,5 @@ contains
 
 	end subroutine SaveStateToFile
 
-!end program BURNUP
 end module BurnupMod
 
