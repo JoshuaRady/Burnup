@@ -365,6 +365,8 @@ contains
 
 
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
+	! The main fire properties are returned as output arguments.  Optionally additional detail fire
+	! history can be output to file.
 	!
 	! History: Added as an programatic alternative entry point to the original interactive program.
 	!
@@ -427,7 +429,7 @@ contains
 													! each component pair, kg/sq m
 		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m
-		
+
 		! Locals:
 		! Arrays:
 		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s
@@ -448,7 +450,6 @@ contains
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
 		integer :: key(maxno)			! Ordered index list
 		character*12 :: list(maxno)		!
-		!logical :: nohist				! Flag indicating if history output should be not be stored.
 		
 		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
@@ -472,12 +473,14 @@ contains
 					maxkl, parts, list, area)
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
-		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet.  The
-		! first time point starts after at the end the residence time so we need to 
+		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
+		! set the time explicitly.  
 		call SaveStateToFile(0, 0.0, number, parts, wo, diam, fi)
-		! It would be nice to make another record at the end of the residence time but the state of
-		! fuels is not well defined at this point.  Is is unchanged from initial values still? Also
-		! what is the time?  We can't have two states at timestep 1.
+		! The first simulated time point starts at the end of the Igniting fire residence time.  The
+		! fire intensity is a constant value for this period.  It would make sense to make another
+		! record of fire intensity at the end of the residence time.  However, this would lead to
+		! two values at time point 1.  Likewise, this would result in two values for fuel loadings.
+		! Both fire intensity and fine fuel loads can drop significantly at the first time step.
 
 		! The original code calls DUFBRN() here.  I'm leaving this here while getting the code
 		! running but it would probably better to pass the output of DUFBRN() in instead.
@@ -500,16 +503,13 @@ contains
 		else
 			fid = 0.0
 		end if
-		
-		! Record the state after START: Make optional!!!!!
-		!call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
-		
+
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
-		
+
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
-		
+
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
@@ -542,14 +542,10 @@ contains
 
 				if (fi .LE. fimin) then
 					exit
-				else
-					! Record the state at this timepoint somehow...
 				end if
 			end do
 		end if ! (fi .gt. fimin)
 
-		! The main fire properties are returned as output arguments...
-		! A replacement for SUMMARY() could go here.
 		! Return the time when the fire dropped below fimin as the time the fire "went out".
 		! We return the value in dt.  This may be changed in the future.
 		dt = tis
@@ -4203,6 +4199,7 @@ contains
 
 
 	! Output the state of the simulation at the current timestep to file:
+	! Sequential calls to this routine will produce a full history of the simulated fire.
 	!
 	! History: Added for module.
 	subroutine SaveStateToFile(ts, time, number, parts, wo, diam, fi)
@@ -4295,12 +4292,6 @@ contains
 			do l = 0, k
 				kl = Loc(k, l)
 				
-				! Get the name of paired component:
-! 				if (l .lt. k) then						! This is wrong????? !!!!!
-! 					compName = parts(l + 1)
-! 				else
-! 					compName = noCmpStr
-! 				end if
 				! Get the name of the partner component:
 				if (l == 0) then
 					compName = noCmpStr
