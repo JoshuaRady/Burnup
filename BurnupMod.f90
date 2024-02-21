@@ -4273,7 +4273,7 @@ contains
 		! should be renamed.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
 														"',a,'" // delim // "',g0,'"  // delim // &
-														"',a,'" // delim // "',a)'"
+														"',a,'" // delim // "',a)"
 
 		integer, parameter :: hUnit = 21! History file unit identifier.
 		
