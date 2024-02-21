@@ -144,6 +144,9 @@ module BurnupMod
 															! as a variable 'none' in Summary().
 															! 'none' is a keyword so it was renamed.
 
+	! Globals:
+	logical :: SaveHistory	! Should fire history be output to file?
+
 contains
 
 
@@ -374,7 +377,7 @@ contains
 	! - Provide a way to specify if fire history should be stored and returned.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 						parts, wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-						xmat, tign, tout, wo, diam)
+						xmat, tign, tout, wo, diam, outputHistory)
 		implicit none
 
 		! Arguments:
@@ -401,7 +404,7 @@ contains
 		real*4, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d)
 		real*4, intent(in) :: dfm		! Ratio of moisture mass to dry organic mass /
 										! duff fractional moisture (aka R sub M).
-		integer, intent(in) :: ntimes	! Number of time steps.  Move down?
+		integer, intent(in) :: ntimes	! Number of time steps to run.  Move down?
 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 		
 		! Fuel component property arrays:  The values will not change but they may be reordered.
@@ -429,6 +432,9 @@ contains
 													! each component pair, kg/sq m
 		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m
+
+		! Settings:
+		logical, intent(in), optional :: outputHistory	! Should fire history be saved?  Defaults to false.
 
 		! Locals:
 		! Arrays:
@@ -465,6 +471,13 @@ contains
 		! There are a large number of locals in this routine that are not explictly initialized.
 		! Most are initialized in ARRAYS() and START.  Testing was done to confrim that explicit
 		! initialization was not needed for the remaining locals.
+
+		! Set SaveHistory:
+		if (present(outputHistory)) then
+			SaveHistory = outputHistory
+		else
+			SaveHistory = .false.
+		end if
 
 		! Sort the fuel components and calculate the interaction matrix...
 		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
@@ -559,7 +572,7 @@ contains
 	! History: Added for module.
 	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-							xmat, tign, tout, wo, diam) bind(C, name = "simulater")
+							xmat, tign, tout, wo, diam, outputHistory) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
@@ -575,7 +588,7 @@ contains
 		double precision, intent(in) :: wdf			! Duff loading (kg/m^2, aka W sub d)
 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
 													! duff fractional moisture (aka R sub M).
-		integer, intent(in) :: ntimes						! Number of time steps.
+		integer, intent(in) :: ntimes				! Number of time steps to run.
 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 		
 		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
@@ -597,12 +610,16 @@ contains
 															! each component pair, kg/sq m
 		double precision, intent(out) :: diam(maxkl)		! Current diameter of the larger of each
 															! fuel component pair, m
+		
+		! Settings:
+		integer, intent(in) :: outputHistory				! Should fire history be saved? (0 = no, 1 = yes)
 
 		! Local type conversion intermediates:
 		real :: fiReal, dtReal
 		real, dimension(maxno) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal
 		real, dimension(maxno) :: cheatReal, condryReal, tpigReal, tcharReal
 		real, dimension(maxkl) :: xmatReal, tignReal, toutReal, woReal, diamReal
+		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
@@ -626,13 +643,20 @@ contains
 		tpigReal = real(tpig)
 		tcharReal = real(tchar)
 
+		if (outputHistory == 0) then
+			historyLogical = .false.
+		else
+			historyLogical = .true. ! The value should be 1.  We don't check for the NA value or others.
+		end if
+
 		call Simulate(fiReal, real(ti), real(u), real(d), real(tpamb), &
 						real(ak), real(r0), real(dr), dtReal, &
 						real(wdf), real(dfm), ntimes, number, &
 						parts, &
 						wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, &
 						sigmaReal, cheatReal, condryReal, tpigReal, tcharReal, &
-						xmatReal, tignReal, toutReal, woReal, diamReal)
+						xmatReal, tignReal, toutReal, woReal, diamReal, &
+						historyLogical)
 
 		! Convert back:
 		fi = dble(fiReal)
@@ -4263,67 +4287,71 @@ contains
 		integer :: writeStat ! IO status. 
 		character(len = 80) :: ioMsg ! IO error message.
 		
-		! Create or open the history file:
-		if (ts == 0) then ! In the first timestep create and set up the file:
-			open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
-			if (openStat .ne. 0) then
-				print *, "Can't open file..."
-				stop 'Abort'
-				! Not being able to write this output should not necessarily terminate execution.
-				! It might be better to notify and return from this routine.
-			
-				! Add code to ask for or select a new name...
-			end if
-			
-			! Write a header for the file:
-			write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
-			
-		else ! Reopen the file and append:
-			open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
-			if (openStat .ne. 0) then
-				print *, "Can't open file..."
-				stop 'Abort'
-			end if
-		end if
+		if (SaveHistory) then
 
-		do k = 1, number
-			fuelName = parts(k)
+			! Create or open the history file:
+			if (ts == 0) then ! In the first timestep create and set up the file:
+				open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
+				if (openStat .ne. 0) then
+					print *, "Can't open file..."
+					stop 'Abort'
+					! Not being able to write this output should not necessarily terminate execution.
+					! It might be better to notify and return from this routine.
+			
+					! Add code to ask for or select a new name...
+				end if
+			
+				! Write a header for the file:
+				write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
+			
+			else ! Reopen the file and append:
+				open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
+				if (openStat .ne. 0) then
+					print *, "Can't open file..."
+					stop 'Abort'
+				end if
+			end if
+
+			do k = 1, number
+				fuelName = parts(k)
 		
-			do l = 0, k
-				kl = Loc(k, l)
+				do l = 0, k
+					kl = Loc(k, l)
 				
-				! Get the name of the partner component:
-				if (l == 0) then
-					compName = noCmpStr
-				else
-					compName = parts(l)
-				end if
+					! Get the name of the partner component:
+					if (l == 0) then
+						compName = noCmpStr
+					else
+						compName = parts(l)
+					end if
 
-				! Fuel loading:
-				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-						ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
-				if (writeStat /= 0) then
-					print *, "Write error: ", writeStat, ", Message: ", ioMsg
-				end if
+					! Fuel loading:
+					write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+							ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
+					if (writeStat /= 0) then
+						print *, "Write error: ", writeStat, ", Message: ", ioMsg
+					end if
 
-				! Particle diameter:
-				write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-						ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
-				if (writeStat /= 0) then
-					print *, "Write error: ", writeStat, ", Message: ", ioMsg
-				end if
+					! Particle diameter:
+					write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+							ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+					if (writeStat /= 0) then
+						print *, "Write error: ", writeStat, ", Message: ", ioMsg
+					end if
 
+				end do
 			end do
-		end do
 
-		! Average fire intensity:
-		write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-				ts, time, "FireIntensity", fi, "NA", "NA"
-		if (writeStat /= 0) then
-			print *, "Write error: ", writeStat, ", Message: ", ioMsg
-		end if
+			! Average fire intensity:
+			write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+					ts, time, "FireIntensity", fi, "NA", "NA"
+			if (writeStat /= 0) then
+				print *, "Write error: ", writeStat, ", Message: ", ioMsg
+			end if
 
-		close(hUnit) ! Close the file.
+			close(hUnit) ! Close the file.
+
+		end if ! SaveHistory
 
 	end subroutine SaveStateToFile
 
