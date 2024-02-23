@@ -361,9 +361,6 @@ contains
 	! history can be output to file.
 	!
 	! History: Added as an programatic alternative entry point to the original interactive program.
-	!
-	! ToDo:
-	! - Provide a way to specify if fire history should be stored and returned.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 						parts, wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
 						xmat, tign, tout, wo, diam, outputHistory)
@@ -1136,6 +1133,7 @@ contains
 	! Give the user the user the opportunity to review and revise data:
 	!
 	! History: This routine reproduces code originally in GETDAT() (block starting at label 50).
+	!
 	! Testing status: Menu reproduces original behavior.
 	subroutine ReviewDataMenu(parts, wdry, ash, htval, fmois, dendry, &
 								sigma, cheat, condry, tpig, tchar, maxno, number, &
@@ -1334,6 +1332,7 @@ contains
 	! Present a menu to review fuel component properties:
 	!
 	! History: This routine reproduces code originally in GETDAT() (block starting at label 53).
+	!
 	! Testing status: Reproduces original behavior.
 	subroutine ReviewFuelComp(parts, wdry, ash, htval, fmois, dendry, &
 								sigma, cheat, condry, tpig, tchar, maxno, number)
@@ -1553,6 +1552,7 @@ contains
 	! Present a menu to review igniting fire and environmental data:
 	!
 	! History: This routine reproduces code originally in GETDAT() (block starting at label 71).
+	!
 	! Testing status: Incomplete.
 	subroutine ReviewFireEnvData(fi, ti, u, d, tpamb)
 		implicit none
@@ -1626,6 +1626,7 @@ contains
 	! Present a menu to review internal and control variables:
 	!
 	! History: This routine reproduces code originally in GETDAT() (block starting at label 79).
+	!
 	! Testing status: Incomplete.
 	subroutine ReviewIntlCntlVars(ak, r0, dr, dt, wdf, dfm, ntimes)
 		implicit none
@@ -1708,6 +1709,7 @@ contains
 	! Retrive data from input files (stored previously with ArchiveSettings():
 	!
 	! History: This routine is based on code originally in GETDAT() (block starting at label 1000).
+	!
 	! Testing status: Reproduces original behavior.
 	subroutine GetDataFromFiles(parts, wdry, ash, htval, &
 									fmois, dendry, sigma, cheat, condry, tpig, &
@@ -1842,6 +1844,7 @@ contains
 	! Prompt the user about storing the current settings to file:
 	!
 	! History: This routine reproduces code originally in GETDAT() (block starting at label 2000).
+	!
 	! Testing status: Reproduces original behavior.
 	function ArchiveMenu(parts, wdry, ash, htval, fmois, dendry, &
 								sigma, cheat, condry, tpig, tchar, maxno, number, &
@@ -1915,7 +1918,8 @@ contains
 
 	! Save the current run conditions (settings and parameters) to file:
 	!
-	! This code was pulled out of ArchiveMenu() to increase readability.
+	! History: This code was pulled out of ArchiveMenu() to increase readability.
+	!
 	! Testing status: Produces identical output files to original code.
 	subroutine ArchiveSettings(parts, wdry, ash, htval, fmois, dendry, &
 								sigma, cheat, condry, tpig, tchar, maxno, number, &
@@ -3020,6 +3024,7 @@ contains
 
 	! This routine computes the halfspace surface ignition time under steady radiant heating with
 	! surface film cooling.
+	!
 	! History: Modernized original Burnup subroutine.
 	!
 	! JMR_NOTE: Since this only has one return value it could be turned into a function.
@@ -3270,6 +3275,7 @@ contains
 	! This routine calculates one timestep of the fuel consumption process.
 	!
 	! History: Modernized original Burnup subroutine.
+	!
 	! JMR_NOTE: This routine takes a large number of arguments and the order is a bit confusing
 	! with input and output parameters mixed in the order.
 	subroutine STEP(dt, mxstep, now, maxno, number, wo, alfa, &
@@ -3919,8 +3925,8 @@ contains
 	end function ErrorApprox
 
 
-	! AskForRealX() is a data entry utility function.  It prompts the user for a numeric value
-	! (real) checking against the expected value range.  The value is returned.
+	! AskForRealX() are a set of data entry utility functions.  It prompts the user for a numeric
+	! value (real) checking against the expected value range.  The value is returned.
 	!
 	! History: This function was implemented to reduce code repetition in GETDAT().
 	! To reproduce the original behavior leading spaces should be omitted [in cName and paramDesc].
