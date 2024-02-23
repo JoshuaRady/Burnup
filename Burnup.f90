@@ -154,7 +154,7 @@ program BURNUP
 			write(*, "(' Enter 1 to store fire history, 0 to skip ' ,$)")
 			read(*, *) ihist
 			! Could add read error checking here.
-		
+
 			! If a valid selection was made continue, otherwise prompt again:
 			if ((ihist .eq. 0) .or. (ihist .eq. 1)) then
 				nohist = ihist .eq. 0
@@ -207,7 +207,7 @@ program BURNUP
 							tdry, tign, tout, qcum, tcum, acum, qdot, &
 							ddot, wodot, work, u, d, r0, dr, ch2o, &
 							ncalls, maxkl, tis, fint, fid)
-	
+
 				now = now + 1
 				tis = tis + dt
 				if (tis .lt. tdf) then
@@ -215,7 +215,7 @@ program BURNUP
 				else
 					fid = 0.0
 				end if
-			
+
 				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
 
 				if (fi .LE. fimin) then
@@ -647,7 +647,7 @@ contains
 
 		do
 			write(*, "(' Dimensionless area influence factor [ak parameter]   ',$)")
-		
+
 			read(*, *, iostat = readStat) ak
 			if (readStat .eq. 0) then
 				exit
@@ -656,7 +656,7 @@ contains
 
 		do
 			write(*, "(' Fire environment minimum temperature parameter r0   ',$)")
-		
+
 			read(*, *, iostat = readStat) r0
 			if (readStat .eq. 0) then
 				exit
@@ -665,7 +665,7 @@ contains
 
 		do
 			write(*, "(' Fire environment increment temperature parameter dr  ',$)")
-	
+
 			read(*, *, iostat = readStat) dr
 			if (readStat .eq. 0) then
 				exit
@@ -674,7 +674,7 @@ contains
 
 		do
 			write(*, "(' Time step for integration of burning rates , s   ',$)")
-		
+
 			read(*, *, iostat = readStat) dt
 			if (readStat .eq. 0) then
 				exit
@@ -683,7 +683,7 @@ contains
 
 		do
 			write(*, "(' Number time steps [ must exceed 1 ]   ',$)")
-		
+
 			read(*, *, iostat = readStat) ntimes
 			if (readStat .eq. 0) then
 				if (ntimes .le. 1) then
@@ -749,7 +749,7 @@ contains
 		integer :: readStat ! IO error status.
 
 		! Constants: NA
-	
+
 		do
 			! Menu:
 			write(*, *) 'All data can be reviewed and revised now; Enter:'
@@ -758,12 +758,12 @@ contains
 			write(*, *) '2 to review igniting fire and environmental data'
 			write(*, *) '3 to review internal and control variables'
 			write(*, "(' 4 to terminate program now   ',$)")
-		
+
 			read(*, *, iostat = readStat) next
 			if (readStat .ne. 0) then
 				cycle ! If there is an error go back to the menu.
 			else
-			
+
 				if (next .EQ. 0) then
 					if (ArchiveMenu(parts, wdry, ash, htval, fmois, dendry, &
 								sigma, cheat, condry, tpig, tchar, maxno, number, &
@@ -831,12 +831,12 @@ contains
 			write(*, *) 'Enter - 1 to delete a fuel component'
 			write(*, *) 'Enter 0 if no more additions or deletions'
 			write(*, "(' Enter + 1 to add a fuel component   ', $)")
-		
+
 			read(*, *, iostat = readStat) ido
 			if (readStat .ne. 0) then
 				cycle
 			end if
-		
+
 			if (ido .EQ. 0) then
 				exit ! Return to the parent menu.
 				! The original code effectively takes us to ReviewDataMenu().
@@ -848,7 +848,7 @@ contains
 					! Show an abbreviated table of the fuel types:
 					write(*, "(i3,3x,a12,'   loading = 'e12.3'   kg / sq m')") &
 								(n, parts(n), wdry(n), n = 1, number) ! Implied do loop.
- 
+
 					write(*, "(' Index number of component to delete   ', $)")
 					read(*, *, iostat = readStat) ind
 					if (readStat .eq. 0) then
@@ -856,7 +856,7 @@ contains
 					end if
 					! Else there is a read error, ask again.
 				end do
- 
+
 				if ((ind .LE. 0) .OR. (ind .GT. number)) then ! Invalid value, start over:
 					cycle ! Back to top menu.
 				else if (ind .EQ. number) then
@@ -865,7 +865,7 @@ contains
 					number = number - 1
 					cycle ! Back to top menu.
 				else! The else in the orignal code is implied.
-				
+
 					! Otherwise overwrite the item to be removed with the last element:
 					! This changes the order but this doesn't matter because th list will be sorted
 					! later.
@@ -888,7 +888,7 @@ contains
 				number = number + 1 ! Increment first to add to the end of the list.
 				call GetComponentParameters(parts, wdry, ash, htval, fmois, dendry, &
 											sigma, cheat, condry, tpig, tchar, number)
-			
+
 				exit ! Return to ReviewDataMenu() (see note above).
 			else
 				cycle ! Invalid value entered, start again:
@@ -926,7 +926,7 @@ contains
 		! Locals:
 		integer :: readStat ! IO error status.
 		integer :: ido ! User input value.
-	
+
 		do
 			write(*, *) 'Enter 0 to terminate review & revision of fuel data'
 			write(*, *) 'Enter 1 to select a fuel component for review'
@@ -939,7 +939,7 @@ contains
 				if ((ido .lt. 0) .or. (ido .gt. 2)) then
 					cycle ! Invalid value, return to menu.
 				else
-				
+
 					if (ido .eq. 0) then
 						exit ! Drop back to calling menu.
 					else if (ido .eq. 1) then
@@ -993,7 +993,7 @@ contains
 		! Constants: NA
 
 		do
-	
+
 			! List the fuel components:
 			write(*, "(i3,3x,a12,'   loading = 'e12.3'   kg / sq m')") &
 					(n, parts(n), wdry(n), n = 1, number) ! Implied do loop.
@@ -1018,7 +1018,7 @@ contains
 				end if
 			end do
 		end do ! List
-	
+
 	end subroutine ReviseFuelComponent
 
 
@@ -1050,7 +1050,7 @@ contains
 		integer :: readStat ! IO error status.
 
 		! Constants: NA
-	
+
 		do
 			! Menu of parameters:
 			write(*, "(' index parameter data entered')")
@@ -1066,9 +1066,9 @@ contains
 			write(*, "('   10'7x'ig temp C',e12.3)") (tpig(nFuel) - 273.0)
 			write(*, "('   11'7x'char temp',e12.3)") (tchar(nFuel) - 273.0)
 			write(*, "('   enter number param to change [ 0 = prev menu ]   ',$)")
-	
+
 			read(*, *, iostat = readStat) idn
-		
+
 			if (readStat .ne. 0) then
 				cycle ! If there is an error, start again.
 			else
@@ -1081,10 +1081,10 @@ contains
 					read(*, "(a12)") parts(nFuel)
 					!cycle ! Allow more properties to be edited.
 				else ! Items 2-11:
-				
+
 					!write(*, "format(' New value = ?   '$)")
 					write(*, "(' New value = ?   '$)")
-				
+
 					read(*, *, iostat = readStat) value
 					if (readStat .ne. 0) then
 						cycle ! If there is an error, start again.
@@ -1167,7 +1167,7 @@ contains
 			else
 				! Get and save the new value:
 				write(*, "(' New value = ?   '$)")
-				
+
 				read(*, *, iostat = readStat) value
 				if (readStat .ne. 0) then
 					cycle ! If there is an error, start again.
@@ -1232,7 +1232,7 @@ contains
 			if (readStat .ne. 0) then
 				cycle
 			end if
-		
+
 			! Respond:
 			if (ind .EQ. 0) then
 				exit ! Return to calling menu.
@@ -1241,7 +1241,7 @@ contains
 			else
 				! Get and save the new value:
 				write(*, "(' New value = ?   '$)")
-			
+
 				if (ind .LT. 7) then
 					read(*, *, iostat = readStat) value
 					if (readStat .ne. 0) then
@@ -1305,7 +1305,7 @@ contains
 		real*4, intent(out) :: u				! Mean horizontal windspeed at top of fuelbed (m/s).
 		real*4, intent(out) :: d				! Fuelbed depth (m)
 		real*4, intent(out) :: tpamb			! Ambient temperature (K)
-	
+
 		real*4, intent(out) :: ak				! Area influence factor (ak / K_a parameter)
 		real*4, intent(out) :: r0				! Minimum value of mixing parameter
 		real*4, intent(out) :: dr				! Max - min value of mixing parameter
@@ -1370,7 +1370,7 @@ contains
 		! This is so ugly!
 		write(*, "(' Enter name of file holding igniting fire, environmental'/"// &
 				"', and program control parameters   ',$)")
-	
+
 		read(*, format08) infile
 		! JMR_Note: No error checking for this file!
 
@@ -1389,7 +1389,7 @@ contains
 				end do
 			end if
 		end do
-	
+
 		! Read in the data:
 		read(fun, format2008) fi, ti, u, d, tpamb
 		read(fun, format2009) ak, r0, dr, dt, ntimes
@@ -1418,7 +1418,7 @@ contains
 								ak, r0, dr, dt, wdf, dfm, ntimes) result(exitMenus)
 
 		implicit none
-	
+
 		! Arguments: All argument pass through to ArchiveSettings().
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
 		real*4, intent(in) :: wdry(maxno) 		! Ovendry mass loading, kg/sq m
@@ -1460,7 +1460,7 @@ contains
 			write(*, *) 'Enter 2 for previous menu'
 			write(*, *) 'Enter 1 to archive current data set'
 			write(*, "(' Enter 0 to execute without archiving   '$)")
-		
+
 			read(*, *, iostat = readStat) ido
 			if (readStat .eq. 0) then
 				if (ido .eq. 0) then
@@ -1492,7 +1492,7 @@ contains
 								ak, r0, dr, dt, wdf, dfm, ntimes) ! Name SaveSettings?
 
 		implicit none
-	
+
 		! Arguments:
 		! Reorder to match parent routines?
 		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
@@ -1522,13 +1522,13 @@ contains
 												! duff fractional moisture (aka R sub M)
 		integer, intent(in) :: ntimes			! Number of time steps.
 
-	
+
 		! Locals:
 		integer :: readStat, openstat	! IO error statuses.
 		character*12 :: outfil			! Stores the name of input data files.
 		integer :: n					! Counter.
 		integer :: ido					! User menu input selection.
-	
+
 		! Constants:
 		character(len = *), parameter :: format08 = "(a12)"
 		character(len = *), parameter :: format2004 = "(2x,a12)"
@@ -1542,7 +1542,7 @@ contains
 		do
 			write(*, *) 'Enter file name [ 12 char or fewer ] for storage of the'
 			write(*, "(' fuel component data currently in use   ',$)")
-		
+
 			read(*, format08, iostat = readStat) outfil
 			if (readStat .eq. 0) then
 				open(fun, file = outfil, status = 'UNKNOWN', form = 'FORMATTED', iostat = openStat)
@@ -1567,7 +1567,7 @@ contains
 		close(fun)
 
 		! Open the IFEC file:
-	
+
 		do
 			write(*, *) 'Enter file name [ 12 char or fewer ] for storage of the'
 			write(*, "(' igniting fire, environmental, and control data used  ',$)")
@@ -1578,7 +1578,7 @@ contains
 				if (openStat .ne. 0) then
 					do
 						write(*, "(' Error opening output file  'a12'  enter another name')") outfil
-				
+
 						read(*, format08, iostat = readStat) outfil
 						if (readStat .eq. 0) then
 							exit ! Drop back and try to open the new file name.
@@ -1589,12 +1589,12 @@ contains
 				end if
 			end if
 		end do
-	
+
 		! Write data:
 		write(fun, format2008) fi, ti, u, d, tpamb
 		write(fun, format2009) ak, r0, dr, dt, ntimes
 		write(fun, format2010) wdf, dfm
-	
+
 		close(fun)
 
 	end subroutine ArchiveSettings
@@ -1858,7 +1858,7 @@ contains
 			fm = fmois(j)
 			de = dryden(j)
 			keep = key(j)
-	
+
 			! Compare this index (j) with every index before it:
 			do i = (j - 1), 1, -1
 				usi = 1.0 / sigma(i)
@@ -1868,16 +1868,16 @@ contains
 					newIndexFound = .true.
 					exit
 				endif
-		
+
 				tied = (usi .EQ. s)
-		
+
 				if (tied) then
 					mois = (fmois(i) .LT. fm)
 					if (mois) then
 						newIndexFound = .true.
 						exit
 					endif
-			
+
 					tied = (fmois(i) .EQ. fm)
 					if (tied) then
 						dens = (dryden (i) .LE. de)
@@ -1887,7 +1887,7 @@ contains
 						endif
 					endif
 				endif
-		
+
 				! i is greater than j.
 				! Move entry i (the entry we are comparing to) down one:
 				sigma(i + 1) = sigma(i)
@@ -2056,7 +2056,7 @@ contains
 		real*4, intent(in) :: cheat(maxno)		! Specific heat capacity of component, J / kg K
 		real*4, intent(in) :: condry(maxno)		! Ovendry thermal conductivity, W / sq m K
 		real*4, intent(inout) :: diam(maxkl)	! Current diameter of the larger of each
-												! fuel component pair, m	
+												! fuel component pair, m
 		real*4, intent(in) :: tpig(maxno)		! Ignition temperature (K), by component
 		real*4, intent(in) :: tchar(maxno)		! tchar = end - pyrolysis temperature (K), by component
 		real*4, intent(in) :: xmat(maxkl)		! Table-of-influence fractions between components
@@ -2456,14 +2456,14 @@ contains
 			end do
 			wd0 = wd
 			wg0 = wg
-	
+
 			nun = 77
-	
+
 			! Open the history file:
 			mum = 66
 			histry = 'HISTORY.DAT'
 			open(mum, file=histry, status='UNKNOWN', form='FORMATTED')
-	
+
 			! Determine if the user if they want to record snapshots:
 			snaps = .FALSE.
 			do ! Loop until valid input is received. Alt: Set istash = -1, do while (istash .ne. 0 .and. istash .ne. 1)
@@ -2477,7 +2477,7 @@ contains
 				end if
 				! Otherwise start again.
 			end do
-	
+
 			! This could be moved into the above loop but I'm leaving it here to keep as much of the original structure as possible:
 			if (istash .EQ. 1) then
 				! Prompt the user for a output file name and open it:
@@ -2486,7 +2486,7 @@ contains
 					read(*, fmt = '(a12)') outfil
 
 					open(nun, file = outfil, status = 'NEW', form = 'FORMATTED', iostat = openStat)
-			
+
 					! If there is an error opening the file:
 					do while (openStat .ne. 0)
 						write(*, "(' Error opening file    'a12)") outfil
@@ -2511,7 +2511,7 @@ contains
 						!	cycle
 						end if
 					end do ! File error loop.
-			
+
 					if (openStat .eq. 0) then
 						exit
 					end if
@@ -2606,7 +2606,7 @@ contains
 
 		do
 			xav = 0.5 * (xlo + xhi)
-	
+
 			! The original code implements this as a statement function:
 			!fav = ff(xav)
 			! Original notes:
@@ -2617,7 +2617,7 @@ contains
 			! Or:
 			!fav = b03 + xav * (a13 + (a23 * xav + xav * xav))
 			!fav = b03 + (a13 * xav) + (a23 * xav ** 2) + (xav ** 3)
-	
+
 			if (abs(fav) .LE. small) then
 				exit
 			else if (fav .LT. 0.0) then
@@ -2810,7 +2810,7 @@ contains
 		integer, intent(in) :: now				! index marks end of time step
 		integer, intent(in) :: maxno			! max number of fuel components
 		integer, intent(in) :: number			! actual number of fuel components
-		real*4, intent(inout) :: wo(maxkl)		! current ovendry loading for the larger of	
+		real*4, intent(inout) :: wo(maxkl)		! current ovendry loading for the larger of
 												! each component pair, kg / sq m
 		real*4, intent(in) :: alfa(maxno)		! dry thermal diffusivity of component, sq m / s
 		real*4, intent(in) :: dendry(maxno)		! ovendry density of component, kg / cu m
@@ -2980,19 +2980,19 @@ contains
 					end if
 					aint = (c / hb) ** 2
 					acum(kl) = acum(kl) + aint * dt
-					
+
 					! Time over which to perform averaging:
 					tav1 = tnext - tlit ! Time since ignition.
 					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
 					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
-					
+
 					!index = l + min(nspan, mxstep) ! JMR: Transcription: l for 1 substitution!!!!!
 					index = 1 + min(nspan, mxstep)
 					qdsum = 0.0
 					tspan = 0.0
 					deltim = dt
-					
+
 					! JMR: Mod -> parallel!!!!!
 					! Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
 					do
@@ -3000,14 +3000,14 @@ contains
 						if (index .EQ. 1) then
 							deltim = tnext - tspan - tlit
 						endif
-						
+
 						if ((tspan + deltim) .GE. tavg) then
 							deltim = tavg - tspan
 						end if
-						
+
 						qdsum = qdsum + qdot(kl, index) * deltim
 						tspan = tspan + deltim
-						
+
 						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then
 							cycle
 						else
@@ -3068,7 +3068,7 @@ contains
 					heff = qcum(kl) / tcum(kl)
 					tfe = ts + dteff
 					dtlite = rindef
-			
+
 					if (.not. (tfe .LE. (tpig (k) + 10.0))) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tfe, &
 							condry(k), cheat(k), fmois(k), dendry(k), &
@@ -3305,7 +3305,7 @@ contains
 			else
 				cycle ! Ask again.
 			end if
-	
+
 			! Will only get here if in == 1 or 2:
 			open(nun, file = nuname, status = stat, form = 'FORMATTED', iostat = openStat)
 		end do
@@ -3329,7 +3329,7 @@ contains
 			if (v) then
 				write(nun, format20) name, win, fmi, dim
 			end if
-	
+
 			name = none
 			rem = 0.0
 			ts = 1.0e+31
@@ -3398,10 +3398,10 @@ contains
 		! Arguments:
 		real*4, intent(in) :: h
 		real*4, intent(in) :: theta	! Temperature rise required for the start of moisture loss.
-	
+
 		! Locals:
 		real*4 :: approx ! errorApprox ! Return value.
-	
+
 		! Constants:
 		real*4, parameter :: a = 0.7478556
 		real*4, parameter :: b = 0.4653628
@@ -3441,10 +3441,10 @@ contains
 		do
 			! Request the value:
 			write(*, formatString) cName
-		
+
 			! Read the value:
 			read(*, *, iostat = readStat) input
-		
+
 			if (readStat .ne. 0) then
 				cycle ! If there was an error ask again.
 			else
@@ -3485,10 +3485,10 @@ contains
 		do
 			! Request the value:
 			write(*, trim(formatString))
-		
+
 			! Read the value:
 			read(*, *, iostat = readStat) input
-		
+
 			if (readStat .ne. 0) then
 				cycle ! If there was an error ask again.
 			else
@@ -3516,24 +3516,24 @@ contains
 		real, intent(in) :: rangeLow ! The low end of the expected range.
 		real, intent(in) :: rangeHigh ! The high end of the expected range.
 		character*12, intent(in), optional :: cName ! Optional fuel component name.
-	
+
 		! Constants:
 		character(len = *), parameter :: fmtStart = "(1x,a12 '" ! Have to re-quote paramDesc.
 		character(len = *), parameter :: fmtEnd = "',$)"
- 
+
 		! Locals:
 		real :: input ! Return value.
 		character(len = len(fmtStart) + len(paramDesc) + len(fmtEnd)) :: formatString ! Longest case!
 		integer :: readStat ! IO error status.
 		logical :: startAgain
-	
+
 		! Compose the format string:
 		if (present(cName)) then
 			formatString = fmtStart // paramDesc // fmtEnd
 		else
 			formatString = "(1x, '" // paramDesc // fmtEnd
 		end if
-	
+
 		do
 			! Request the value:
 			if (present(cName)) then
@@ -3541,10 +3541,10 @@ contains
 			else
 				write(*, trim(formatString))
 			end if
-		
+
 			! Read the value:
 			read(*, *, iostat = readStat) input
-		
+
 			if (readStat .ne. 0) then
 				cycle ! If there was an error ask again.
 			else
