@@ -59,7 +59,6 @@
 ! that man not be correct.  The licence for this code is under consideration.
 !---------------------------------------------------------------------------------------------------
 
-!program BURNUP
 module BurnupMod
 	implicit none
 	! private
