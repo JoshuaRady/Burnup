@@ -356,15 +356,6 @@ contains
 	end subroutine InteractiveUI
 
 
-	! In progress...
-! 	subroutine BurnupMainR() bind(C, name = "burnupmainr")
-! 		implicit none
-! 		
-! 		call BurnupMain()
-! 		
-! 	end subroutine BurnupMainR
-
-
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
 	! The main fire properties are returned as output arguments.  Optionally additional detail fire
 	! history can be output to file.
