@@ -221,9 +221,7 @@ contains
 		real :: tdf 			! Burning duration (aka t sub d) for DUFBRN().
 		integer :: now			! Index marking the current time step.
 		real :: tis				! Current time (ti + number of time steps * dt).
-		!real*4 :: tpdry			! Temperature (all components) start drying (K)
 		integer :: ncalls		! Counter of calls to this START().
-		!real*4 :: ch2o			! Specific heat capacity of water, J / kg K
 		real :: fid				! Fire intensity due to duff burning.
 		integer :: nun			! Stash file unit identifier.
 		integer :: readStat		! IO error status.
