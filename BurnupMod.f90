@@ -696,7 +696,9 @@ contains
 
 		dfi = 0.0
 		tdf = 0.0
-		if ((wdf .LE. 0.0) .OR. (dfm .GE. 1.96)) return
+		if ((wdf .LE. 0.0) .OR. (dfm .GE. 1.96)) then
+			return
+		end if
 		dfi = 11.25 - 4.05 * dfm
 		ff = 0.837 - 0.426 * dfm
 		tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm)
