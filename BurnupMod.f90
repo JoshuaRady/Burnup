@@ -111,7 +111,6 @@ module BurnupMod
 	! Specifying these as private still allows them to be used in the shared library context but
 	! generates a compiler warning.
 	public :: SimulateR
-	!private :: DufBrnR
 	public :: DufBrnR
 
 	! Program level dimensional constants:
@@ -707,7 +706,7 @@ contains
 	! This is a wrapper for DUFBRN() that allows it to be called from R:
 	! 
 	! History: Added for module.
-	subroutine DufBrnR(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnc")
+	subroutine DufBrnR(wdf, dfm, dfi, tdf) bind(C, name = "dufbrnr")
 		implicit none
 
 		! Arguments:
