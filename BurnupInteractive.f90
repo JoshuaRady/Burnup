@@ -2,7 +2,7 @@
 ! BurnupInteractive.f90
 ! Burnup Wildfire Fuel Consumption Model
 !
-! Programmed by : Joshua M. Rady
+! Programmed by: Joshua M. Rady
 ! Woodwell Climate Research Center
 ! Started: 12/19/2023
 !
