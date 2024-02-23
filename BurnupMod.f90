@@ -4267,7 +4267,7 @@ contains
 
 		! Local constants:
 		character(len = *), parameter :: histFile = "BurnupHistory.txt"
-		
+		character(len = *), parameter :: warnFmt = "(a,g0,a,a)" ! Warning message format.
 		character(len = 1), parameter :: delim = achar(9) ! Delimiter = tab character
 		
 		! Format string for the variable output:
@@ -4299,13 +4299,9 @@ contains
 			if (ts == 0) then ! In the first timestep create and set up the file:
 				open(hUnit, file = histFile, status = 'NEW', iostat = openStat, iomsg = ioMsg)
 				if (openStat .ne. 0) then
-					!print *, "Can't open file..."
-					!stop 'Abort'
-					! Could add code to ask for or select a new name here.
-
-					! Not being able to write this output should not necessarily terminate execution.
-					! It might be better to notify and return from this routine.
-					print *, "Can't create file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+					!print *, "Can't create file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+					! The error message will likely include the file name so we can omit it.
+					print warnFmt, "Can't create file, Error: ", openStat, ", Message: ", ioMsg
 					SaveHistory = .false. ! If we can't create the file don't try anything further.
 					return
 				end if
@@ -4314,14 +4310,10 @@ contains
 				write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
 			
 			else ! Reopen the file and append:
-				!open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
 				open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', &
 				     iostat = openStat, iomsg = ioMsg)
 				if (openStat .ne. 0) then
-					!print *, "Can't open file..."
-					!stop 'Abort'
-					
-					print *, "Can't reopen file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+					print warnFmt, "Can't reopen file, Error: ", openStat, ", Message: ", ioMsg
 					SaveHistory = .false. ! Assume the error will persist so don't try again.
 					return
 				end if
