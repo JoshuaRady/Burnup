@@ -4225,6 +4225,14 @@ contains
 	! Output the state of the simulation at the current timestep to file:
 	! Sequential calls to this routine will produce a full history of the simulated fire.
 	!
+	! Successful output from this routine is treated as non-critical as it doesn't impact the
+	! simulation process.  Output failures are reported but are not treated as fatal.
+	!
+	! The file name is currently fixed.  A history file from a previous run will prevent a new one
+	! from being created.  In the future we may automatically number the file if it already exists.
+	! Allowing the file name to be specified would only work in some contexts.  For example, we
+	! currently have no way to pass in a file name via the R interface.
+	!
 	! History: Added for module.
 	subroutine SaveStateToFile(ts, time, number, parts, wo, diam, fi)
 		implicit none
@@ -4255,11 +4263,9 @@ contains
 		!real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
 		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
 		!real*4, intent(inout) :: work(maxno)	! Workspace array
-		real*4, intent(in) :: fi					! Current fire intensity (site avg), kW / sq m
+		real*4, intent(in) :: fi				! Current fire intensity (site avg), kW / sq m
 
 		! Local constants:
-		! The file name is currently fixed.  In the future we may allow it be specified or
-		! automatically number the file if it already exists.
 		character(len = *), parameter :: histFile = "BurnupHistory.txt"
 		
 		character(len = 1), parameter :: delim = achar(9) ! Delimiter = tab character
@@ -4269,13 +4275,13 @@ contains
 		! timestep (integer), time (float), variable (string), value (float), and IDs (strings)...
 		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
 		! tabs may be the issue.
-		! The IDs are currently only used to identify the fule pairs.  If that is the only use they
+		! The IDs are currently only used to identify the fuel pairs.  If that is the only use they
 		! should be renamed.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
 														"',a,'" // delim // "',g0,'"  // delim // &
 														"',a,'" // delim // "',a)"
 
-		integer, parameter :: hUnit = 21! History file unit identifier.
+		integer, parameter :: hUnit = 21 ! History file unit identifier.
 		
 		! Locals:
 		integer :: k, l, kl ! Counters.
@@ -4285,30 +4291,39 @@ contains
 		
 		integer :: openStat ! IO status.
 		integer :: writeStat ! IO status. 
-		character(len = 80) :: ioMsg ! IO error message.
+		character(len = 512) :: ioMsg ! IO error message.  Note: Safe length is unclear!
 		
 		if (SaveHistory) then
 
 			! Create or open the history file:
 			if (ts == 0) then ! In the first timestep create and set up the file:
-				open(hUnit, file = histFile, status = 'NEW', iostat = openStat)
+				open(hUnit, file = histFile, status = 'NEW', iostat = openStat, iomsg = ioMsg)
 				if (openStat .ne. 0) then
-					print *, "Can't open file..."
-					stop 'Abort'
+					!print *, "Can't open file..."
+					!stop 'Abort'
+					! Could add code to ask for or select a new name here.
+
 					! Not being able to write this output should not necessarily terminate execution.
 					! It might be better to notify and return from this routine.
-			
-					! Add code to ask for or select a new name...
+					print *, "Can't create file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+					SaveHistory = .false. ! If we can't create the file don't try anything further.
+					return
 				end if
 			
-				! Write a header for the file:
+				! Write a column header for the file:
 				write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
 			
 			else ! Reopen the file and append:
-				open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
+				!open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', iostat = openStat)
+				open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', &
+				     iostat = openStat, iomsg = ioMsg)
 				if (openStat .ne. 0) then
-					print *, "Can't open file..."
-					stop 'Abort'
+					!print *, "Can't open file..."
+					!stop 'Abort'
+					
+					print *, "Can't reopen file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+					SaveHistory = .false. ! Assume the error will persist so don't try again.
+					return
 				end if
 			end if
 
@@ -4327,14 +4342,14 @@ contains
 
 					! Fuel loading:
 					write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-							ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
+					      ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
 					if (writeStat /= 0) then
 						print *, "Write error: ", writeStat, ", Message: ", ioMsg
 					end if
 
 					! Particle diameter:
 					write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-							ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+					      ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
 					if (writeStat /= 0) then
 						print *, "Write error: ", writeStat, ", Message: ", ioMsg
 					end if
@@ -4344,14 +4359,14 @@ contains
 
 			! Average fire intensity:
 			write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-					ts, time, "FireIntensity", fi, "NA", "NA"
+			      ts, time, "FireIntensity", fi, "NA", "NA"
 			if (writeStat /= 0) then
 				print *, "Write error: ", writeStat, ", Message: ", ioMsg
 			end if
 
 			close(hUnit) ! Close the file.
 
-		end if ! SaveHistory
+		end if ! (SaveHistory)
 
 	end subroutine SaveStateToFile
 
