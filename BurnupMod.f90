@@ -281,9 +281,9 @@ contains
 			end if
 
 			if (nohist .eqv. .false.) then
-				call STASH(tis, now, maxno, number, outfil, fi, flit, &
+				call STASH(tis, now, number, outfil, fi, flit, &!maxno, number, outfil, fi, flit, &
 							fout, wo, wodot, diam, ddot, tdry, tign, &
-							tout, fmois, maxkl, nun)
+							tout, fmois, nun)!maxkl, nun)
 			end if
 
 			! Calculate the initial fire intensity:
@@ -318,9 +318,9 @@ contains
 						exit
 					else
 						if (nohist .eqv. .false.) then
-							call STASH(tis, now, maxno, number, outfil, fi, flit, &
+							call STASH(tis, now, number, outfil, fi, flit, &!maxno, number, outfil, fi, flit, &
 										fout, wo, wodot, diam, ddot, tdry, tign, &
-										tout, fmois, maxkl, nun)
+										tout, fmois, nun)!maxkl, nun)
 						end if
 					end if
 				end do
@@ -2856,33 +2856,33 @@ contains
 	! identifier (mum) so the main program must know that number, which is not very robust.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine STASH(time, now, maxno, number, outfil, fi, &
+	subroutine STASH(time, now, number, outfil, fi, &!maxno, number, outfil, fi, &
 						flit, fout, wo, wodot, diam, ddot, &
-						tdry, tign, tout, fmois, maxkl, nun)
+						tdry, tign, tout, fmois, nun)!maxkl, nun)
 		implicit none
 
 		! Arguments:
 		real, intent(in) :: time 				! Igniting surface fire residence time (s)
-		integer, intent(in) :: now				! Time step?
-		integer, intent(in) :: maxno			! The maximum number of fuel classes allowed.
+		integer, intent(in) :: now				! Index marking the current time step.
+		!integer, intent(in) :: maxno			! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number			! The actual number of fuel classes.
 		character*12, intent(out) :: outfil		! The name of the output file.
 		! NOTE: There seems to be no reason why outfil is returned.  It appears to be overwritten
 		! wherever it is used subsequent to this call and could be safely changed to a local
 		! variable.  It is maintained only to preserve the original interface.
 		real*4, intent(in) :: fi				! Site avg fire intensity (kW / sq m)
-		real*4, intent(in) :: flit(maxno)		! Fraction of each component currently alight
-		real*4, intent(in) :: fout(maxno)		! Fraction of each component currently gone out
-		real*4, intent(in) :: wo(maxkl)			! Current ovendry loading for the larger of
-												! each c-omponent pair, kg / sq m
-		real*4, intent(in) :: wodot(maxkl)		! Burning rates of interacting pairs of fuel components
-		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each fuel component pair (m)
-		real*4, intent(in) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
-		real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair
-		real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair
-		real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs
-		real*4, intent(in) :: fmois(maxno)		! Moisture fraction of component
-		integer, intent(in) :: maxkl			! Max triangular matrix size.
+		real*4, intent(in) :: flit(:)			! Fraction of each component currently alight [maxno]
+		real*4, intent(in) :: fout(:)			! Fraction of each component currently gone out [maxno]
+		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
+												! each c-omponent pair, kg / sq m [maxkl]
+		real*4, intent(in) :: wodot(:)			! Burning rates of interacting pairs of fuel components [maxkl]
+		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each fuel component pair (m) [maxkl]
+		real*4, intent(in) :: ddot(:)			! Diameter reduction rate, larger of pair, m / s [maxkl]
+		real*4, intent(in) :: tdry(:)			! Time of drying start of the larger of each fuel component pair [maxkl]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair [maxkl]
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(in) :: fmois(:)			! Moisture fraction of component [maxno]
+		!integer, intent(in) :: maxkl			! Max triangular matrix size.
 		integer, intent(inout) :: nun			! Stash file unit identifier, returned on first call,
 												! passed in for subsequent.
 
