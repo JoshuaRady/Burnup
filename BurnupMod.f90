@@ -2120,32 +2120,32 @@ contains
 		! Arguments:
 		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg / sq m
-		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
-		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
-		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
-		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
-		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
-		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
-		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K
-		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K
+		real*4, intent(inout) :: wdry(:) ! maxno	! Ovendry mass loading, kg / sq m
+		real*4, intent(inout) :: ash(:) ! maxno		! Mineral content, fraction dry mass
+		real*4, intent(inout) :: dendry(:) ! maxno		! Ovendry mass density, kg / cu m
+		real*4, intent(inout) :: fmois(:) ! maxno		! Moisture content, fraction dry mass
+		real*4, intent(inout) :: sigma(:) ! maxno		! Surface to volume ratio, 1 / m
+		real*4, intent(inout) :: htval(:) ! maxno		! Low heat of combustion, J / kg
+		real*4, intent(inout) :: cheat(:) ! maxno		! Specific heat capacity, (J / K) / kg dry mass
+		real*4, intent(inout) :: condry(:) ! maxno		! Thermal conductivity, W / m K, ovendry
+		real*4, intent(inout) :: tpig(:) ! maxno		! Ignition temperature, K
+		real*4, intent(inout) :: tchar(:) ! maxno		! Char temperature, K
 		real*4, intent(out) :: diam(maxkl)			! initial diameter, m [by interaction pairs]
-		integer, intent(out) :: key(maxno)			! Ordered index list
-		real*4, intent(out) :: work(maxno)			! Workspace array
+		integer, intent(out) :: key(:) ! maxno		! Ordered index list
+		real*4, intent(out) :: work(:) ! maxno			! Workspace array
 		real*4, intent(in) :: ak					! Area influence factor [ak parameter]
-		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix from OVLAPS
-		real*4, intent(out) :: alone(maxno)			! Noninteraction fraction list from OVLAPS
-		real*4, intent(out) :: xmat(maxkl)			! Consolidated interaction matrix
-		real*4, intent(out) :: wo(maxkl)			! Initial dry loading by interaction pairs
+		real*4, intent(out) :: elam(:,:) ! maxno, maxno	! Interaction matrix from OVLAPS
+		real*4, intent(out) :: alone(:) ! maxno			! Noninteraction fraction list from OVLAPS
+		real*4, intent(out) :: xmat(:) ! maxkl			! Consolidated interaction matrix
+		real*4, intent(out) :: wo(:)			! Initial dry loading by interaction pairs
 		!integer, intent(in) :: maxkl				! Max triangular matrix size.
-		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
-		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array.
+		character*12, intent(inout) :: parts(:) ! maxno	! Fuel component names / labels
+		character*12, intent(out) :: list(:) ! maxno	! Intermediary for reordering parts name array.
 													! This is passed in but is not initialized prior
 													! to that.  It doesn't appear that it is used
 													! after it is returned.  It appears to only be
 													! used internal to this routine.
-		real*4, intent(inout) :: area(maxno)		! Fraction of site area expected to be covered at
+		real*4, intent(inout) :: area(:) ! maxno	! Fraction of site area expected to be covered at
 													! least once by initial planform area of ea size
 
 		! Locals:
@@ -2275,20 +2275,22 @@ contains
 		! Arguments:
 		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
-		real*4, intent(inout) :: dryden(maxno)		! Ovendry mass density, kg / cu m
-		integer, intent(inout) :: key(maxno)		! Ordered index list
+		real*4, intent(inout) :: sigma(:)	! (maxno)	Surface to volume ratio, 1 / m
+		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass (maxno)
+		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m (maxno)
+		integer, intent(inout) :: key(:) ! maxno		! Ordered index list	(maxno)
 
 		! Locals:
+		integer :: maxnoTEMP ! The maximum number of fuel classes allowed.
 		integer :: j, i ! Counters
 		real :: s, fm, de, keep, usi
 		logical :: diam, mois, dens, tied
 		logical :: newIndexFound ! Note: Not present in original code.
 
+		maxnoTEMP = size(sigma) ! ...
 		newIndexFound = .false.
 
-		do j = 1, maxno
+		do j = 1, maxnoTEMP
 			key(j) = j
 		end do
 
@@ -2380,21 +2382,21 @@ contains
 		implicit none
 
 		! Arguments:
-		real*4, intent(in) :: dryld(maxno)			! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...)
-		real*4, intent(in) :: sigma(maxno)			! Surface to volume ratio, 1 / m
-		real*4, intent(in) :: dryden(maxno)			! Ovendry mass density, kg / cu m (elsewhere dendry)
+		real*4, intent(in) :: dryld(:) ! maxno		! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...)
+		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m	[maxno]
+		real*4, intent(in) :: dryden(:)			! Ovendry mass density, kg / cu m (elsewhere dendry)	[maxno]
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		!integer, intent(in) :: maxkl				! Max triangular matrix size.
 
-		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
+		real*4, intent(in) :: fmois(:)			! Moisture fraction of component	[maxno]
 
-		real*4, intent(out) :: beta(maxkl)			! Consolidated interaction matrix (elsewhere = xmat).
-		real*4, intent(out) :: elam(maxno, maxno)	! Interaction matrix
-		real*4, intent(out) :: alone(maxno)			! Non-interacting fraction for each fuel class.
-		real*4, intent(out) :: area(maxno)			! Fraction of site area expected to be covered at
-													! least once by initial planform area of ea size
+		real*4, intent(out) :: beta(:)			! Consolidated interaction matrix (elsewhere = xmat).	(maxkl)
+		real*4, intent(out) :: elam(:,:)	! Interaction matrix		(maxno, maxno)
+		real*4, intent(out) :: alone(:)			! Non-interacting fraction for each fuel class.	(maxno)
+		real*4, intent(out) :: area(:)			! Fraction of site area expected to be covered at
+													! least once by initial planform area of ea size	(maxno)
 
 		! Locals:
 		real :: pi ! Convert to a constant?
@@ -2447,7 +2449,7 @@ contains
 		end do
 
 		if (number .EQ. 1) then
-			elam(1, 1) = beta (2)
+			elam(1, 1) = beta (2) ! Whitespace!!!!!
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if
