@@ -2987,7 +2987,6 @@ contains
 					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 
-					!index = l + min(nspan, mxstep) ! JMR: Transcription: l for 1 substitution!!!!!
 					index = 1 + min(nspan, mxstep)
 					qdsum = 0.0
 					tspan = 0.0
