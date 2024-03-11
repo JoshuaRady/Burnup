@@ -329,7 +329,7 @@ contains
 			close(nun)
 
 			outfil = 'SUMMARY.DAT'
-			call SUMMARY(outfil, number, maxno, maxkl, parts, nun, &
+			call SUMMARY(outfil, number, parts, nun, &!maxno, maxkl, parts, nun, &
 							tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
 			close(nun)
 
@@ -3711,32 +3711,32 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	! Note: While this reproduces the original output that output has some alignment issues.
-	subroutine SUMMARY(outfil, number, maxno, maxkl, parts, nun, &
+	subroutine SUMMARY(outfil, number, parts, nun, &!maxno, maxkl, parts, nun, &
 						tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
 		implicit none
 
 		! Arguments:
-		character*12, intent(in) :: outfil			! Stores the name of input data files.
+		character*12, intent(in) :: outfil		! Stores the name of input data files.
 		! Note: outfil is defined right before the call to this routine and could be moved inside.
-		integer, intent(in) :: number				! Actual number of fuel components
-		integer, intent(in) :: maxno				! Max number of fuel components
-		integer, intent(in) :: maxkl				! Max triangular matrix size.
-		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
-		integer, intent(in) :: nun					! Summary file unit identifier
-		real, intent(in) :: tis						! Current time (ti + number of time steps * dt)
-													! When this is called this will be the time the fire went out.
-		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
-		real*4, intent(in) :: wdry(maxno)			! Ovendry mass loading, kg/sq m
-		real*4, intent(in) :: fmois(maxno)			! Moisture content, fraction dry mass
-		real*4, intent(in) :: sigma(maxno)			! Surface to volume ratio, 1 / m
-		real*4, intent(in) :: tign(maxkl)			! Ignition time for the larger of each
-													! fuel component pair
-		real*4, intent(in) :: tout(maxkl)			! Burnout time of larger component of pairs
-		real*4, intent(in) :: xmat(maxkl)			! Table of influence fractions between components
-		real*4, intent(in) :: wo(maxkl)				! Current ovendry loading for the larger of
-													! each component pair, kg/sq m
-		real*4, intent(in) :: diam(maxkl)			! Current diameter of the larger of each
-													! fuel component pair, m
+		integer, intent(in) :: number			! Actual number of fuel components
+		!integer, intent(in) :: maxno				! Max number of fuel components
+		!integer, intent(in) :: maxkl				! Max triangular matrix size.
+		character*12, intent(in) :: parts(:)	! Fuel component names / labels [maxno]
+		integer, intent(in) :: nun				! Summary file unit identifier
+		real, intent(in) :: tis					! Current time (ti + number of time steps * dt)
+												! When this is called this will be the time the fire went out.
+		real*4, intent(in) :: ak				! Area influence factor (ak / K_a parameter)
+		real*4, intent(in) :: wdry(:)			! Ovendry mass loading, kg/sq m [maxno]
+		real*4, intent(in) :: fmois(:)			! Moisture content, fraction dry mass [maxno]
+		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each [maxkl]
+												! fuel component pair
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(in) :: xmat(:)			! Table of influence fractions between components [maxkl]
+		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
+												! each component pair, kg/sq m [maxkl]
+		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each
+												! fuel component pair, m [maxkl]
 
 		! Locals:
 		character*3 :: stat		! File open status.
