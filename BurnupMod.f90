@@ -254,10 +254,10 @@ contains
 				end if
 			end do
 
-			call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+			call ARRAYS(number, wdry, ash, dendry, fmois, &!number, wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, wo, &
-						maxkl, parts, list, area)
+						parts, list, area)!maxkl, parts, list, area)
 			! Note: elam and alone are passed in and returned but are not used again.
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
@@ -464,10 +464,10 @@ contains
 		end if
 
 		! Sort the fuel components and calculate the interaction matrix...
-		call ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+		call ARRAYS(number, wdry, ash, dendry, fmois, &!maxno, number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
-					maxkl, parts, list, area)
+					parts, list, area)!maxkl, parts, list, area)
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
 		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
@@ -2110,14 +2110,15 @@ contains
 	!c elam and the list alone returned from subroutine OVLAPS.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+	!subroutine ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+	subroutine ARRAYS(number, wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, &
-						wo, maxkl, parts, list, area)
+						wo, parts, list, area)!wo, maxkl, parts, list, area)
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
+		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg / sq m
 		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
@@ -2137,7 +2138,7 @@ contains
 		real*4, intent(out) :: alone(maxno)			! Noninteraction fraction list from OVLAPS
 		real*4, intent(out) :: xmat(maxkl)			! Consolidated interaction matrix
 		real*4, intent(out) :: wo(maxkl)			! Initial dry loading by interaction pairs
-		integer, intent(in) :: maxkl				! Max triangular matrix size.
+		!integer, intent(in) :: maxkl				! Max triangular matrix size.
 		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
 		character*12, intent(out) :: list(maxno)	! Intermediary for reordering parts name array.
 													! This is passed in but is not initialized prior
@@ -2153,7 +2154,7 @@ contains
 
 		! Testing was done to confrim that explicit initialization of locals was not needed here.
 
-		call SORTER(maxno, number, sigma, fmois, dendry, key)
+		call SORTER(number, sigma, fmois, dendry, key)!maxno, number, sigma, fmois, dendry, key)
 
 		do j = 1, number
 			k = key(j)
@@ -2228,7 +2229,7 @@ contains
 ! Pg. 90:
 
 
-		call OVLAPS(wdry, sigma, dendry, ak, number, maxno, maxkl, &
+		call OVLAPS(wdry, sigma, dendry, ak, number, &!maxno, maxkl, &
 					fmois, &
 					xmat, elam, alone, area)
 
@@ -2267,11 +2268,12 @@ contains
 	!c fuel parameters can be ordered and associated as necessary.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine SORTER(maxno, number, sigma, fmois, dryden, key)
+	!subroutine SORTER(maxno, number, sigma, fmois, dryden, key)
+	subroutine SORTER(number, sigma, fmois, dryden, key)
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
+		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number				! The actual number of fuel classes.
 		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
 		real*4, intent(inout) :: fmois(maxno)		! Moisture content, fraction dry mass
@@ -2372,7 +2374,7 @@ contains
 	! We modify the original behavior such that a negative value for ak indicates the the value of
 	! ak / K_a should be calculated.
 	subroutine OVLAPS(dryld, sigma, dryden, ak, number, &
-						maxno, maxkl, &
+						!maxno, maxkl, &
 						fmois, &
 						beta, elam, alone, area)
 		implicit none
@@ -2383,8 +2385,8 @@ contains
 		real*4, intent(in) :: dryden(maxno)			! Ovendry mass density, kg / cu m (elsewhere dendry)
 		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
 		integer, intent(in) :: number				! The actual number of fuel classes.
-		integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
-		integer, intent(in) :: maxkl				! Max triangular matrix size.
+		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
+		!integer, intent(in) :: maxkl				! Max triangular matrix size.
 
 		real*4, intent(in) :: fmois(maxno)			! Moisture fraction of component
 
