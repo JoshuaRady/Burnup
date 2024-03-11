@@ -287,7 +287,7 @@ contains
 			end if
 
 			! Calculate the initial fire intensity:
-			call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+			call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
 			! If the fire intensity is above the extinguishing threshold calculate combustion until
 			! the fire goes out or the number of timesteps is reached:
@@ -312,7 +312,7 @@ contains
 					end if
 
 					! Calculate the fire intensity at this time step:
-					call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+					call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
 					if (fi .LE. fimin) then
 						exit
@@ -502,7 +502,7 @@ contains
 		end if
 
 		! Calculate the initial fire intensity:
-		call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+		call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
@@ -532,7 +532,7 @@ contains
 				end if
 
 				! Calculate the fire intensity at this time step:
-				call FIRINT(wodot, ash, htval, maxno, number, maxkl, area, fint, fi)
+				call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
 				! Save the state at each timestep: Make optional!!!!!
 				call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
@@ -2797,21 +2797,21 @@ contains
 	!c the intensity level to be the local value where size k is burning.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine FIRINT(wodot, ash, htval, maxno, number, maxkl, &
+	subroutine FIRINT(wodot, ash, htval, number, &!wodot, ash, htval, maxno, number, maxkl, &
 						area, fint, fi)
 		implicit none
 
 		! Arguments:
-		real*4, intent(in) :: wodot(maxkl)	! Burning rates of interacting pairs of fuel components
-		real*4, intent(in) :: ash(maxno)		! Mineral content, fraction dry mass
-		real*4, intent(in) :: htval(maxno)	! Low heat of combustion, J / kg
-		integer, intent(in) :: maxno			! The maximum number of fuel classes allowed.
-		integer, intent(in) :: number			! The actual number of fuel classes.
-		integer, intent(in) :: maxkl			! Max triangular matrix size.
-		real*4, intent(in) :: area(maxno)		! Fraction of site area expected to be covered at
-												! least once by initial planform area of ea size
-		real*4, intent(out) :: fint(maxno)	! Corrected local fire intensity for each fuel type.
-		real*4, intent(out) :: fi				! Site avg fire intensity (kW / sq m)
+		real*4, intent(in) :: wodot(:)	! Burning rates of interacting pairs of fuel components [maxkl]
+		real*4, intent(in) :: ash(:)	! Mineral content, fraction dry mass [maxno]
+		real*4, intent(in) :: htval(:)	! Low heat of combustion, J / kg [maxno]
+		!integer, intent(in) :: maxno	! The maximum number of fuel classes allowed.
+		integer, intent(in) :: number	! The actual number of fuel classes.
+		!integer, intent(in) :: maxkl	! Max triangular matrix size.
+		real*4, intent(in) :: area(:)	! Fraction of site area expected to be covered at
+										! least once by initial planform area of ea size [maxno]
+		real*4, intent(out) :: fint(:)	! Corrected local fire intensity for each fuel type. [maxno]
+		real*4, intent(out) :: fi		! Site avg fire intensity (kW / sq m)
 
 		! Locals:
 		real :: sum ! Running total for fi.
