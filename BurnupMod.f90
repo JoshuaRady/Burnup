@@ -1460,18 +1460,18 @@ contains
 		implicit none
 
 		! Arguments:
-		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
-		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass
-		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
-		real*4, intent(inout) :: fmois(maxno)		! Moisture fraction of component
-		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m
-		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
-		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry
-		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K
-		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K
-		integer, intent(in) :: nFuel				! The fuel component to modify.
+		character*12, intent(inout) :: parts(:)	! Fuel component names / labels [maxno]
+		real*4, intent(inout) :: wdry(:)		! Ovendry mass loading, kg/sq m [maxno]
+		real*4, intent(inout) :: ash(:)			! Mineral content, fraction dry mass [maxno]
+		real*4, intent(inout) :: htval(:)		! Low heat of combustion, J / kg [maxno]
+		real*4, intent(inout) :: fmois(:)		! Moisture fraction of component [maxno]
+		real*4, intent(inout) :: dendry(:)		! Ovendry mass density, kg / cu m [maxno]
+		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(inout) :: cheat(:)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		real*4, intent(inout) :: condry(:)		! Thermal conductivity, W / m K, ovendry [maxno]
+		real*4, intent(inout) :: tpig(:)		! Ignition temperature, K [maxno]
+		real*4, intent(inout) :: tchar(:)		! Char temperature, K [maxno]
+		integer, intent(in) :: nFuel			! The fuel component to modify.
 
 		! Locals:
 		real :: idn, value ! User input values.
