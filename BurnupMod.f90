@@ -599,12 +599,13 @@ contains
 		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
-		double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
-		double precision, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair [maxkl]
-		double precision, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs [maxkl]
-		double precision, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
+		double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
+		!double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
+		double precision, intent(out) :: tign((maxkl))		! Ignition time for the larger of each fuel component pair [maxkl]
+		double precision, intent(out) :: tout((maxkl))		! Burnout time of larger component of pairs [maxkl]
+		double precision, intent(out) :: wo((maxkl))			! Current ovendry loading for the larger of
 															! each component pair, kg/sq m [maxkl]
-		double precision, intent(out) :: diam(size(xmat))		! Current diameter of the larger of each
+		double precision, intent(out) :: diam((maxkl))		! Current diameter of the larger of each
 															! fuel component pair, m [maxkl]
 
 		! Settings:
@@ -614,7 +615,7 @@ contains
 		real :: fiReal, dtReal
 		real, dimension(number) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
 		real, dimension(number) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
-		real, dimension(size(xmat)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
+		real, dimension((maxkl)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
 		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
