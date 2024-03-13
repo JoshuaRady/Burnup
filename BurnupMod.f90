@@ -581,39 +581,39 @@ contains
 		integer, intent(in) :: ntimes				! Number of time steps to run.
 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 
-		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m
-		double precision, intent(inout) :: ash(maxno)		! Mineral content, fraction dry mass
-		double precision, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg
-		double precision, intent(inout) :: fmois(maxno)		! Moisture fraction of component
-		double precision, intent(inout) :: dendry(maxno)	! Ovendry mass density, kg / cu m
-		double precision, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m
-		double precision, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass
-		double precision, intent(inout) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry
-		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K
-		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K
+		double precision, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
+		double precision, intent(inout) :: ash(number)		! Mineral content, fraction dry mass [maxno]
+		double precision, intent(inout) :: htval(number)		! Low heat of combustion, J / kg [maxno]
+		double precision, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
+		double precision, intent(inout) :: dendry(number)	! Ovendry mass density, kg / cu m [maxno]
+		double precision, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
+		double precision, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		double precision, intent(inout) :: condry(number)	! Thermal conductivity, W / m K, ovendry [maxno]
+		double precision, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
+		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
-		double precision, intent(out) :: xmat(maxkl)		! Table of influence fractions between components
-		double precision, intent(out) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair
-		double precision, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs
-		double precision, intent(out) :: wo(maxkl)			! Current ovendry loading for the larger of
-															! each component pair, kg/sq m
-		double precision, intent(out) :: diam(maxkl)		! Current diameter of the larger of each
-															! fuel component pair, m
+		double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
+		double precision, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair [maxkl]
+		double precision, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs [maxkl]
+		double precision, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
+															! each component pair, kg/sq m [maxkl]
+		double precision, intent(out) :: diam(size(xmat))		! Current diameter of the larger of each
+															! fuel component pair, m [maxkl]
 
 		! Settings:
 		integer, intent(in) :: outputHistory				! Should fire history be saved? (0 = no, 1 = yes)
 
 		! Local type conversion intermediates:
 		real :: fiReal, dtReal
-		real, dimension(maxno) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal
-		real, dimension(maxno) :: cheatReal, condryReal, tpigReal, tcharReal
-		real, dimension(maxkl) :: xmatReal, tignReal, toutReal, woReal, diamReal
+		real, dimension(number) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
+		real, dimension(number) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
+		real, dimension(size(xmat)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
 		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
-		character*12 :: parts(maxno)	! Fuel component names / labels
+		character*12 :: parts(number)	! Fuel component names / labels [maxno]
 
 		do i = 1, maxno
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
