@@ -599,8 +599,8 @@ contains
 		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
-		double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
-		!double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
+		!double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
+		double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
 		double precision, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair [maxkl]
 		double precision, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs [maxkl]
 		double precision, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
