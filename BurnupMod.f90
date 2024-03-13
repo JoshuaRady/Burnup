@@ -467,6 +467,8 @@ contains
 		print *, "number", number
 		print *, "size(xmat)", size(xmat)
 		print *, "size(tign)", size(tign)
+		print *, "area()", area
+		print *, "fint()", fint
 
 		! Set SaveHistory:
 		if (present(outputHistory)) then
@@ -480,6 +482,9 @@ contains
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					parts, list, area)!maxkl, parts, list, area)
+
+		print *, "After ARRAYS():"
+		print *, "area()", area
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
 		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
@@ -515,6 +520,9 @@ contains
 
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
+
+		print *, "After FIRINT():"
+		print *, "fint()", fint
 
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
