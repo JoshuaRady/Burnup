@@ -395,32 +395,32 @@ contains
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
 		! However, setting these to inout allows the values to be reordered internally by SORTER(),
 		! which eliminates the need for parallel local variables.
-		character*12, intent(inout) :: parts(number)	! Fuel component names / labels [maxno]
-		real*4, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
-		real*4, intent(inout) :: ash(number)			! Mineral content, fraction dry mass [maxno]
-		real*4, intent(inout) :: htval(number)		! Low heat of combustion, J / kg,					AKA heat content [maxno]
-		real*4, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
-		real*4, intent(inout) :: dendry(number)		! Ovendry mass density, kg / cu m [maxno]
-		real*4, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
-		real*4, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
-		real*4, intent(inout) :: condry(number)		! Thermal conductivity, W / m K, ovendry [maxno]
-		real*4, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
-		real*4, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
+		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels [maxno]
+		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m [maxno]
+		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass [maxno]
+		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg,					AKA heat content [maxno]
+		real*4, intent(inout) :: fmois(maxno)		! Moisture fraction of component [maxno]
+		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m [maxno]
+		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
+		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry [maxno]
+		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K [maxno]
+		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
-		!real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
+		real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
 		! Use the first argument withe maxkl length to calculate its value.  This can then be used
 		! by subsequent variables.  I don't like this approach much but a better alternative has
 		! not be determined.
 		! wo should be moved to the front in any case because it is the most valuable output.  This
 		! would have the advantage of making the size() shorthand shorter.
-		real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
-		real*4, intent(out) :: tign(size(xmat))			! Ignition time for the larger of each fuel component pair [maxkl]
-		real*4, intent(out) :: tout(size(xmat))			! Burnout time of larger component of pairs [maxkl]
-		real*4, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
+		!real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
+		real*4, intent(out) :: tign(maxkl)			! Ignition time for the larger of each fuel component pair [maxkl]
+		real*4, intent(out) :: tout(maxkl)			! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(out) :: wo(maxkl)			! Current ovendry loading for the larger of
 													! each component pair, kg/sq m [maxkl]
-		real*4, intent(out) :: diam(size(xmat))			! Current diameter of the larger of each
+		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
 													! fuel component pair, m [maxkl]
 
 		! Settings:
@@ -428,24 +428,24 @@ contains
 
 		! Locals:
 		! Arrays:
-		real*4 :: alfa(number)			! Dry thermal diffusivity of component, sq m / s [maxno]
-		real*4 :: flit(number)			! Fraction of each component currently alight [maxno]
-		real*4 :: fout(number)			! Fraction of each component currently gone out [maxno]
-		real*4 :: work(number)			! Workspace array [maxno]
+		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s [maxno]
+		real*4 :: flit(maxno)			! Fraction of each component currently alight [maxno]
+		real*4 :: fout(maxno)			! Fraction of each component currently gone out [maxno]
+		real*4 :: work(maxno)			! Workspace array [maxno]
 		real*4 :: elam(number, number)	! Interaction matrix [maxno, maxno]
-		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
-		real*4 :: area(number)			! Fraction of site area expected to be covered at
+		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class. [maxno]
+		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
-		real*4 :: fint(number)			! Corrected local fire intensity for each fuel type. [maxno]
-		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each [maxkl]
-		real*4 :: wodot(size(xmat))			! Dry loading loss rate for larger of pair [maxkl]
-		real*4 :: ddot(size(xmat))  			! Diameter reduction rate, larger of pair, m / s [maxkl]
-		real*4 :: qcum(size(xmat)) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
-		real*4 :: tcum(size(xmat)) 			! Cumulative temp integral for qcum (drying) [maxkl]
-		real*4 :: acum(size(xmat)) 			! Heat pulse area for historical rate averaging [maxkl]
-		real*4 :: qdot(size(xmat), mxstep)	! History (post ignite) of heat transfer rate [maxkl]
-		integer :: key(number)			! Ordered index list [maxno]
-		character*12 :: list(number)		! [maxno]
+		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type. [maxno]
+		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each [maxkl]
+		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair [maxkl]
+		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s [maxkl]
+		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
+		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying) [maxkl]
+		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging [maxkl]
+		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate [maxkl]
+		integer :: key(maxno)			! Ordered index list [maxno]
+		character*12 :: list(maxno)		! [maxno]
 
 		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
@@ -587,16 +587,16 @@ contains
 		integer, intent(in) :: ntimes				! Number of time steps to run.
 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 
-		double precision, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
-		double precision, intent(inout) :: ash(number)		! Mineral content, fraction dry mass [maxno]
-		double precision, intent(inout) :: htval(number)		! Low heat of combustion, J / kg [maxno]
-		double precision, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
-		double precision, intent(inout) :: dendry(number)	! Ovendry mass density, kg / cu m [maxno]
-		double precision, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
-		double precision, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
-		double precision, intent(inout) :: condry(number)	! Thermal conductivity, W / m K, ovendry [maxno]
-		double precision, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
-		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
+		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m [maxno]
+		double precision, intent(inout) :: ash(maxno)		! Mineral content, fraction dry mass [maxno]
+		double precision, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg [maxno]
+		double precision, intent(inout) :: fmois(maxno)		! Moisture fraction of component [maxno]
+		double precision, intent(inout) :: dendry(maxno)	! Ovendry mass density, kg / cu m [maxno]
+		double precision, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m [maxno]
+		double precision, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		double precision, intent(inout) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry [maxno]
+		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K [maxno]
+		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
 		double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
@@ -613,14 +613,14 @@ contains
 
 		! Local type conversion intermediates:
 		real :: fiReal, dtReal
-		real, dimension(number) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
-		real, dimension(number) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
+		real, dimension(maxno) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
+		real, dimension(maxno) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
 		real, dimension((maxkl)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
 		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
-		character*12 :: parts(number)	! Fuel component names / labels [maxno]
+		character*12 :: parts(maxno)	! Fuel component names / labels [maxno]
 
 		! Temporary reporting:
 		print *, "SimulateR():"
@@ -2650,11 +2650,12 @@ contains
 		qdot = 0.0
 		! There are a large number of other locals that are not explictly initialized.  Testing was
 		! done to confrim that explicit initialization was not needed.
-		print *, "START():"
-		print *, "acum", acum
-		print *, "size(qdot)", size(qdot)
-		print *, "shape(qdot)", shape(qdot)
-		print *, "qdot", qdot
+		! Temporary reporting: !!!!!
+! 		print *, "START():"
+! 		print *, "acum", acum
+! 		print *, "size(qdot)", size(qdot)
+! 		print *, "shape(qdot)", shape(qdot)
+! 		print *, "qdot", qdot
 
 
 ! -- Pagebreak --
