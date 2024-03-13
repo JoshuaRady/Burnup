@@ -627,9 +627,8 @@ contains
 		print *, "number", number
 		print *, "size(xmat)", size(xmat)
 		print *, "size(tign)", size(tign)
-		print *, "size(xmatReal)", size(xmatReal)
-		print *, "xmatReal", xmatReal
-
+		!print *, "size(xmatReal)", size(xmatReal)
+		!print *, "xmatReal", xmatReal
 
 		do i = 1, maxno
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
@@ -2651,6 +2650,10 @@ contains
 		qdot = 0.0
 		! There are a large number of other locals that are not explictly initialized.  Testing was
 		! done to confrim that explicit initialization was not needed.
+		print *, "START():"
+		print *, "acum", acum
+		print *, "size(qdot)", size(qdot)
+		print *, "qdot", qdot
 
 
 ! -- Pagebreak --
