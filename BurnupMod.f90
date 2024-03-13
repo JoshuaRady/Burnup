@@ -4093,16 +4093,16 @@ contains
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: ts					! Current timestep count
-		real*4, intent(in) :: time					! Current time (s)
-		integer, intent(in) :: number				! Actual number of fuel components
-		character*12, intent(in) :: parts(maxno)	! Fuel component names / labels
+		integer, intent(in) :: ts				! Current timestep count
+		real*4, intent(in) :: time				! Current time (s)
+		integer, intent(in) :: number			! Actual number of fuel components
+		character*12, intent(in) :: parts(:)	! Fuel component names / labels [maxno]
 
 		! All the outputs from START() and STEP():
-		real*4, intent(in) :: wo(maxkl)			! Current ovendry loading for the larger of
-												! each component pair, kg / sq m.
+		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
+												! each component pair, kg / sq m. [maxkl]
 		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each
-												! fuel component pair, m.
+												! fuel component pair, m. [maxkl]
 		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
 		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
 		!real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each
