@@ -587,16 +587,16 @@ contains
 		integer, intent(in) :: ntimes				! Number of time steps to run.
 		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
 
-		double precision, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m [maxno]
-		double precision, intent(inout) :: ash(maxno)		! Mineral content, fraction dry mass [maxno]
-		double precision, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg [maxno]
-		double precision, intent(inout) :: fmois(maxno)		! Moisture fraction of component [maxno]
-		double precision, intent(inout) :: dendry(maxno)	! Ovendry mass density, kg / cu m [maxno]
-		double precision, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m [maxno]
-		double precision, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
-		double precision, intent(inout) :: condry(maxno)	! Thermal conductivity, W / m K, ovendry [maxno]
-		double precision, intent(inout) :: tpig(maxno)		! Ignition temperature, K [maxno]
-		double precision, intent(inout) :: tchar(maxno)		! Char temperature, K [maxno]
+		double precision, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
+		double precision, intent(inout) :: ash(number)		! Mineral content, fraction dry mass [maxno]
+		double precision, intent(inout) :: htval(number)		! Low heat of combustion, J / kg [maxno]
+		double precision, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
+		double precision, intent(inout) :: dendry(number)	! Ovendry mass density, kg / cu m [maxno]
+		double precision, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
+		double precision, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		double precision, intent(inout) :: condry(number)	! Thermal conductivity, W / m K, ovendry [maxno]
+		double precision, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
+		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
 		double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
@@ -613,14 +613,14 @@ contains
 
 		! Local type conversion intermediates:
 		real :: fiReal, dtReal
-		real, dimension(maxno) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
-		real, dimension(maxno) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
+		real, dimension(number) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
+		real, dimension(number) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
 		real, dimension((maxkl)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
 		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
-		character*12 :: parts(maxno)	! Fuel component names / labels [maxno]
+		character*12 :: parts(number)	! Fuel component names / labels [maxno]
 
 		! Temporary reporting:
 		print *, "SimulateR():"
@@ -630,7 +630,8 @@ contains
 		!print *, "size(xmatReal)", size(xmatReal)
 		!print *, "xmatReal", xmatReal
 
-		do i = 1, maxno
+		!do i = 1, maxno
+		do i = 1, number
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
 		end do
 
