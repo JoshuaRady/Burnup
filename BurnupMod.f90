@@ -684,6 +684,20 @@ contains
 
 	end subroutine SimulateR
 
+	! Temporary routine for testing!!!!!
+	! Can we tell the size of incoming data from R?
+	subroutine SizeTestR(arg1, arg2, arg3) bind(C, name = "SizeTestR")
+		implicit none
+
+		double precision, intent(in) :: arg1(:)
+		double precision, intent(in) :: arg2(:)
+		double precision, intent(in) :: arg3(:)
+
+		print *, "size(arg1)", size(arg1)
+		print *, "size(arg2)", size(arg2)
+		print *, "size(arg3)", size(arg3)
+
+	end subroutine SizeTestR
 
 	!c Duff burning rate (ergo, intensity) and duration
 	!
