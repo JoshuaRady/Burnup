@@ -395,17 +395,17 @@ contains
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
 		! However, setting these to inout allows the values to be reordered internally by SORTER(),
 		! which eliminates the need for parallel local variables.
-		character*12, intent(inout) :: parts(maxno)	! Fuel component names / labels [maxno]
-		real*4, intent(inout) :: wdry(maxno)		! Ovendry mass loading, kg/sq m [maxno]
-		real*4, intent(inout) :: ash(maxno)			! Mineral content, fraction dry mass [maxno]
-		real*4, intent(inout) :: htval(maxno)		! Low heat of combustion, J / kg,					AKA heat content [maxno]
-		real*4, intent(inout) :: fmois(maxno)		! Moisture fraction of component [maxno]
-		real*4, intent(inout) :: dendry(maxno)		! Ovendry mass density, kg / cu m [maxno]
-		real*4, intent(inout) :: sigma(maxno)		! Surface to volume ratio, 1 / m [maxno]
-		real*4, intent(inout) :: cheat(maxno)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
-		real*4, intent(inout) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry [maxno]
-		real*4, intent(inout) :: tpig(maxno)		! Ignition temperature, K [maxno]
-		real*4, intent(inout) :: tchar(maxno)		! Char temperature, K [maxno]
+		character*12, intent(inout) :: parts(number)	! Fuel component names / labels [maxno]
+		real*4, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
+		real*4, intent(inout) :: ash(number)			! Mineral content, fraction dry mass [maxno]
+		real*4, intent(inout) :: htval(number)		! Low heat of combustion, J / kg,					AKA heat content [maxno]
+		real*4, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
+		real*4, intent(inout) :: dendry(number)		! Ovendry mass density, kg / cu m [maxno]
+		real*4, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
+		real*4, intent(inout) :: condry(number)		! Thermal conductivity, W / m K, ovendry [maxno]
+		real*4, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
+		real*4, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
 
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
@@ -428,15 +428,15 @@ contains
 
 		! Locals:
 		! Arrays:
-		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s [maxno]
-		real*4 :: flit(maxno)			! Fraction of each component currently alight [maxno]
-		real*4 :: fout(maxno)			! Fraction of each component currently gone out [maxno]
-		real*4 :: work(maxno)			! Workspace array [maxno]
+		real*4 :: alfa(number)			! Dry thermal diffusivity of component, sq m / s [maxno]
+		real*4 :: flit(number)			! Fraction of each component currently alight [maxno]
+		real*4 :: fout(number)			! Fraction of each component currently gone out [maxno]
+		real*4 :: work(number)			! Workspace array [maxno]
 		real*4 :: elam(number, number)	! Interaction matrix [maxno, maxno]
-		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class. [maxno]
-		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
+		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
+		real*4 :: area(number)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
-		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type. [maxno]
+		real*4 :: fint(number)			! Corrected local fire intensity for each fuel type. [maxno]
 		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each [maxkl]
 		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair [maxkl]
 		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s [maxkl]
@@ -444,8 +444,8 @@ contains
 		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying) [maxkl]
 		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging [maxkl]
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate [maxkl]
-		integer :: key(maxno)			! Ordered index list [maxno]
-		character*12 :: list(maxno)		! [maxno]
+		integer :: key(number)			! Ordered index list [maxno]
+		character*12 :: list(number)		! [maxno]
 
 		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
