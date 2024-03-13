@@ -265,12 +265,12 @@ contains
 			! Initialize variables and data structures:
 			now = 1
 			tis = ti
-			call START(tis, mxstep, now, maxno, number, wo, alfa, &
+			call START(tis, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
 						ddot, wodot, work, u, d, r0, dr, &
-						ncalls, maxkl)
+						ncalls)!, maxkl)
 
 			! If the duff burns longer than the passing fire front then have it's intensity
 			! contribute to the post front fire environment, otherwise ignore it:
@@ -486,12 +486,12 @@ contains
 		! Initialize variables and data structures:
 		now = 1
 		tis = ti
-		call START(tis, mxstep, now, maxno, number, wo, alfa, &
+		call START(tis, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
 					ddot, wodot, work, u, d, r0, dr, &
-					ncalls, maxkl)
+					ncalls)!, maxkl)
 
 		! If the duff burns longer than the passing fire front then have it's intensity
 		! contribute to the post front fire environment, otherwise ignore it:
@@ -2495,64 +2495,64 @@ contains
 	!c one must initialize the following variables.
 	! 
 	! History: Modernized original Burnup subroutine.
-	subroutine START(dt, mxstep, now, maxno, number, wo, alfa, &
+	subroutine START(dt, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
 						ddot, wodot, work, u, d, r0, dr, &
-						ncalls, maxkl)
+						ncalls)!, maxkl)
 		implicit none
 
 		! Arguments:
 		! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 		! However the code is not consistant with that.
-		real*4, intent(in) :: dt				! Spreading fire residence time (s) (= ti, tis, or time elsewhere).
-		integer, intent(in) :: mxstep			! Max dimension of historical sequences
-		integer, intent(in) :: now 				! Index marks end of time step
-		integer, intent(in) :: maxno			! Max number of fuel components
-		integer, intent(in) :: number			! Actual number of fuel components
-		real*4, intent(inout) :: wo(maxkl)		! Current ovendry loading for the larger of
-												! each component pair, kg / sq m.  Updated on return.
-		real*4, intent(out) :: alfa(maxno)		! Dry thermal diffusivity of component, sq m / s
-		real*4, intent(in) :: dendry(maxno)		! Ovendry density of component, kg /cu m
-		real*4, intent(in) :: fmois(maxno)		! Moisture fraction of component
-		real*4, intent(in) :: cheat(maxno)		! Specific heat capacity of component, J / kg K
-		real*4, intent(in) :: condry(maxno)		! Ovendry thermal conductivity, W / sq m K
-		real*4, intent(inout) :: diam(maxkl)	! Current diameter of the larger of each
-												! fuel component pair, m.  Updated on return.
-		real*4, intent(in) :: tpig(maxno)		! Ignition temperature (K), by component
-		real*4, intent(in) :: tchar(maxno)		! tchar = end - pyrolysis temperature (K), by component
-		real*4, intent(in) :: xmat(maxkl)		! Table-of-influence fractions between components
-		real*4, intent(in) :: tpamb				! Ambient temperature (K)
-		real*4, intent(in) :: fi				! Current fire intensity (site avg), kW / sq m
+		real*4, intent(in) :: dt			! Spreading fire residence time (s) (= ti, tis, or time elsewhere).
+		!integer, intent(in) :: mxstep		! Max dimension of historical sequences
+		integer, intent(in) :: now 			! Index marks end of time step
+		!integer, intent(in) :: maxno		! Max number of fuel components
+		integer, intent(in) :: number		! Actual number of fuel components
+		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
+											! each component pair, kg / sq m.  Updated on return. [maxkl]
+		real*4, intent(out) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s [maxno]
+		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg /cu m [maxno]
+		real*4, intent(in) :: fmois(:)		! Moisture fraction of component [maxno]
+		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K [maxno]
+		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, W / sq m K [maxno]
+		real*4, intent(inout) :: diam(:)	! Current diameter of the larger of each
+											! fuel component pair, m.  Updated on return. [maxkl]
+		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component [maxno]
+		real*4, intent(in) :: tchar(:)		! tchar = end - pyrolysis temperature (K), by component [maxno]
+		real*4, intent(in) :: xmat(:)		! Table-of-influence fractions between components [maxkl]
+		real*4, intent(in) :: tpamb			! Ambient temperature (K)
+		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m
 
-		integer, intent(in) :: maxkl			! Max triangular matrix size.
+		!integer, intent(in) :: maxkl		! Max triangular matrix size.
 
 		! Parameters updated [input and output]:
-		integer, intent(inout) :: ncalls		! Counter of calls to this routine
-												! = 0 on first call or reset
-												! cumulates after first call
-												! JMR_NOTE: This is a strange argument as it is only
-												! initialized to zero here and is not used.  It is
-												! returned and passed on to STEP().  It is probably
-												! initialized here to prevent isses related to
-												! persistance should more than one simulation be run in
-												! on interactive session.
-		real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
-		real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
-		real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each
-												! fuel component pair
-		real*4, intent(out) :: tign(maxkl)		! Ignition time for the larger of each
-												! fuel component pair
-		real*4, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs
-		real*4, intent(out) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m
-		real*4, intent(out) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying)
-		real*4, intent(out) :: acum(maxkl)		! Heat pulse area for historical rate averaging
-		real*4, intent(out) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
-													! to the larger of each component pair
-		real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s
-		real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair
-		real*4, intent(inout) :: work(maxno)	! Workspace array
+		integer, intent(inout) :: ncalls	! Counter of calls to this routine
+											! = 0 on first call or reset
+											! cumulates after first call
+											! JMR_NOTE: This is a strange argument as it is only
+											! initialized to zero here and is not used.  It is
+											! returned and passed on to STEP().  It is probably
+											! initialized here to prevent isses related to
+											! persistance should more than one simulation be run in
+											! on interactive session.
+		real*4, intent(out) :: flit(:)		! Fraction of each component currently alight
+		real*4, intent(out) :: fout(:)		! Fraction of each component currently gone out
+		real*4, intent(out) :: tdry(:)		! Time of drying start of the larger of each
+											! fuel component pair [maxkl]
+		real*4, intent(out) :: tign(:)		! Ignition time for the larger of each
+											! fuel component pair [maxkl]
+		real*4, intent(out) :: tout(:)		! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(out) :: qcum(:)		! Cumulative heat input to larger of pair, J / sq m [maxkl]
+		real*4, intent(out) :: tcum(:)		! Cumulative temp integral for qcum (drying) [maxkl]
+		real*4, intent(out) :: acum(:)		! Heat pulse area for historical rate averaging [maxkl]
+		real*4, intent(out) :: qdot(:,:)	! History (post ignite) of heat transfer rate
+											! to the larger of each component pair [maxkl, maxno]
+		real*4, intent(out) :: ddot(:)		! Diameter reduction rate, larger of pair, m / s [maxkl]
+		real*4, intent(out) :: wodot(:)		! Dry loading loss rate for larger of pair [maxkl]
+		real*4, intent(inout) :: work(:)	! Workspace array [maxno]
 
 
 ! -- Pagebreak --
