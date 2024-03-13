@@ -2653,6 +2653,7 @@ contains
 		print *, "START():"
 		print *, "acum", acum
 		print *, "size(qdot)", size(qdot)
+		print *, "shape(qdot)", shape(qdot)
 		print *, "qdot", qdot
 
 
