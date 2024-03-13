@@ -459,8 +459,14 @@ contains
 		real, parameter :: fimin = 0.1	! Fire intensity (kW / sq m) at which fire goes out.
 
 		! There are a large number of locals in this routine that are not explictly initialized.
-		! Most are initialized in ARRAYS() and START.  Testing was done to confrim that explicit
+		! Most are initialized in ARRAYS() and START().  Testing was done to confrim that explicit
 		! initialization was not needed for the remaining locals.
+
+		! Temporary reporting:
+		print *, "Simulate():"
+		print *, "number", number
+		print *, "size(xmat)", size(xmat)
+		print *, "size(tign)", size(tign)
 
 		! Set SaveHistory:
 		if (present(outputHistory)) then
@@ -614,6 +620,15 @@ contains
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
 		integer :: i ! Counter
 		character*12 :: parts(number)	! Fuel component names / labels [maxno]
+
+		! Temporary reporting:
+		print *, "SimulateR():"
+		print *, "number", number
+		print *, "size(xmat)", size(xmat)
+		print *, "size(tign)", size(tign)
+		print *, "size(xmatReal)", size(xmatReal)
+		print *, "xmatReal", xmatReal
+
 
 		do i = 1, maxno
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
@@ -4107,7 +4122,7 @@ contains
 		! All the outputs from START() and STEP():
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
 												! each component pair, kg / sq m. [maxkl]
-		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each
+		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each		!!!!!
 												! fuel component pair, m. [maxkl]
 		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
 		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
