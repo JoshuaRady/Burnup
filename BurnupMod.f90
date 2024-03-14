@@ -436,7 +436,7 @@ contains
 		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
-		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type. [maxno]
+		real*4 :: fint(number)			! Corrected local fire intensity for each fuel type. [maxno]
 		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each [maxkl]
 		real*4 :: wodot(size(xmat))			! Dry loading loss rate for larger of pair [maxkl]
 		real*4 :: ddot(size(xmat))  			! Diameter reduction rate, larger of pair, m / s [maxkl]
@@ -467,8 +467,8 @@ contains
 		print *, "number", number
 		print *, "size(xmat)", size(xmat)
 		print *, "size(tign)", size(tign)
-		print *, "area()", area
-		print *, "fint()", fint
+		print *, "area", area
+		print *, "fint", fint
 
 		! Set SaveHistory:
 		if (present(outputHistory)) then
@@ -518,11 +518,11 @@ contains
 					ncalls)!, maxkl)
 
 		! Temporary reporting!!!!!:
-		print *, "After START():"
-		print *, "alfa", alfa
+		!print *, "After START():"
+		!print *, "alfa", alfa
 		!print *, "flit", flit
 		!print *, "fout", fout
-		print *, "work", work
+		!print *, "work", work
 
 		! If the duff burns longer than the passing fire front then have it's intensity
 		! contribute to the post front fire environment, otherwise ignore it:
