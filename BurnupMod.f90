@@ -463,12 +463,12 @@ contains
 		! initialization was not needed for the remaining locals.
 
 		! Temporary reporting:
-		print *, "Simulate():"
-		print *, "number", number
-		print *, "size(xmat)", size(xmat)
-		print *, "size(tign)", size(tign)
-		print *, "area", area
-		print *, "fint", fint
+		! print *, "Simulate():"
+! 		print *, "number", number
+! 		print *, "size(xmat)", size(xmat)
+! 		print *, "size(tign)", size(tign)
+! 		print *, "area", area
+! 		print *, "fint", fint
 
 		! Set SaveHistory:
 		if (present(outputHistory)) then
@@ -484,12 +484,12 @@ contains
 					parts, list, area)!maxkl, parts, list, area)
 
 		! Temporary reporting!!!!!:
-		print *, "After ARRAYS():"
+		!print *, "After ARRAYS():"
 		!print *, "wdry", wdry
 		!print *, "work", work
 		!print *, "elam", elam
 		!print *, "alone", alone
-		print *, "area", area
+		!print *, "area", area
 		!print *, "key", key
 		!print *, "list", list
 
@@ -536,8 +536,8 @@ contains
 		call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
 		! Temporary reporting!!!!!:
-		print *, "After FIRINT():"
-		print *, "fint", fint
+		!print *, "After FIRINT():"
+		!print *, "fint", fint
 
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
