@@ -2511,7 +2511,7 @@ contains
 
 		! If there is only one fuel type:
 		if (number .EQ. 1) then
-			elam(1, 1) = beta (2) ! Whitespace!!!!!
+			elam(1, 1) = beta(2)
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if

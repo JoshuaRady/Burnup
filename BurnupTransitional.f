@@ -2083,7 +2083,7 @@
       end do
 
       if ( number .EQ. 1 ) then
-      	elam( 1 , 1 ) = beta ( 2 )
+      	elam( 1 , 1 ) = beta( 2 )
       	alone( 1 ) = 1. - elam( 1 , 1 )
       	return
       end if
