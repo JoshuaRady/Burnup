@@ -434,7 +434,7 @@ contains
 		real*4 :: work(number)			! Workspace array [maxno]
 		real*4 :: elam(number, number)	! Interaction matrix [maxno, maxno]
 		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
-		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
+		real*4 :: area(number)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
 		real*4 :: fint(number)			! Corrected local fire intensity for each fuel type. [maxno]
 		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each [maxkl]
