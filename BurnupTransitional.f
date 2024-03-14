@@ -2072,7 +2072,7 @@
       	do l = 1 , k
       		kl = Loc( k , l )
       		a = siga * dryld( l ) / dryden( l )
-      		if ( k .EQ. 1 ) then
+      		if ( k .EQ. l ) then
       			bb = 1. - exp( - a )
       			area( k ) = bb
       		else
