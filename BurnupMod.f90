@@ -2434,7 +2434,8 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	! We modify the original behavior such that a negative value for ak indicates the the value of
-	! ak / K_a should be calculated.
+	! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
+	! original arguments.
 	subroutine OVLAPS(dryld, sigma, dryden, ak, number, &
 						!maxno, maxkl, &
 						fmois, &
@@ -2461,7 +2462,7 @@ contains
 		! Locals:
 		real :: pi ! Convert to a constant?
 		integer :: j, k, l, kj, kl ! Counters
-		real :: siga
+		real :: siga ! K_a * diameter
 		real :: a
 		real :: bb
 		real :: frac ! Intermediate for calculating alone().
@@ -2483,7 +2484,7 @@ contains
 
 		do k = 1, number
 			do l = 1, k
-				if (ak .gt. 0) then! or .ge. ?
+				if (ak .gt. 0.0) then! or .ge. ?
 					! If a valid value has been supplied use a fixed K_a as in the original Burnup:
 					K_a = ak
 				else
@@ -2508,6 +2509,7 @@ contains
 			end do
 		end do
 
+		! If there is only one fuel type:
 		if (number .EQ. 1) then
 			elam(1, 1) = beta (2) ! Whitespace!!!!!
 			alone(1) = 1.0 - elam(1, 1)
