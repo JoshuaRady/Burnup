@@ -409,18 +409,18 @@ contains
 
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
-		real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
+		!real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
 		! Use the first argument withe maxkl length to calculate its value.  This can then be used
 		! by subsequent variables.  I don't like this approach much but a better alternative has
 		! not be determined.
 		! wo should be moved to the front in any case because it is the most valuable output.  This
 		! would have the advantage of making the size() shorthand shorter.
-		!real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
+		real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
 		real*4, intent(out) :: tign(maxkl)			! Ignition time for the larger of each fuel component pair [maxkl]
-		real*4, intent(out) :: tout(maxkl)			! Burnout time of larger component of pairs [maxkl]
-		real*4, intent(out) :: wo(maxkl)			! Current ovendry loading for the larger of
+		real*4, intent(out) :: tout(size(xmat))			! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
 													! each component pair, kg/sq m [maxkl]
-		real*4, intent(out) :: diam(maxkl)			! Current diameter of the larger of each
+		real*4, intent(out) :: diam(size(xmat))			! Current diameter of the larger of each
 													! fuel component pair, m [maxkl]
 
 		! Settings:
@@ -437,12 +437,12 @@ contains
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
 		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type. [maxno]
-		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each [maxkl]
-		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair [maxkl]
-		real*4 :: ddot(maxkl)  			! Diameter reduction rate, larger of pair, m / s [maxkl]
-		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
-		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying) [maxkl]
-		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging [maxkl]
+		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each [maxkl]
+		real*4 :: wodot(size(xmat))			! Dry loading loss rate for larger of pair [maxkl]
+		real*4 :: ddot(size(xmat))  			! Diameter reduction rate, larger of pair, m / s [maxkl]
+		real*4 :: qcum(size(xmat)) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
+		real*4 :: tcum(size(xmat)) 			! Cumulative temp integral for qcum (drying) [maxkl]
+		real*4 :: acum(size(xmat)) 			! Heat pulse area for historical rate averaging [maxkl]
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate [maxkl]
 		integer :: key(number)			! Ordered index list [maxno]
 		character*12 :: list(number)		! [maxno]
