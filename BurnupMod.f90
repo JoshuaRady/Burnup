@@ -416,7 +416,7 @@ contains
 		! wo should be moved to the front in any case because it is the most valuable output.  This
 		! would have the advantage of making the size() shorthand shorter.
 		real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
-		real*4, intent(out) :: tign(maxkl)			! Ignition time for the larger of each fuel component pair [maxkl]
+		real*4, intent(out) :: tign(size(xmat))			! Ignition time for the larger of each fuel component pair [maxkl]
 		real*4, intent(out) :: tout(size(xmat))			! Burnout time of larger component of pairs [maxkl]
 		real*4, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
 													! each component pair, kg/sq m [maxkl]
@@ -443,7 +443,7 @@ contains
 		real*4 :: qcum(size(xmat)) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
 		real*4 :: tcum(size(xmat)) 			! Cumulative temp integral for qcum (drying) [maxkl]
 		real*4 :: acum(size(xmat)) 			! Heat pulse area for historical rate averaging [maxkl]
-		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate [maxkl]
+		real*4 :: qdot(size(xmat), mxstep)	! History (post ignite) of heat transfer rate [maxkl, mxstep]
 		integer :: key(number)			! Ordered index list [maxno]
 		character*12 :: list(number)		! [maxno]
 
@@ -485,13 +485,13 @@ contains
 
 		! Temporary reporting!!!!!:
 		print *, "After ARRAYS():"
-		print *, "wdry", wdry
-		print *, "work", work
-		print *, "elam", elam
-		print *, "alone", alone
+		!print *, "wdry", wdry
+		!print *, "work", work
+		!print *, "elam", elam
+		!print *, "alone", alone
 		print *, "area", area
-		print *, "key", key
-		print *, "list", list
+		!print *, "key", key
+		!print *, "list", list
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
 		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
@@ -520,8 +520,8 @@ contains
 		! Temporary reporting!!!!!:
 		print *, "After START():"
 		print *, "alfa", alfa
-		print *, "flit", flit
-		print *, "fout", fout
+		!print *, "flit", flit
+		!print *, "fout", fout
 		print *, "work", work
 
 		! If the duff burns longer than the passing fire front then have it's intensity
