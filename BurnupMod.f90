@@ -483,8 +483,15 @@ contains
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					parts, list, area)!maxkl, parts, list, area)
 
+		! Temporary reporting!!!!!:
 		print *, "After ARRAYS():"
-		print *, "area()", area
+		print *, "wdry", wdry
+		print *, "work", work
+		print *, "elam", elam
+		print *, "alone", alone
+		print *, "area", area
+		print *, "key", key
+		print *, "list", list
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
 		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
@@ -510,6 +517,13 @@ contains
 					ddot, wodot, work, u, d, r0, dr, &
 					ncalls)!, maxkl)
 
+		! Temporary reporting!!!!!:
+		print *, "After START():"
+		print *, "alfa", alfa
+		print *, "flit", flit
+		print *, "fout", fout
+		print *, "work", work
+
 		! If the duff burns longer than the passing fire front then have it's intensity
 		! contribute to the post front fire environment, otherwise ignore it:
 		if (tis .lt. tdf) then
@@ -521,8 +535,9 @@ contains
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
 
+		! Temporary reporting!!!!!:
 		print *, "After FIRINT():"
-		print *, "fint()", fint
+		print *, "fint", fint
 
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
@@ -631,11 +646,11 @@ contains
 		character*12 :: parts(number)	! Fuel component names / labels [maxno]
 
 		! Temporary reporting:
-		print *, "SimulateR():"
-		print *, "number", number
-		print *, "size(xmat)", size(xmat)
-		print *, "size(tign)", size(tign)
-		print *, "size(diamReal)", size(diamReal)
+		! print *, "SimulateR():"
+! 		print *, "number", number
+! 		print *, "size(xmat)", size(xmat)
+! 		print *, "size(tign)", size(tign)
+! 		print *, "size(diamReal)", size(diamReal)
 		!print *, "size(xmatReal)", size(xmatReal)
 		!print *, "xmatReal", xmatReal
 
