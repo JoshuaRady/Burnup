@@ -428,12 +428,12 @@ contains
 
 		! Locals:
 		! Arrays:
-		real*4 :: alfa(maxno)			! Dry thermal diffusivity of component, sq m / s [maxno]
-		real*4 :: flit(maxno)			! Fraction of each component currently alight [maxno]
-		real*4 :: fout(maxno)			! Fraction of each component currently gone out [maxno]
-		real*4 :: work(maxno)			! Workspace array [maxno]
+		real*4 :: alfa(number)			! Dry thermal diffusivity of component, sq m / s [maxno]
+		real*4 :: flit(number)			! Fraction of each component currently alight [maxno]
+		real*4 :: fout(number)			! Fraction of each component currently gone out [maxno]
+		real*4 :: work(number)			! Workspace array [maxno]
 		real*4 :: elam(number, number)	! Interaction matrix [maxno, maxno]
-		real*4 :: alone(maxno)			! Non-interacting fraction for each fuel class. [maxno]
+		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
 		real*4 :: area(maxno)			! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
 		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type. [maxno]
@@ -444,8 +444,8 @@ contains
 		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying) [maxkl]
 		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging [maxkl]
 		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate [maxkl]
-		integer :: key(maxno)			! Ordered index list [maxno]
-		character*12 :: list(maxno)		! [maxno]
+		integer :: key(number)			! Ordered index list [maxno]
+		character*12 :: list(number)		! [maxno]
 
 		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
