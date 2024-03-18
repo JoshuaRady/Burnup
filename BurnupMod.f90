@@ -2190,7 +2190,7 @@ contains
 		real*4, intent(inout) :: condry(:) ! maxno		! Thermal conductivity, W / m K, ovendry
 		real*4, intent(inout) :: tpig(:) ! maxno		! Ignition temperature, K
 		real*4, intent(inout) :: tchar(:) ! maxno		! Char temperature, K
-		real*4, intent(out) :: diam(maxkl)			! initial diameter, m [by interaction pairs]
+		real*4, intent(out) :: diam(:)			! Initial diameter, m [by interaction pairs] [maxkl]
 		integer, intent(out) :: key(:) ! maxno		! Ordered index list
 		real*4, intent(out) :: work(:) ! maxno			! Workspace array
 		real*4, intent(in) :: ak					! Area influence factor [ak parameter]
@@ -4169,7 +4169,7 @@ contains
 		! All the outputs from START() and STEP():
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
 												! each component pair, kg / sq m. [maxkl]
-		real*4, intent(in) :: diam(maxkl)		! Current diameter of the larger of each		!!!!!
+		real*4, intent(in) :: diam(:)		! Current diameter of the larger of each		!!!!!
 												! fuel component pair, m. [maxkl]
 		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight
 		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out
