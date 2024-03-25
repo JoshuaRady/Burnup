@@ -319,7 +319,7 @@ contains
 						if (nohist .eqv. .false.) then
 							call STASH(tis, now, number, outfil, fi, flit, &
 										fout, wo, wodot, diam, ddot, tdry, tign, &
-										tout, fmois, nun
+										tout, fmois, nun)
 						end if
 					end if
 				end do
