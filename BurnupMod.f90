@@ -254,10 +254,10 @@ contains
 				end if
 			end do
 
-			call ARRAYS(number, wdry, ash, dendry, fmois, &!number, wdry, ash, dendry, fmois, &
+			call ARRAYS(number, wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, wo, &
-						parts, list, area)!maxkl, parts, list, area)
+						parts, list, area)
 			! Note: elam and alone are passed in and returned but are not used again.
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
@@ -265,12 +265,11 @@ contains
 			! Initialize variables and data structures:
 			now = 1
 			tis = ti
-			call START(tis, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+			call START(tis, now, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, &
-						ncalls)!, maxkl)
+						ddot, wodot, work, u, d, r0, dr, ncalls)
 
 			! If the duff burns longer than the passing fire front then have it's intensity
 			! contribute to the post front fire environment, otherwise ignore it:
@@ -281,24 +280,24 @@ contains
 			end if
 
 			if (nohist .eqv. .false.) then
-				call STASH(tis, now, number, outfil, fi, flit, &!maxno, number, outfil, fi, flit, &
+				call STASH(tis, now, number, outfil, fi, flit, &
 							fout, wo, wodot, diam, ddot, tdry, tign, &
-							tout, fmois, nun)!maxkl, nun)
+							tout, fmois, nun)
 			end if
 
 			! Calculate the initial fire intensity:
-			call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
+			call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
 			! If the fire intensity is above the extinguishing threshold calculate combustion until
 			! the fire goes out or the number of timesteps is reached:
 			if (fi .gt. fimin) then
 				do while (now .LT. ntimes)
-					call STEP(dt, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+					call STEP(dt, now, number, wo, alfa, &
 								dendry, fmois, cheat, condry, diam, tpig, &
 								tchar, xmat, tpamb, fi, flit, fout, &
 								tdry, tign, tout, qcum, tcum, acum, qdot, &
 								ddot, wodot, work, u, d, r0, dr, &
-								ncalls, tis, fint, fid)!, tis, fint, fid)
+								ncalls, tis, fint, fid)
 
 					! Update time trackers:
 					now = now + 1
@@ -312,15 +311,15 @@ contains
 					end if
 
 					! Calculate the fire intensity at this time step:
-					call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
+					call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
 					if (fi .LE. fimin) then
 						exit
 					else
 						if (nohist .eqv. .false.) then
-							call STASH(tis, now, number, outfil, fi, flit, &!maxno, number, outfil, fi, flit, &
+							call STASH(tis, now, number, outfil, fi, flit, &
 										fout, wo, wodot, diam, ddot, tdry, tign, &
-										tout, fmois, nun)!maxkl, nun)
+										tout, fmois, nun
 						end if
 					end if
 				end do
@@ -329,7 +328,7 @@ contains
 			close(nun)
 
 			outfil = 'SUMMARY.DAT'
-			call SUMMARY(outfil, number, parts, nun, &!maxno, maxkl, parts, nun, &
+			call SUMMARY(outfil, number, parts, nun, &
 							tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
 			close(nun)
 
@@ -380,7 +379,6 @@ contains
 		real*4, intent(in) :: ak		! Area influence factor (ak / K_a parameter)
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter
-		!real*4, intent(in) :: dt		! Time step for integration of burning rates (s)
 		real*4, intent(inout) :: dt		! Time step for integration of burning rates (s).
 										! On completion contains the time the fire went out.
 
@@ -396,31 +394,31 @@ contains
 		! However, setting these to inout allows the values to be reordered internally by SORTER(),
 		! which eliminates the need for parallel local variables.
 		character*12, intent(inout) :: parts(number)	! Fuel component names / labels [maxno]
-		real*4, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
+		real*4, intent(inout) :: wdry(number)			! Ovendry mass loading, kg/sq m [maxno]
 		real*4, intent(inout) :: ash(number)			! Mineral content, fraction dry mass [maxno]
-		real*4, intent(inout) :: htval(number)		! Low heat of combustion, J / kg,					AKA heat content [maxno]
-		real*4, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
-		real*4, intent(inout) :: dendry(number)		! Ovendry mass density, kg / cu m [maxno]
-		real*4, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
-		real*4, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
-		real*4, intent(inout) :: condry(number)		! Thermal conductivity, W / m K, ovendry [maxno]
-		real*4, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
-		real*4, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
+		real*4, intent(inout) :: htval(number)			! Low heat of combustion (AKA heat content), J / kg [maxno]
+		real*4, intent(inout) :: fmois(number)			! Moisture fraction of component [maxno]
+		real*4, intent(inout) :: dendry(number)			! Ovendry mass density, kg / cu m [maxno]
+		real*4, intent(inout) :: sigma(number)			! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(inout) :: cheat(number)			! Specific heat capacity, (J / K) / kg dry mass		J / kg K [maxno]
+		real*4, intent(inout) :: condry(number)			! Thermal conductivity, W / m K, ovendry [maxno]
+		real*4, intent(inout) :: tpig(number)			! Ignition temperature, K [maxno]
+		real*4, intent(inout) :: tchar(number)			! Char temperature, K [maxno]
 
 		! Calculated outputs:
 		! The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
-		!real*4, intent(out) :: xmat(maxkl)			! Table of influence fractions between components
-		! Use the first argument withe maxkl length to calculate its value.  This can then be used
+
+		! Use the first argument with maxkl length to calculate its value.  This can then be used
 		! by subsequent variables.  I don't like this approach much but a better alternative has
 		! not be determined.
 		! wo should be moved to the front in any case because it is the most valuable output.  This
 		! would have the advantage of making the size() shorthand shorter.
 		real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
-		real*4, intent(out) :: tign(size(xmat))			! Ignition time for the larger of each fuel component pair [maxkl]
-		real*4, intent(out) :: tout(size(xmat))			! Burnout time of larger component of pairs [maxkl]
-		real*4, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
+		real*4, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair [maxkl]
+		real*4, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs [maxkl]
+		real*4, intent(out) :: wo(size(xmat))		! Current ovendry loading for the larger of
 													! each component pair, kg/sq m [maxkl]
-		real*4, intent(out) :: diam(size(xmat))			! Current diameter of the larger of each
+		real*4, intent(out) :: diam(size(xmat))		! Current diameter of the larger of each
 													! fuel component pair, m [maxkl]
 
 		! Settings:
@@ -428,24 +426,25 @@ contains
 
 		! Locals:
 		! Arrays:
-		real*4 :: alfa(number)			! Dry thermal diffusivity of component, sq m / s [maxno]
-		real*4 :: flit(number)			! Fraction of each component currently alight [maxno]
-		real*4 :: fout(number)			! Fraction of each component currently gone out [maxno]
-		real*4 :: work(number)			! Workspace array [maxno]
-		real*4 :: elam(number, number)	! Interaction matrix [maxno, maxno]
-		real*4 :: alone(number)			! Non-interacting fraction for each fuel class. [maxno]
-		real*4 :: area(number)			! Fraction of site area expected to be covered at
-										! least once by initial planform area of ea size [maxno]
-		real*4 :: fint(number)			! Corrected local fire intensity for each fuel type. [maxno]
+		real*4 :: alfa(number)				! Dry thermal diffusivity of component, sq m / s [maxno]
+		real*4 :: flit(number)				! Fraction of each component currently alight [maxno]
+		real*4 :: fout(number)				! Fraction of each component currently gone out [maxno]
+		real*4 :: work(number)				! Workspace array [maxno]
+		real*4 :: elam(number, number)		! Interaction matrix [maxno, maxno]
+		real*4 :: alone(number)				! Non-interacting fraction for each fuel class. [maxno]
+		real*4 :: area(number)				! Fraction of site area expected to be covered at
+											! least once by initial planform area of ea size [maxno]
+		real*4 :: fint(number)				! Corrected local fire intensity for each fuel type. [maxno]
 		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each [maxkl]
 		real*4 :: wodot(size(xmat))			! Dry loading loss rate for larger of pair [maxkl]
-		real*4 :: ddot(size(xmat))  			! Diameter reduction rate, larger of pair, m / s [maxkl]
+		real*4 :: ddot(size(xmat))  		! Diameter reduction rate, larger of pair, m / s [maxkl]
 		real*4 :: qcum(size(xmat)) 			! Cumulative heat input to larger of pair, J / sq m [maxkl]
 		real*4 :: tcum(size(xmat)) 			! Cumulative temp integral for qcum (drying) [maxkl]
 		real*4 :: acum(size(xmat)) 			! Heat pulse area for historical rate averaging [maxkl]
 		real*4 :: qdot(size(xmat), mxstep)	! History (post ignite) of heat transfer rate [maxkl, mxstep]
-		integer :: key(number)			! Ordered index list [maxno]
-		character*12 :: list(number)		! [maxno]
+		integer :: key(number)				! Ordered index list [maxno]
+		character*12 :: list(number)		! Intermediary for reordering parts name array. [maxno]
+											! Probably not needed here.  See notes in ARRAYS().
 
 		! Scalars in order of appearance:
 		real :: dfi 			! Duff fire intensity (aka I sub d) for DUFBRN().
@@ -478,10 +477,10 @@ contains
 		end if
 
 		! Sort the fuel components and calculate the interaction matrix...
-		call ARRAYS(number, wdry, ash, dendry, fmois, &!maxno, number, wdry, ash, dendry, fmois, &
+		call ARRAYS(number, wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
-					parts, list, area)!maxkl, parts, list, area)
+					parts, list, area)
 
 		! Temporary reporting!!!!!:
 		!print *, "After ARRAYS():"
@@ -510,12 +509,11 @@ contains
 		! Initialize variables and data structures:
 		now = 1
 		tis = ti
-		call START(tis, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+		call START(tis, now, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
-					ddot, wodot, work, u, d, r0, dr, &
-					ncalls)!, maxkl)
+					ddot, wodot, work, u, d, r0, dr, ncalls)
 
 		! Temporary reporting!!!!!:
 		!print *, "After START():"
@@ -533,7 +531,7 @@ contains
 		end if
 
 		! Calculate the initial fire intensity:
-		call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
+		call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
 		! Temporary reporting!!!!!:
 		!print *, "After FIRINT():"
@@ -546,12 +544,12 @@ contains
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
 			do while (now .LT. ntimes)
-				call STEP(dt, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+				call STEP(dt, now, number, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
 							tchar, xmat, tpamb, fi, flit, fout, &
 							tdry, tign, tout, qcum, tcum, acum, qdot, &
 							ddot, wodot, work, u, d, r0, dr, &
-							ncalls, tis, fint, fid)!maxkl, tis, fint, fid)
+							ncalls, tis, fint, fid)
 
 				! Update time trackers:
 				now = now + 1
@@ -567,7 +565,7 @@ contains
 				end if
 
 				! Calculate the fire intensity at this time step:
-				call FIRINT(wodot, ash, htval, number, area, fint, fi)!maxno, number, maxkl, area, fint, fi)
+				call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
 				! Save the state at each timestep: Make optional!!!!!
 				call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
@@ -608,27 +606,26 @@ contains
 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
 													! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes				! Number of time steps to run.
-		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
+		integer, intent(in) :: number				! The number of fuel classes. ! Could try to remove?????
 
 		double precision, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m [maxno]
 		double precision, intent(inout) :: ash(number)		! Mineral content, fraction dry mass [maxno]
-		double precision, intent(inout) :: htval(number)		! Low heat of combustion, J / kg [maxno]
-		double precision, intent(inout) :: fmois(number)		! Moisture fraction of component [maxno]
+		double precision, intent(inout) :: htval(number)	! Low heat of combustion, J / kg [maxno]
+		double precision, intent(inout) :: fmois(number)	! Moisture fraction of component [maxno]
 		double precision, intent(inout) :: dendry(number)	! Ovendry mass density, kg / cu m [maxno]
-		double precision, intent(inout) :: sigma(number)		! Surface to volume ratio, 1 / m [maxno]
-		double precision, intent(inout) :: cheat(number)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		double precision, intent(inout) :: sigma(number)	! Surface to volume ratio, 1 / m [maxno]
+		double precision, intent(inout) :: cheat(number)	! Specific heat capacity, (J / K) / kg dry mass [maxno]
 		double precision, intent(inout) :: condry(number)	! Thermal conductivity, W / m K, ovendry [maxno]
 		double precision, intent(inout) :: tpig(number)		! Ignition temperature, K [maxno]
-		double precision, intent(inout) :: tchar(number)		! Char temperature, K [maxno]
+		double precision, intent(inout) :: tchar(number)	! Char temperature, K [maxno]
 
 		! Calculated outputs:
-		!double precision, intent(out) :: xmat(maxkl)	! Table of influence fractions between components [maxkl]
 		double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components [maxkl]
-		double precision, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair [maxkl]
-		double precision, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs [maxkl]
-		double precision, intent(out) :: wo(size(xmat))			! Current ovendry loading for the larger of
+		double precision, intent(out) :: tign(size(xmat))	! Ignition time for the larger of each fuel component pair [maxkl]
+		double precision, intent(out) :: tout(size(xmat))	! Burnout time of larger component of pairs [maxkl]
+		double precision, intent(out) :: wo(size(xmat))		! Current ovendry loading for the larger of
 															! each component pair, kg/sq m [maxkl]
-		double precision, intent(out) :: diam(size(xmat))		! Current diameter of the larger of each
+		double precision, intent(out) :: diam(size(xmat))	! Current diameter of the larger of each
 															! fuel component pair, m [maxkl]
 
 		! Settings:
@@ -2170,43 +2167,42 @@ contains
 	!c elam and the list alone returned from subroutine OVLAPS.
 	!
 	! History: Modernized original Burnup subroutine.
-	!subroutine ARRAYS(maxno, number, wdry, ash, dendry, fmois, &
+	! Several arguments have been removed that were present in the original routine.
 	subroutine ARRAYS(number, wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, &
-						wo, parts, list, area)!wo, maxkl, parts, list, area)
+						wo, parts, list, area)
 		implicit none
 
 		! Arguments:
-		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
-		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: wdry(:) ! maxno	! Ovendry mass loading, kg / sq m
-		real*4, intent(inout) :: ash(:) ! maxno		! Mineral content, fraction dry mass
-		real*4, intent(inout) :: dendry(:) ! maxno		! Ovendry mass density, kg / cu m
-		real*4, intent(inout) :: fmois(:) ! maxno		! Moisture content, fraction dry mass
-		real*4, intent(inout) :: sigma(:) ! maxno		! Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: htval(:) ! maxno		! Low heat of combustion, J / kg
-		real*4, intent(inout) :: cheat(:) ! maxno		! Specific heat capacity, (J / K) / kg dry mass
-		real*4, intent(inout) :: condry(:) ! maxno		! Thermal conductivity, W / m K, ovendry
-		real*4, intent(inout) :: tpig(:) ! maxno		! Ignition temperature, K
-		real*4, intent(inout) :: tchar(:) ! maxno		! Char temperature, K
+		integer, intent(in) :: number			! The actual number of fuel classes.
+		real*4, intent(inout) :: wdry(:)		! Ovendry mass loading, kg / sq m [maxno]
+		real*4, intent(inout) :: ash(:)			! Mineral content, fraction dry mass [maxno]
+		real*4, intent(inout) :: dendry(:)		! Ovendry mass density, kg / cu m [maxno]
+		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass [maxno]
+		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m [maxno]
+		real*4, intent(inout) :: htval(:)		! Low heat of combustion, J / kg [maxno]
+		real*4, intent(inout) :: cheat(:)		! Specific heat capacity, (J / K) / kg dry mass [maxno]
+		real*4, intent(inout) :: condry(:)		! Thermal conductivity, W / m K, ovendry [maxno]
+		real*4, intent(inout) :: tpig(:)		! Ignition temperature, K [maxno]
+		real*4, intent(inout) :: tchar(:)		! Char temperature, K [maxno]
 		real*4, intent(out) :: diam(:)			! Initial diameter, m [by interaction pairs] [maxkl]
-		integer, intent(out) :: key(:) ! maxno		! Ordered index list
-		real*4, intent(out) :: work(:) ! maxno			! Workspace array
-		real*4, intent(in) :: ak					! Area influence factor [ak parameter]
-		real*4, intent(out) :: elam(:,:) ! maxno, maxno	! Interaction matrix from OVLAPS
-		real*4, intent(out) :: alone(:) ! maxno			! Noninteraction fraction list from OVLAPS
-		real*4, intent(out) :: xmat(:) ! maxkl			! Consolidated interaction matrix
-		real*4, intent(out) :: wo(:)			! Initial dry loading by interaction pairs
-		!integer, intent(in) :: maxkl				! Max triangular matrix size.
-		character*12, intent(inout) :: parts(:) ! maxno	! Fuel component names / labels
-		character*12, intent(out) :: list(:) ! maxno	! Intermediary for reordering parts name array.
-													! This is passed in but is not initialized prior
-													! to that.  It doesn't appear that it is used
-													! after it is returned.  It appears to only be
-													! used internal to this routine.
-		real*4, intent(inout) :: area(:) ! maxno	! Fraction of site area expected to be covered at
-													! least once by initial planform area of ea size
+		integer, intent(out) :: key(:) 			! Ordered index list [maxno]
+		real*4, intent(out) :: work(:)			! Workspace array [maxno]
+		real*4, intent(in) :: ak				! Area influence factor [ak parameter]
+		real*4, intent(out) :: elam(:,:)		! Interaction matrix from OVLAPS [maxno, maxno]
+		real*4, intent(out) :: alone(:)			! Noninteraction fraction list from OVLAPS [maxno]
+		real*4, intent(out) :: xmat(:)			! Consolidated interaction matrix [maxkl]
+		real*4, intent(out) :: wo(:)			! Initial dry loading by interaction pairs [maxkl]
+		character*12, intent(inout) :: parts(:)	! Fuel component names / labels [maxno]
+		character*12, intent(out) :: list(:)	! Intermediary for reordering parts name array. [maxno]
+												! This is passed in but is not initialized prior
+												! to that.  It doesn't appear that it is used
+												! after it is returned.  It appears to only be
+												! used internal to this routine.
+												! The same seems to be true for elam and alone?
+		real*4, intent(inout) :: area(:)		! Fraction of site area expected to be covered at
+												! least once by initial planform area of ea size [maxno]
 
 		! Locals:
 		integer :: j, k, kl, kj ! Counters
@@ -2214,7 +2210,7 @@ contains
 
 		! Testing was done to confrim that explicit initialization of locals was not needed here.
 
-		call SORTER(number, sigma, fmois, dendry, key)!maxno, number, sigma, fmois, dendry, key)
+		call SORTER(number, sigma, fmois, dendry, key)
 
 		do j = 1, number
 			k = key(j)
@@ -2289,9 +2285,7 @@ contains
 ! Pg. 90:
 
 
-		call OVLAPS(wdry, sigma, dendry, ak, number, &!maxno, maxkl, &
-					fmois, &
-					xmat, elam, alone, area)
+		call OVLAPS(wdry, sigma, dendry, ak, number, fmois, xmat, elam, alone, area)
 
 		do k = 1, number
 			diak = 4.0 / sigma(k)
@@ -2328,26 +2322,25 @@ contains
 	!c fuel parameters can be ordered and associated as necessary.
 	!
 	! History: Modernized original Burnup subroutine.
-	!subroutine SORTER(maxno, number, sigma, fmois, dryden, key)
+	! The maxno argument has been removed.
 	subroutine SORTER(number, sigma, fmois, dryden, key)
 		implicit none
 
 		! Arguments:
-		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
-		integer, intent(in) :: number				! The actual number of fuel classes.
-		real*4, intent(inout) :: sigma(:)	! (maxno)	Surface to volume ratio, 1 / m
-		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass (maxno)
-		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m (maxno)
-		integer, intent(inout) :: key(:) ! maxno		! Ordered index list	(maxno)
+		integer, intent(in) :: number			! The actual number of fuel classes. [maxno]
+		real*4, intent(inout) :: sigma(:)		! (Surface to volume ratio, 1 / m.
+		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass. [maxno]
+		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m. [maxno]
+		integer, intent(inout) :: key(:) 		! Ordered index list. [maxno]
 
 		! Locals:
-		integer :: maxnoTEMP ! The maximum number of fuel classes allowed.
+		integer :: maxnoTEMP ! The maximum number of fuel classes allowed.  Note: Temporary name!!!!!
 		integer :: j, i ! Counters
 		real :: s, fm, de, keep, usi
 		logical :: diam, mois, dens, tied
 		logical :: newIndexFound ! Note: Not present in original code.
 
-		maxnoTEMP = size(sigma) ! ...
+		maxnoTEMP = size(sigma) ! JMR_NOTE: Temporary name!!!!!
 		newIndexFound = .false.
 
 		do j = 1, maxnoTEMP
@@ -2436,28 +2429,24 @@ contains
 	! We modify the original behavior such that a negative value for ak indicates the the value of
 	! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
 	! original arguments.
-	subroutine OVLAPS(dryld, sigma, dryden, ak, number, &
-						!maxno, maxkl, &
-						fmois, &
-						beta, elam, alone, area)
+	! Several arguments have been removed that were present in the original routine.
+	subroutine OVLAPS(dryld, sigma, dryden, ak, number, fmois, beta, elam, alone, area)
 		implicit none
 
 		! Arguments:
-		real*4, intent(in) :: dryld(:) ! maxno		! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...)
-		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m	[maxno]
-		real*4, intent(in) :: dryden(:)			! Ovendry mass density, kg / cu m (elsewhere dendry)	[maxno]
-		real*4, intent(in) :: ak					! Area influence factor (ak / K_a parameter)
-		integer, intent(in) :: number				! The actual number of fuel classes.
-		!integer, intent(in) :: maxno				! The maximum number of fuel classes allowed.
-		!integer, intent(in) :: maxkl				! Max triangular matrix size.
+		real*4, intent(in) :: dryld(:)		! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
+		real*4, intent(in) :: sigma(:)		! Surface to volume ratio, 1 / m. [maxno]
+		real*4, intent(in) :: dryden(:)		! Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
+		real*4, intent(in) :: ak			! Area influence factor (ak / K_a parameter)
+		integer, intent(in) :: number		! The actual number of fuel classes.
 
-		real*4, intent(in) :: fmois(:)			! Moisture fraction of component	[maxno]
+		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
 
-		real*4, intent(out) :: beta(:)			! Consolidated interaction matrix (elsewhere = xmat).	(maxkl)
-		real*4, intent(out) :: elam(:,:)	! Interaction matrix		(maxno, maxno)
-		real*4, intent(out) :: alone(:)			! Non-interacting fraction for each fuel class.	(maxno)
-		real*4, intent(out) :: area(:)			! Fraction of site area expected to be covered at
-													! least once by initial planform area of ea size	(maxno)
+		real*4, intent(out) :: beta(:)		! Consolidated interaction matrix (elsewhere = xmat). [maxkl]
+		real*4, intent(out) :: elam(:,:)	! Interaction matrix [maxno, maxno]
+		real*4, intent(out) :: alone(:)		! Non-interacting fraction for each fuel class. [maxno]
+		real*4, intent(out) :: area(:)		! Fraction of site area expected to be covered at
+											! least once by initial planform area of ea size. [maxno]
 
 		! Locals:
 		real :: pi ! Convert to a constant?
@@ -2557,38 +2546,34 @@ contains
 	!c one must initialize the following variables.
 	! 
 	! History: Modernized original Burnup subroutine.
-	subroutine START(dt, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+	! Several arguments have been removed that were present in the original routine.
+	subroutine START(dt, now, number, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, &
-						ncalls)!, maxkl)
+						ddot, wodot, work, u, d, r0, dr, ncalls)
 		implicit none
 
 		! Arguments:
 		! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 		! However the code is not consistant with that.
 		real*4, intent(in) :: dt			! Spreading fire residence time (s) (= ti, tis, or time elsewhere).
-		!integer, intent(in) :: mxstep		! Max dimension of historical sequences
 		integer, intent(in) :: now 			! Index marks end of time step
-		!integer, intent(in) :: maxno		! Max number of fuel components
 		integer, intent(in) :: number		! Actual number of fuel components
 		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
 											! each component pair, kg / sq m.  Updated on return. [maxkl]
-		real*4, intent(out) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s [maxno]
-		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg /cu m [maxno]
-		real*4, intent(in) :: fmois(:)		! Moisture fraction of component [maxno]
-		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K [maxno]
-		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, W / sq m K [maxno]
+		real*4, intent(out) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s. [maxno]
+		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg /cu m. [maxno]
+		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
+		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K. [maxno]
+		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, W / sq m K. [maxno]
 		real*4, intent(inout) :: diam(:)	! Current diameter of the larger of each
 											! fuel component pair, m.  Updated on return. [maxkl]
-		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component [maxno]
-		real*4, intent(in) :: tchar(:)		! tchar = end - pyrolysis temperature (K), by component [maxno]
-		real*4, intent(in) :: xmat(:)		! Table-of-influence fractions between components [maxkl]
+		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component. [maxno]
+		real*4, intent(in) :: tchar(:)		! tchar = end - pyrolysis temperature (K), by component. [maxno]
+		real*4, intent(in) :: xmat(:)		! Table-of-influence fractions between components. [maxkl]
 		real*4, intent(in) :: tpamb			! Ambient temperature (K)
 		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m
-
-		!integer, intent(in) :: maxkl		! Max triangular matrix size.
 
 		! Parameters updated [input and output]:
 		integer, intent(inout) :: ncalls	! Counter of calls to this routine
@@ -2600,8 +2585,8 @@ contains
 											! initialized here to prevent isses related to
 											! persistance should more than one simulation be run in
 											! on interactive session.
-		real*4, intent(out) :: flit(:)		! Fraction of each component currently alight
-		real*4, intent(out) :: fout(:)		! Fraction of each component currently gone out
+		real*4, intent(out) :: flit(:)		! Fraction of each component currently alight. [maxno]
+		real*4, intent(out) :: fout(:)		! Fraction of each component currently gone out. [maxno]
 		real*4, intent(out) :: tdry(:)		! Time of drying start of the larger of each
 											! fuel component pair [maxkl]
 		real*4, intent(out) :: tign(:)		! Ignition time for the larger of each
@@ -2865,7 +2850,8 @@ contains
 	!c the intensity level to be the local value where size k is burning.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine FIRINT(wodot, ash, htval, number, &!wodot, ash, htval, maxno, number, maxkl, &
+	! Several arguments have been removed that were present in the original routine.
+	subroutine FIRINT(wodot, ash, htval, number, &
 						area, fint, fi)
 		implicit none
 
@@ -2873,9 +2859,7 @@ contains
 		real*4, intent(in) :: wodot(:)	! Burning rates of interacting pairs of fuel components [maxkl]
 		real*4, intent(in) :: ash(:)	! Mineral content, fraction dry mass [maxno]
 		real*4, intent(in) :: htval(:)	! Low heat of combustion, J / kg [maxno]
-		!integer, intent(in) :: maxno	! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number	! The actual number of fuel classes.
-		!integer, intent(in) :: maxkl	! Max triangular matrix size.
 		real*4, intent(in) :: area(:)	! Fraction of site area expected to be covered at
 										! least once by initial planform area of ea size [maxno]
 		real*4, intent(out) :: fint(:)	! Corrected local fire intensity for each fuel type. [maxno]
@@ -2924,33 +2908,32 @@ contains
 	! identifier (mum) so the main program must know that number, which is not very robust.
 	!
 	! History: Modernized original Burnup subroutine.
-	subroutine STASH(time, now, number, outfil, fi, &!maxno, number, outfil, fi, &
+	! Several arguments have been removed that were present in the original routine.
+	subroutine STASH(time, now, number, outfil, fi, &
 						flit, fout, wo, wodot, diam, ddot, &
-						tdry, tign, tout, fmois, nun)!maxkl, nun)
+						tdry, tign, tout, fmois, nun)
 		implicit none
 
 		! Arguments:
-		real, intent(in) :: time 				! Igniting surface fire residence time (s)
+		real, intent(in) :: time 				! Igniting surface fire residence time (s).
 		integer, intent(in) :: now				! Index marking the current time step.
-		!integer, intent(in) :: maxno			! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number			! The actual number of fuel classes.
 		character*12, intent(out) :: outfil		! The name of the output file.
 		! NOTE: There seems to be no reason why outfil is returned.  It appears to be overwritten
 		! wherever it is used subsequent to this call and could be safely changed to a local
 		! variable.  It is maintained only to preserve the original interface.
-		real*4, intent(in) :: fi				! Site avg fire intensity (kW / sq m)
-		real*4, intent(in) :: flit(:)			! Fraction of each component currently alight [maxno]
-		real*4, intent(in) :: fout(:)			! Fraction of each component currently gone out [maxno]
+		real*4, intent(in) :: fi				! Site avg fire intensity (kW / sq m).
+		real*4, intent(in) :: flit(:)			! Fraction of each component currently alight. [maxno]
+		real*4, intent(in) :: fout(:)			! Fraction of each component currently gone out. [maxno]
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
-												! each c-omponent pair, kg / sq m [maxkl]
-		real*4, intent(in) :: wodot(:)			! Burning rates of interacting pairs of fuel components [maxkl]
-		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each fuel component pair (m) [maxkl]
-		real*4, intent(in) :: ddot(:)			! Diameter reduction rate, larger of pair, m / s [maxkl]
-		real*4, intent(in) :: tdry(:)			! Time of drying start of the larger of each fuel component pair [maxkl]
-		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair [maxkl]
-		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs [maxkl]
-		real*4, intent(in) :: fmois(:)			! Moisture fraction of component [maxno]
-		!integer, intent(in) :: maxkl			! Max triangular matrix size.
+												! each c-omponent pair, kg / sq m. [maxkl]
+		real*4, intent(in) :: wodot(:)			! Burning rates of interacting pairs of fuel components. [maxkl]
+		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each fuel component pair. (m) [maxkl]
+		real*4, intent(in) :: ddot(:)			! Diameter reduction rate, larger of pair, m / s. [maxkl]
+		real*4, intent(in) :: tdry(:)			! Time of drying start of the larger of each fuel component pair. [maxkl]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair. [maxkl]
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(in) :: fmois(:)			! Moisture fraction of component. [maxno]
 		integer, intent(inout) :: nun			! Stash file unit identifier, returned on first call,
 												! passed in for subsequent.
 
@@ -3314,7 +3297,7 @@ contains
 
 		! Locals:
 		real :: term, rlast, den, rnext
-		real*4 :: tempf !TEMPF ! Return value.
+		real*4 :: tempf ! Return value.
 
 		! Constants:
 		real, parameter :: err = 1.0e-04
@@ -3345,15 +3328,16 @@ contains
 	! This routine calculates one timestep of the fuel consumption process.
 	!
 	! History: Modernized original Burnup subroutine.
+	! Several arguments have been removed that were present in the original routine.
 	!
 	! JMR_NOTE: This routine takes a large number of arguments and the order is a bit confusing
 	! with input and output parameters mixed in the order.
-	subroutine STEP(dt, now, number, wo, alfa, &!mxstep, now, maxno, number, wo, alfa, &
+	subroutine STEP(dt, now, number, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
 					ddot, wodot, work, u, d, r0, dr, &
-					ncalls, tin, fint, fid)!maxkl, tin, fint, fid)
+					ncalls, tin, fint, fid)
 		implicit none
 
 		!c Updates status of all fuel component pairs and returns a snapshot
@@ -3362,27 +3346,25 @@ contains
 
 ! JMR_NOTE: All explicitly declared reals were real*4 but can probably be changed....
 		! JMR_NOTE: These are in original order, not argument order.
-		real*4, intent(in) :: dt			! time step, sec
-		!integer, intent(in) :: mxstep		! max dimension of historical seouences
-		integer, intent(in) :: now			! index marks end of time step
-		!integer, intent(in) :: maxno		! max number of fuel components
-		integer, intent(in) :: number		! actual number of fuel components
-		real*4, intent(inout) :: wo(:)		! current ovendry loading for the larger of
-											! each component pair, kg / sq m [maxkl]
-		real*4, intent(in) :: alfa(:)		! dry thermal diffusivity of component, sq m / s [maxno]
-		real*4, intent(in) :: dendry(:)		! ovendry density of component, kg / cu m [maxno]
-		real*4, intent(in) :: fmois(:)		! moisture fraction of component [maxno]
-		real*4, intent(in) :: cheat(:)		! specific heat capacity of component, J / kg K [maxno]
-		real*4, intent(in) :: condry(:)		! ovendry thermal conductivity, w / sq m K [maxno]
-		real*4, intent(inout) :: diam(:)	! current diameter of the larger of each
-											! fuel component pair, m.  Updated on return. [maxkl]
-		real*4, intent(in) :: tpig(:)		! ignition temperature (K), by component [maxno]
-		real*4, intent(in) :: tchar(:)		! end - pyrolysis temperature (K), by component [maxno]
-		real*4, intent(in) :: xmat(:)		! table of influence fractions between components
-		real*4, intent(in) :: tpamb			! ambient temperature (K) [maxkl]
-		real*4, intent(in) :: fi			! current fire intensity (site avg), kW / sq m
-		real*4, intent(in) :: work(:)		! factor of heat transfer rate hbar * (Tfire - Tebar)
-											! that yields ddot (k) [maxno]
+		real*4, intent(in) :: dt			! Time step, sec
+		integer, intent(in) :: now			! Index marks end of time step
+		integer, intent(in) :: number		! Actual number of fuel components
+		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
+											! Each component pair, kg / sq m. [maxkl]
+		real*4, intent(in) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s. [maxno]
+		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg / cu m. [maxno]
+		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
+		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K. [maxno]
+		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, w / sq m K. [maxno]
+		real*4, intent(inout) :: diam(:)	! Current diameter of the larger of each.
+											! Fuel component pair, m.  Updated on return. [maxkl]
+		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component. [maxno]
+		real*4, intent(in) :: tchar(:)		! End - pyrolysis temperature (K), by component. [maxno]
+		real*4, intent(in) :: xmat(:)		! Table of influence fractions between components. [maxkl]
+		real*4, intent(in) :: tpamb			! Ambient temperature (K). [maxkl]
+		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m.
+		real*4, intent(in) :: work(:)		! Factor of heat transfer rate hbar * (Tfire - Tebar)
+											! that yields ddot (k). [maxno]
 
 											! plus the following constants and bookk keeping parameters
 											! u, d, r0, dr, ch20, ncalls, maxkl
@@ -3390,32 +3372,31 @@ contains
 		! Not in argument order...
 		!c Constant parameters
 		real*4, intent(in) :: u 			! Mean horizontal windspeed at top of fuelbed (m/s).
-		real*4, intent(in) :: d				! Fuelbed depth (m)
-		real*4, intent(in) :: r0			! minimum value of mixing parameter
-		real*4, intent(in) :: dr			! max - min value of mixing parameter
+		real*4, intent(in) :: d				! Fuelbed depth (m).
+		real*4, intent(in) :: r0			! Minimum value of mixing parameter.
+		real*4, intent(in) :: dr			! Max - min value of mixing parameter.
 
-		!integer, intent(in) :: maxkl		! Max triangular matrix size.
-		real*4, intent(in) :: tin			! start of current time step
-		real*4, intent(in) :: fint(:)		! correction to fi to compute local intensity
-											! that may be different due to k burning [maxno]
-		real*4, intent(in) :: fid			! fire intensity due to duff burning ... this is
+		real*4, intent(in) :: tin			! Start of current time step.
+		real*4, intent(in) :: fint(:)		! Correction to fi to compute local intensity
+											! that may be different due to k burning. [maxno]
+		real*4, intent(in) :: fid			! Fire intensity due to duff burning ... this is
 											! used to up the fire intensity for fuel pieces
-											! that are burning without interacting with others
+											! that are burning without interacting with others.
 
 
 		!c Parameters updated [input and output)
 
-		integer, intent(inout) :: ncalls	! counter of calls to this routine ... 
+		integer, intent(inout) :: ncalls	! Counter of calls to this routine ... 
 											! = 0 on first call or reset
-											! cumulates after first call
-		real*4, intent(inout) :: flit(:)	! fraction of each component currently alight [maxno]
-		real*4, intent(inout) :: fout(:)	! fraction of each component currently gone out [maxno]
-		real*4, intent(inout) :: tdry(:)	! time of drying start of the larger of each
-											! fuel component pair [maxkl]
-		real*4, intent(inout) :: tign(:)	! ignition time for the larger of each
-											! fuel component pair [maxkl]
-		real*4, intent(inout) :: tout(:)	! burnout time of larger component of pairs [maxkl]
-		real*4, intent(inout) :: qcum(:)	! cumulative heat input to larger of pair, J / sq m [maxkl]
+											! cumulates after first call.
+		real*4, intent(inout) :: flit(:)	! Fraction of each component currently alight. [maxno]
+		real*4, intent(inout) :: fout(:)	! Fraction of each component currently gone out. [maxno]
+		real*4, intent(inout) :: tdry(:)	! Time of drying start of the larger of each
+											! fuel component pair. [maxkl]
+		real*4, intent(inout) :: tign(:)	! Ignition time for the larger of each.
+											! Fuel component pair. [maxkl]
+		real*4, intent(inout) :: tout(:)	! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(inout) :: qcum(:)	! Cumulative heat input to larger of pair, J / sq m. [maxkl]
 
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
 		! chnaged to globals.
@@ -3427,12 +3408,12 @@ contains
 ! Pg. 107:
 
 
-		real*4, intent(inout) :: tcum(:)	! cumulative temp integral for qcum (drying) [maxkl]
-		real*4, intent(inout) :: acum(:)	! heat pulse area for historical rate averaging [maxkl]
-		real*4, intent(inout) :: qdot(:,:)	! history (post ignite) of heat transfer rate
-											! to the larger of component pair, W / sq m [maxkl, mxstep]
-		real*4, intent(inout) :: ddot(:)	! diameter reduction rate, larger of pair, m / s [maxkl]
-		real*4, intent(inout) :: wodot(:)	! dry loading loss rate for larger of pair [maxkl]
+		real*4, intent(inout) :: tcum(:)	! Cumulative temp integral for qcum (drying). [maxkl]
+		real*4, intent(inout) :: acum(:)	! Heat pulse area for historical rate averaging. [maxkl]
+		real*4, intent(inout) :: qdot(:,:)	! History (post ignite) of heat transfer rate
+											! to the larger of component pair, W / sq m. [maxkl, mxstep]
+		real*4, intent(inout) :: ddot(:)	! Diameter reduction rate, larger of pair, m / s. [maxkl]
+		real*4, intent(inout) :: wodot(:)	! Dry loading loss rate for larger of pair. [maxkl]
 
 		! Locals: (not in a consistant order.)
 		logical flag
@@ -3779,8 +3760,10 @@ contains
 	! of detail.
 	!
 	! History: Modernized original Burnup subroutine.
+	! Several arguments have been removed that were present in the original routine.
+	!
 	! Note: While this reproduces the original output that output has some alignment issues.
-	subroutine SUMMARY(outfil, number, parts, nun, &!maxno, maxkl, parts, nun, &
+	subroutine SUMMARY(outfil, number, parts, nun, &
 						tis, ak, wdry, fmois, sigma, tign, tout, xmat, wo, diam)
 		implicit none
 
@@ -3788,24 +3771,22 @@ contains
 		character*12, intent(in) :: outfil		! Stores the name of input data files.
 		! Note: outfil is defined right before the call to this routine and could be moved inside.
 		integer, intent(in) :: number			! Actual number of fuel components
-		!integer, intent(in) :: maxno				! Max number of fuel components
-		!integer, intent(in) :: maxkl				! Max triangular matrix size.
-		character*12, intent(in) :: parts(:)	! Fuel component names / labels [maxno]
-		integer, intent(in) :: nun				! Summary file unit identifier
-		real, intent(in) :: tis					! Current time (ti + number of time steps * dt)
+		character*12, intent(in) :: parts(:)	! Fuel component names / labels. [maxno]
+		integer, intent(in) :: nun				! Summary file unit identifier.
+		real, intent(in) :: tis					! Current time (ti + number of time steps * dt).
 												! When this is called this will be the time the fire went out.
-		real*4, intent(in) :: ak				! Area influence factor (ak / K_a parameter)
-		real*4, intent(in) :: wdry(:)			! Ovendry mass loading, kg/sq m [maxno]
-		real*4, intent(in) :: fmois(:)			! Moisture content, fraction dry mass [maxno]
-		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m [maxno]
-		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each [maxkl]
-												! fuel component pair
-		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs [maxkl]
-		real*4, intent(in) :: xmat(:)			! Table of influence fractions between components [maxkl]
+		real*4, intent(in) :: ak				! Area influence factor (ak / K_a parameter).
+		real*4, intent(in) :: wdry(:)			! Ovendry mass loading, kg/sq m. [maxno]
+		real*4, intent(in) :: fmois(:)			! Moisture content, fraction dry mass. [maxno]
+		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m. [maxno]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each
+												! fuel component pair. [maxkl]
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(in) :: xmat(:)			! Table of influence fractions between components. [maxkl]
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
-												! each component pair, kg/sq m [maxkl]
+												! each component pair, kg/sq m. [maxkl]
 		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each
-												! fuel component pair, m [maxkl]
+												! fuel component pair, m. [maxkl]
 
 		! Locals:
 		character*3 :: stat		! File open status.
