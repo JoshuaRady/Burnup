@@ -460,14 +460,6 @@ contains
 		! Most are initialized in ARRAYS() and START().  Testing was done to confrim that explicit
 		! initialization was not needed for the remaining locals.
 
-		! Temporary reporting:
-		! print *, "Simulate():"
-! 		print *, "number", number
-! 		print *, "size(xmat)", size(xmat)
-! 		print *, "size(tign)", size(tign)
-! 		print *, "area", area
-! 		print *, "fint", fint
-
 		! Set SaveHistory:
 		if (present(outputHistory)) then
 			SaveHistory = outputHistory
@@ -480,16 +472,6 @@ contains
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					parts, list, area)
-
-		! Temporary reporting!!!!!:
-		!print *, "After ARRAYS():"
-		!print *, "wdry", wdry
-		!print *, "work", work
-		!print *, "elam", elam
-		!print *, "alone", alone
-		!print *, "area", area
-		!print *, "key", key
-		!print *, "list", list
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
 		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
@@ -514,13 +496,6 @@ contains
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
 					ddot, wodot, work, u, d, r0, dr, ncalls)
 
-		! Temporary reporting!!!!!:
-		!print *, "After START():"
-		!print *, "alfa", alfa
-		!print *, "flit", flit
-		!print *, "fout", fout
-		!print *, "work", work
-
 		! If the duff burns longer than the passing fire front then have it's intensity
 		! contribute to the post front fire environment, otherwise ignore it:
 		if (tis .lt. tdf) then
@@ -531,10 +506,6 @@ contains
 
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, number, area, fint, fi)
-
-		! Temporary reporting!!!!!:
-		!print *, "After FIRINT():"
-		!print *, "fint", fint
 
 		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
@@ -642,16 +613,6 @@ contains
 		integer :: i ! Counter
 		character*12 :: parts(number)	! Fuel component names / labels. [maxno]
 
-		! Temporary reporting:
-		! print *, "SimulateR():"
-! 		print *, "number", number
-! 		print *, "size(xmat)", size(xmat)
-! 		print *, "size(tign)", size(tign)
-! 		print *, "size(diamReal)", size(diamReal)
-		!print *, "size(xmatReal)", size(xmatReal)
-		!print *, "xmatReal", xmatReal
-
-		!do i = 1, maxno
 		do i = 1, number
 			write(parts(i), "(A4, I2)") "Fuel", i ! Assumes maxno never exceeds 2 digits.
 		end do
@@ -2660,12 +2621,6 @@ contains
 		qdot = 0.0
 		! There are a large number of other locals that are not explictly initialized.  Testing was
 		! done to confrim that explicit initialization was not needed.
-		! Temporary reporting: !!!!!
-! 		print *, "START():"
-! 		print *, "acum", acum
-! 		print *, "size(qdot)", size(qdot)
-! 		print *, "shape(qdot)", shape(qdot)
-! 		print *, "qdot", qdot
 
 
 ! -- Pagebreak --
