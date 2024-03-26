@@ -2326,7 +2326,7 @@ contains
 
 		! Arguments:
 		integer, intent(in) :: number			! The actual number of fuel classes. [maxno]
-		real*4, intent(inout) :: sigma(:)		! (Surface to volume ratio, 1 / m.
+		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m.
 		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m. [maxno]
 		integer, intent(inout) :: key(:) 		! Ordered index list. [maxno]
