@@ -2275,22 +2275,23 @@ contains
 
 		! Arguments:
 		integer, intent(in) :: number			! The actual number of fuel classes. [maxno]
-		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m.
+		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m. [maxno]
 		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m. [maxno]
 		integer, intent(inout) :: key(:) 		! Ordered index list. [maxno]
 
 		! Locals:
-		integer :: maxnoTEMP ! The maximum number of fuel classes allowed.  Note: Temporary name!!!!!
+		integer :: maxNumFuelTypes ! The maximum number of fuel classes allowed. The input arrays
+		                           ! may exceed the actual number. (Not present in original code.)
 		integer :: j, i ! Counters
 		real :: s, fm, de, keep, usi
 		logical :: diam, mois, dens, tied
 		logical :: newIndexFound ! Note: Not present in original code.
 
-		maxnoTEMP = size(sigma) ! JMR_NOTE: Temporary name!!!!!
+		maxNumFuelTypes = size(sigma)
 		newIndexFound = .false.
 
-		do j = 1, maxnoTEMP
+		do j = 1, maxNumFuelTypes
 			key(j) = j
 		end do
 
