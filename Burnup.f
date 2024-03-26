@@ -1698,7 +1698,7 @@
 !c	fid =			fire intensity due to duff burning ... this is
 !c					used to up the fire intensity for fuel pieces
 !c					that are burning without interacting with others
-!c	plus the following constants and bookk keeping parameters
+!c	plus the following constants and bookkeeping parameters
 !c	u, d, r0 , dr , ch20 , ncalls , maxkl
 
 !c Parameters updated [input and output)

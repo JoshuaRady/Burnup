@@ -3366,7 +3366,7 @@ contains
 		real*4, intent(in) :: work(:)		! Factor of heat transfer rate hbar * (Tfire - Tebar)
 											! that yields ddot (k). [maxno]
 
-											! plus the following constants and bookk keeping parameters
+											! plus the following constants and bookkeeping parameters
 											! u, d, r0, dr, ch20, ncalls, maxkl
 
 		! Not in argument order...

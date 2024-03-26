@@ -2928,7 +2928,7 @@
       real*4, intent(in) :: fi				! current fire intensity ( site avg ) , kW / sq m
       real*4, intent(in) :: work(maxno)		! factor of heat transfer rate hbar * (Tfire - Tebar)
       										! that yields ddot ( k )
-      										! plus the following constants and bookk keeping parameters
+      										! plus the following constants and bookkeeping parameters
       										! u, d, r0 , dr , ch20 , ncalls , maxkl
 
       ! Not in argument order...
