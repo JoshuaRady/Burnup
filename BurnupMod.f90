@@ -592,7 +592,7 @@ contains
 
 		! Calculated outputs:
 		! JMR_Note: No longer in argument order!!!!!
-		real*4, intent(out) :: wo(number * (number + 1) / 2 + number) ! Current ovendry loading for
+		double precision, intent(out) :: wo(number * (number + 1) / 2 + number) ! Current ovendry loading for
 														! the larger of each component pair, kg/sq m. [maxkl]
 		double precision, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
 		double precision, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair. [maxkl]
