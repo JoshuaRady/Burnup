@@ -2167,16 +2167,16 @@ contains
 			numFuelTypes = size(wdry)
 		end if
 
-		call SORTER(number, sigma, fmois, dendry, key)
+		call SORTER(numFuelTypes, sigma, fmois, dendry, key)
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			list(j) = parts(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			parts(j) = list (j)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 
 
 ! -- Pagebreak --
@@ -2186,55 +2186,55 @@ contains
 			k = key(j)
 			work(j) = wdry(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			wdry(j) = work(j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = ash(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			ash(j) = work(j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = htval(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			htval(j) = work(j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = cheat(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			cheat(j) = work(j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = condry(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			condry(j) = work(j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = tpig(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			tpig(j) =  work (j)
 		end do
 
-		do j = 1, number
+		do j = 1, numFuelTypes
 			k = key(j)
 			work(j) = tchar(k)
 		end do
-		do j = 1, number
+		do j = 1, numFuelTypes
 			tchar(j) = work(j)
 		end do
 
@@ -2242,9 +2242,9 @@ contains
 ! Pg. 90:
 
 
-		call OVLAPS(wdry, sigma, dendry, ak, number, fmois, xmat, elam, alone, area)
+		call OVLAPS(wdry, sigma, dendry, ak, numFuelTypes, fmois, xmat, elam, alone, area)
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			diak = 4.0 / sigma(k)
 			wtk = wdry(k)
 
