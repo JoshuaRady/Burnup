@@ -411,13 +411,14 @@ contains
 		! not be determined.
 		! wo should be moved to the front in any case because it is the most valuable output.  This
 		! would have the advantage of making the size() shorthand shorter.
-		real*4, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components. [maxkl]
-		real*4, intent(out) :: tign(size(xmat))		! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(out) :: tout(size(xmat))		! Burnout time of larger component of pairs. [maxkl]
-		real*4, intent(out) :: wo(size(xmat))		! Current ovendry loading for the larger of
-													! each component pair, kg/sq m. [maxkl]
-		real*4, intent(out) :: diam(size(xmat))		! Current diameter of the larger of each
-													! fuel component pair, m. [maxkl]
+		! JMR_Note: No longer in argument order!!!!!
+		real*4, intent(out) :: wo(number * (number + 1) / 2 + number)! Current ovendry loading for
+												! the larger of each component pair, kg/sq m. [maxkl]
+		real*4, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
+		real*4, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair. [maxkl]
+		real*4, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(out) :: diam(size(wo))	! Current diameter of the larger of each
+												! fuel component pair, m. [maxkl]
 
 		! Settings:
 		logical, intent(in), optional :: outputHistory	! Should fire history be saved?  Defaults to false.
@@ -433,13 +434,13 @@ contains
 		real*4 :: area(number)				! Fraction of site area expected to be covered at
 											! least once by initial planform area of ea size. [maxno]
 		real*4 :: fint(number)				! Corrected local fire intensity for each fuel type. [maxno]
-		real*4 :: tdry(size(xmat))			! Time of drying start of the larger of each fuel component pair. [maxkl]
-		real*4 :: wodot(size(xmat))			! Dry loading loss rate for larger of pair. [maxkl]
-		real*4 :: ddot(size(xmat))  		! Diameter reduction rate, larger of pair, m / s. [maxkl]
-		real*4 :: qcum(size(xmat)) 			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
-		real*4 :: tcum(size(xmat)) 			! Cumulative temp integral for qcum (drying). [maxkl]
-		real*4 :: acum(size(xmat)) 			! Heat pulse area for historical rate averaging. [maxkl]
-		real*4 :: qdot(size(xmat), mxstep)	! History (post ignite) of heat transfer rate. [maxkl, mxstep]
+		real*4 :: tdry(size(wo))			! Time of drying start of the larger of each fuel component pair. [maxkl]
+		real*4 :: wodot(size(wo))			! Dry loading loss rate for larger of pair. [maxkl]
+		real*4 :: ddot(size(wo))  			! Diameter reduction rate, larger of pair, m / s. [maxkl]
+		real*4 :: qcum(size(wo)) 			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
+		real*4 :: tcum(size(wo)) 			! Cumulative temp integral for qcum (drying). [maxkl]
+		real*4 :: acum(size(wo)) 			! Heat pulse area for historical rate averaging. [maxkl]
+		real*4 :: qdot(size(wo), mxstep)	! History (post ignite) of heat transfer rate. [maxkl, mxstep]
 		integer :: key(number)				! Ordered index list. [maxno]
 		character*12 :: list(number)		! Intermediary for reordering parts name array. [maxno]
 											! Probably not needed here.  See notes in ARRAYS().
@@ -618,13 +619,14 @@ contains
 		double precision, intent(inout) :: tchar(number)	! Char temperature, K. [maxno]
 
 		! Calculated outputs:
-		double precision, intent(out) :: xmat(number * (number + 1) / 2 + number)	! Table of influence fractions between components. [maxkl]
-		double precision, intent(out) :: tign(size(xmat))	! Ignition time for the larger of each fuel component pair. [maxkl]
-		double precision, intent(out) :: tout(size(xmat))	! Burnout time of larger component of pairs. [maxkl]
-		double precision, intent(out) :: wo(size(xmat))		! Current ovendry loading for the larger of
-															! each component pair, kg/sq m. [maxkl]
-		double precision, intent(out) :: diam(size(xmat))	! Current diameter of the larger of each
-															! fuel component pair, m. [maxkl]
+		! JMR_Note: No longer in argument order!!!!!
+		real*4, intent(out) :: wo(number * (number + 1) / 2 + number) ! Current ovendry loading for
+														! the larger of each component pair, kg/sq m. [maxkl]
+		double precision, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
+		double precision, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair. [maxkl]
+		double precision, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs. [maxkl]
+		double precision, intent(out) :: diam(size(wo))	! Current diameter of the larger of each
+														! fuel component pair, m. [maxkl]
 
 		! Settings:
 		integer, intent(in) :: outputHistory				! Should fire history be saved? (0 = no, 1 = yes)
@@ -633,7 +635,7 @@ contains
 		real :: fiReal, dtReal
 		real, dimension(number) :: wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, sigmaReal ! [maxno]
 		real, dimension(number) :: cheatReal, condryReal, tpigReal, tcharReal ! [maxno]
-		real, dimension(size(xmat)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
+		real, dimension(size(wo)) :: xmatReal, tignReal, toutReal, woReal, diamReal ! [maxkl]
 		logical :: historyLogical
 
 		! Character strings can't be passed in from R so we assemble some generic names to pass in:
