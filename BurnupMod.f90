@@ -252,10 +252,10 @@ contains
 				end if
 			end do
 
-			call ARRAYS(number, wdry, ash, dendry, fmois, &
+			call ARRAYS(wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, wo, &
-						parts, list, area)
+						parts, list, area, number)
 			! Note: elam and alone are passed in and returned but are not used again.
 
 			call DUFBRN(wdf, dfm, dfi, tdf)
@@ -385,7 +385,7 @@ contains
 		real*4, intent(in) :: dfm		! Ratio of moisture mass to dry organic mass /
 										! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes	! Number of time steps to run.  Move down?
-		integer, intent(in) :: number	! The number of fuel classes. ! Could try to remove?????
+		integer, intent(in) :: number	! The number of fuel classes.
 
 		! Fuel component property arrays:  The values will not change but they may be reordered.
 		! Returning the reordered arrays may be overkill.  The revised order might be sufficient.
@@ -468,7 +468,7 @@ contains
 		end if
 
 		! Sort the fuel components and calculate the interaction matrix...
-		call ARRAYS(number, wdry, ash, dendry, fmois, &
+		call ARRAYS(wdry, ash, dendry, fmois, &
 					sigma, htval, cheat, condry, tpig, tchar, &
 					diam, key, work, ak, elam, alone, xmat, wo, &
 					parts, list, area)
@@ -576,7 +576,8 @@ contains
 		double precision, intent(in) :: dfm			! Ratio of moisture mass to dry organic mass /
 													! duff fractional moisture (aka R sub M).
 		integer, intent(in) :: ntimes				! Number of time steps to run.
-		integer, intent(in) :: number				! The number of fuel classes. ! Could try to remove?????
+		integer, intent(in) :: number				! The number of fuel classes.  Must be provided
+													! since the input arrays from R can't be sized.
 
 		double precision, intent(inout) :: wdry(number)		! Ovendry mass loading, kg/sq m. [maxno]
 		double precision, intent(inout) :: ash(number)		! Mineral content, fraction dry mass. [maxno]
@@ -2114,15 +2115,15 @@ contains
 	!c elam and the list alone returned from subroutine OVLAPS.
 	!
 	! History: Modernized original Burnup subroutine.
-	! Several arguments have been removed that were present in the original routine.
-	subroutine ARRAYS(number, wdry, ash, dendry, fmois, &
+	! Several arguments have been removed that were present in the original routine.  The number
+	! argument is now optional and is only used in the interactive context.
+	subroutine ARRAYS(wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, &
-						wo, parts, list, area)
+						wo, parts, list, area, number)
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: number			! The actual number of fuel classes.
 		real*4, intent(inout) :: wdry(:)		! Ovendry mass loading, kg / sq m. [maxno]
 		real*4, intent(inout) :: ash(:)			! Mineral content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: dendry(:)		! Ovendry mass density, kg / cu m. [maxno]
@@ -2150,12 +2151,21 @@ contains
 												! The same seems to be true for elam and alone?
 		real*4, intent(inout) :: area(:)		! Fraction of site area expected to be covered at
 												! least once by initial planform area of ea size. [maxno]
+		integer, intent(in), optional :: number	! The actual number of fuel classes.
 
 		! Locals:
+		integer :: numFuelTypes ! The number of fuel types explicit or implied.
 		integer :: j, k, kl, kj ! Counters
 		real*4 :: diak, wtk
 
 		! Testing was done to confrim that explicit initialization of locals was not needed here.
+
+		! Determine the number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = size(wdry)
+		end if
 
 		call SORTER(number, sigma, fmois, dendry, key)
 
