@@ -2243,7 +2243,7 @@ contains
 ! Pg. 90:
 
 
-		call OVLAPS(wdry, sigma, dendry, ak, numFuelTypes, fmois, xmat, elam, alone, area)
+		call OVLAPS(wdry, sigma, dendry, ak, fmois, xmat, elam, alone, area, number)
 
 		do k = 1, numFuelTypes
 			diak = 4.0 / sigma(k)
@@ -2399,7 +2399,7 @@ contains
 	! We modify the original behavior such that a negative value for ak indicates the the value of
 	! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
 	! original arguments.
-	! Several arguments have been removed that were present in the original routine.    The number
+	! Several arguments have been removed that were present in the original routine.  The number
 	! argument has been moved and is now optional.
 	subroutine OVLAPS(dryld, sigma, dryden, ak, fmois, beta, elam, alone, area, number)
 		implicit none
@@ -2525,12 +2525,13 @@ contains
 	!c one must initialize the following variables.
 	! 
 	! History: Modernized original Burnup subroutine.
-	! Several arguments have been removed that were present in the original routine.
-	subroutine START(dt, now, number, wo, alfa, &
+	! Several arguments have been removed that were present in the original routine.  The number
+	! argument has been moved and is now optional and is only used in the interactive context.
+	subroutine START(dt, now, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, ncalls)
+						ddot, wodot, work, u, d, r0, dr, ncalls, number)
 		implicit none
 
 		! Arguments:
@@ -2538,7 +2539,6 @@ contains
 		! However the code is not consistant with that.
 		real*4, intent(in) :: dt			! Spreading fire residence time (s) (= ti, tis, or time elsewhere).
 		integer, intent(in) :: now 			! Index marks end of time step.
-		integer, intent(in) :: number		! Actual number of fuel components.
 		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
 											! each component pair, kg / sq m.  Updated on return. [maxkl]
 		real*4, intent(out) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s. [maxno]
@@ -2589,6 +2589,17 @@ contains
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter.
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter.
 
+		! Interactive context:
+		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+												! this will be determined from the other inputs.
+
+		! Determine the actual number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = size(alfa)
+		end if
+
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
 		! chnaged to globals.
 		! The original comments include hvap as a constant, but is not actually used:
@@ -2624,7 +2635,7 @@ contains
 		!c by the product of the rate of heat tranefer to it, per
 		!c unit surface area, and the quantity work(k)
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			fout(k) = 0.0
 			flit(k) = 0.0
 			alfa(k) = condry(k) / (dendry(k) * cheat(k))
@@ -2669,7 +2680,7 @@ contains
 		thd = (tpdry - ts) / (tf - ts)
 		tx = 0.5 * (ts + tpdry)
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			factor = dendry(k) * fmois(k)
 			conwet = condry(k) + 4.27e-04 * factor
 			do l = 0, k
@@ -2689,7 +2700,7 @@ contains
 
 		tsd = tpdry
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			c = condry(k)
 			tigk = tpig(k)
 			do l = 0, k
@@ -2726,7 +2737,7 @@ contains
 
 		!c Determine minimum ignition time and verify ignition exists
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			if (flit(k) .GT. 0.0)then
 				nlit = nlit + 1
 			end if
@@ -2743,7 +2754,7 @@ contains
 
 		!c Deduct trt from all time estimates, resetting time origin
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			do l = 0, k
 				kl = Loc(k, l)
 				if (tdry(kl) .LT. rindef) then
@@ -2758,7 +2769,7 @@ contains
 		!c Now go through all component pairs and establish burning rates
 		!c for all the components that are ignited; extrapolate to end time dt
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			if (flit(k) .EQ. 0.0) then
 				do l = 0, k
 					kl = Loc(k, l)
