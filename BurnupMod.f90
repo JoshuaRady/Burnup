@@ -2151,7 +2151,8 @@ contains
 												! The same seems to be true for elam and alone?
 		real*4, intent(inout) :: area(:)		! Fraction of site area expected to be covered at
 												! least once by initial planform area of ea size. [maxno]
-		integer, intent(in), optional :: number	! The actual number of fuel classes.
+		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+												! this will be determined from the other inputs.
 
 		! Locals:
 		integer :: numFuelTypes ! The actual number of fuel types, explicit or implied.
@@ -2288,7 +2289,8 @@ contains
 		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m. [maxno]
 		integer, intent(inout) :: key(:) 		! Ordered index list. [maxno]
-		integer, intent(in), optional :: number	! The actual number of fuel classes.
+		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+												! this will be determined from the other inputs.
 		! Since SORTER() is only downstream of ARRAYS() making number optional doesn't gain us much.
 
 		! Locals:
@@ -2397,27 +2399,29 @@ contains
 	! We modify the original behavior such that a negative value for ak indicates the the value of
 	! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
 	! original arguments.
-	! Several arguments have been removed that were present in the original routine.
-	subroutine OVLAPS(dryld, sigma, dryden, ak, number, fmois, beta, elam, alone, area)
+	! Several arguments have been removed that were present in the original routine.    The number
+	! argument has been moved and is now optional.
+	subroutine OVLAPS(dryld, sigma, dryden, ak, fmois, beta, elam, alone, area, number)
 		implicit none
 
 		! Arguments:
-		real*4, intent(in) :: dryld(:)		! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
-		real*4, intent(in) :: sigma(:)		! Surface to volume ratio, 1 / m. [maxno]
-		real*4, intent(in) :: dryden(:)		! Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
-		real*4, intent(in) :: ak			! Area influence factor (ak / K_a parameter).
-		integer, intent(in) :: number		! The actual number of fuel classes.
-
-		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
-
-		real*4, intent(out) :: beta(:)		! Consolidated interaction matrix. (elsewhere = xmat). [maxkl]
-		real*4, intent(out) :: elam(:,:)	! Interaction matrix. [maxno, maxno]
-		real*4, intent(out) :: alone(:)		! Non-interacting fraction for each fuel class. [maxno]
-		real*4, intent(out) :: area(:)		! Fraction of site area expected to be covered at
-											! least once by initial planform area of ea size. [maxno]
+		real*4, intent(in) :: dryld(:)			! Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
+		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m. [maxno]
+		real*4, intent(in) :: dryden(:)			! Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
+		real*4, intent(in) :: ak				! Area influence factor (ak / K_a parameter).
+		real*4, intent(in) :: fmois(:)			! Moisture fraction of component. [maxno]
+		real*4, intent(out) :: beta(:)			! Consolidated interaction matrix. (elsewhere = xmat). [maxkl]
+		real*4, intent(out) :: elam(:,:)		! Interaction matrix. [maxno, maxno]
+		real*4, intent(out) :: alone(:)			! Non-interacting fraction for each fuel class. [maxno]
+		real*4, intent(out) :: area(:)			! Fraction of site area expected to be covered at
+												! least once by initial planform area of ea size. [maxno]
+		nteger, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+												! this will be determined from the other inputs.
+		! Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
 
 		! Locals:
 		real :: pi ! Convert to a constant?
+		integer :: numFuelTypes ! The actual number of fuel types, explicit or implied.
 		integer :: j, k, l, kj, kl ! Counters
 		real :: siga ! K_a * diameter
 		real :: a
@@ -2427,19 +2431,26 @@ contains
 
 		pi = abs(acos(-1.0)) ! Calculate pi.
 
+		! Determine the actual number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = size(dryld)
+		end if
+
 		! Initialize arrays to 0:
-		do j = 1, number
+		do j = 1, numFuelTypes
 			alone(j) = 0.0
 			do k = 1, j
 				kj = Loc(j, k)
 				beta(kj) = 0.0
 			end do
-			do k = 1, number
+			do k = 1, numFuelTypes
 				elam(j, k) = 0.0
 			end do
 		end do
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			do l = 1, k
 				if (ak .gt. 0.0) then! or .ge. ?
 					! If a valid value has been supplied use a fixed K_a as in the original Burnup:
@@ -2467,13 +2478,13 @@ contains
 		end do
 
 		! If there is only one fuel type:
-		if (number .EQ. 1) then
+		if (numFuelTypes .EQ. 1) then
 			elam(1, 1) = beta(2)
 			alone(1) = 1.0 - elam(1, 1)
 			return
 		end if
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 
 
 ! -- Pagebreak --
