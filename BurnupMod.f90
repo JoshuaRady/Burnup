@@ -263,11 +263,11 @@ contains
 			! Initialize variables and data structures:
 			now = 1
 			tis = ti
-			call START(tis, now, number, wo, alfa, &
+			call START(tis, now, wo, alfa, &
 						dendry, fmois, cheat, condry, diam, tpig, &
 						tchar, xmat, tpamb, fi, flit, fout, &
 						tdry, tign, tout, qcum, tcum, acum, qdot, &
-						ddot, wodot, work, u, d, r0, dr, ncalls)
+						ddot, wodot, work, u, d, r0, dr, ncalls, number)
 
 			! If the duff burns longer than the passing fire front then have it's intensity
 			! contribute to the post front fire environment, otherwise ignore it:
@@ -490,7 +490,7 @@ contains
 		! Initialize variables and data structures:
 		now = 1
 		tis = ti
-		call START(tis, now, number, wo, alfa, &
+		call START(tis, now, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
@@ -2415,7 +2415,7 @@ contains
 		real*4, intent(out) :: alone(:)			! Non-interacting fraction for each fuel class. [maxno]
 		real*4, intent(out) :: area(:)			! Fraction of site area expected to be covered at
 												! least once by initial planform area of ea size. [maxno]
-		nteger, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
 												! this will be determined from the other inputs.
 		! Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
 
@@ -2593,19 +2593,13 @@ contains
 		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
 												! this will be determined from the other inputs.
 
-		! Determine the actual number of fuel types:
-		if (present(number)) then
-			numFuelTypes = number
-		else
-			numFuelTypes = size(alfa)
-		end if
-
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
 		! chnaged to globals.
 		! The original comments include hvap as a constant, but is not actually used:
 		! hvap = heat of vaporization of water J / kg
 
 		! Locals:
+		integer :: numFuelTypes ! The actual number of fuel types, explicit or implied.
 		integer :: k, l, kl ! Counters.
 		real :: delm		! Moisture effect on burning rate (scale factor).
 		real :: heatk		! Burn rate factor.
@@ -2629,6 +2623,13 @@ contains
 		real :: dnext		! Diameter after combustion in this timestep.
 		real :: wnext		! wo after combustion in this timestep.
 		real :: df			!
+
+		! Determine the actual number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = size(alfa)
+		end if
 
 		!c Initialize time varying quantities and, set up work(k)
 		!c The diameter reduction rate of fuel component k is given
