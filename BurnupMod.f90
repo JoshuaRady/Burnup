@@ -2116,7 +2116,7 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	! Several arguments have been removed that were present in the original routine.  The number
-	! argument is now optional and is only used in the interactive context.
+	! argument has been moved and is now optional and is only used in the interactive context.
 	subroutine ARRAYS(wdry, ash, dendry, fmois, &
 						sigma, htval, cheat, condry, tpig, tchar, &
 						diam, key, work, ak, elam, alone, xmat, &
@@ -2154,20 +2154,20 @@ contains
 		integer, intent(in), optional :: number	! The actual number of fuel classes.
 
 		! Locals:
-		integer :: numFuelTypes ! The number of fuel types explicit or implied.
+		integer :: numFuelTypes ! The actual number of fuel types, explicit or implied.
 		integer :: j, k, kl, kj ! Counters
 		real*4 :: diak, wtk
 
 		! Testing was done to confrim that explicit initialization of locals was not needed here.
 
-		! Determine the number of fuel types:
+		! Determine the actual number of fuel types:
 		if (present(number)) then
 			numFuelTypes = number
 		else
 			numFuelTypes = size(wdry)
 		end if
 
-		call SORTER(numFuelTypes, sigma, fmois, dendry, key)
+		call SORTER(sigma, fmois, dendry, key, number)
 
 		do j = 1, numFuelTypes
 			k = key(j)
@@ -2279,26 +2279,36 @@ contains
 	!c fuel parameters can be ordered and associated as necessary.
 	!
 	! History: Modernized original Burnup subroutine.
-	! The maxno argument has been removed.
-	subroutine SORTER(number, sigma, fmois, dryden, key)
+	! The maxno argument has been removed.  The number argument has been moved and is now optional.
+	subroutine SORTER(sigma, fmois, dryden, key, number)
 		implicit none
 
 		! Arguments:
-		integer, intent(in) :: number			! The actual number of fuel classes. [maxno]
 		real*4, intent(inout) :: sigma(:)		! Surface to volume ratio, 1 / m. [maxno]
 		real*4, intent(inout) :: fmois(:)		! Moisture content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: dryden(:)		! Ovendry mass density, kg / cu m. [maxno]
 		integer, intent(inout) :: key(:) 		! Ordered index list. [maxno]
+		integer, intent(in), optional :: number	! The actual number of fuel classes.
+		! Since SORTER() is only downstream of ARRAYS() making number optional doesn't gain us much.
 
 		! Locals:
-		integer :: maxNumFuelTypes ! The maximum number of fuel classes allowed. The input arrays
-		                           ! may exceed the actual number. (Not present in original code.)
-		integer :: j, i ! Counters
+		integer :: maxNumFuelTypes	! The maximum number of fuel classes allowed. The input arrays
+									! may exceed the actual number. (Not present in original code.)
+		integer :: numFuelTypes		! The actual number of fuel types, explicit or implied.
+		integer :: j, i				! Counters.
 		real :: s, fm, de, keep, usi
 		logical :: diam, mois, dens, tied
-		logical :: newIndexFound ! Note: Not present in original code.
+		logical :: newIndexFound	! Note: Not present in original code.
 
-		maxNumFuelTypes = size(sigma)
+		maxNumFuelTypes = size(sigma) ! Determine maximum number of fuels from input arrays.
+		
+		! Determine the actual number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = maxNumFuelTypes
+		end if
+		
 		newIndexFound = .false.
 
 		do j = 1, maxNumFuelTypes
@@ -2306,7 +2316,7 @@ contains
 		end do
 
 		!c Replacement sort: order on increasing size, moisture, density
-		do j = 2, number
+		do j = 2, numFuelTypes
 			! Store the values for this fuel index:
 			s = 1.0 / sigma(j)
 			fm = fmois(j)
