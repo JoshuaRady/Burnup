@@ -290,12 +290,12 @@ contains
 			! the fire goes out or the number of timesteps is reached:
 			if (fi .gt. fimin) then
 				do while (now .LT. ntimes)
-					call STEP(dt, now, number, wo, alfa, &
+					call STEP(dt, now, wo, alfa, &
 								dendry, fmois, cheat, condry, diam, tpig, &
 								tchar, xmat, tpamb, fi, flit, fout, &
 								tdry, tign, tout, qcum, tcum, acum, qdot, &
 								ddot, wodot, work, u, d, r0, dr, &
-								ncalls, tis, fint, fid)
+								ncalls, tis, fint, fid, number)
 
 					! Update time trackers:
 					now = now + 1
@@ -514,7 +514,7 @@ contains
 		! the fire goes out or the number of timesteps is reached:
 		if (fi .gt. fimin) then
 			do while (now .LT. ntimes)
-				call STEP(dt, now, number, wo, alfa, &
+				call STEP(dt, now, wo, alfa, &
 							dendry, fmois, cheat, condry, diam, tpig, &
 							tchar, xmat, tpamb, fi, flit, fout, &
 							tdry, tign, tout, qcum, tcum, acum, qdot, &
@@ -2534,7 +2534,7 @@ contains
 						ddot, wodot, work, u, d, r0, dr, ncalls, number)
 		implicit none
 
-		! Arguments:
+		! Arguments: (by category, not argument order)
 		! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 		! However the code is not consistant with that.
 		real*4, intent(in) :: dt			! Spreading fire residence time (s) (= ti, tis, or time elsewhere).
@@ -2554,7 +2554,7 @@ contains
 		real*4, intent(in) :: tpamb			! Ambient temperature (K).
 		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m.
 
-		! Parameters updated [input and output]:
+		! Parameters updated (input and output):
 		integer, intent(inout) :: ncalls	! Counter of calls to this routine
 											! = 0 on first call or reset,
 											! cumulates after first call.
@@ -2892,6 +2892,7 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	! Several arguments have been removed that were present in the original routine.
+	! STASH() is only called in an interactive context so it retains an explicit number argument.
 	subroutine STASH(time, now, number, outfil, fi, &
 						flit, fout, wo, wodot, diam, ddot, &
 						tdry, tign, tout, fmois, nun)
@@ -3309,29 +3310,26 @@ contains
 
 
 	! This routine calculates one timestep of the fuel consumption process.
+	!c Updates status of all fuel component pairs and returns a snapshot
 	!
 	! History: Modernized original Burnup subroutine.
-	! Several arguments have been removed that were present in the original routine.
+	! Several arguments have been removed that were present in the original routine.  The number
+	! argument has been moved and is now optional and is only used in the interactive context.
 	!
 	! JMR_NOTE: This routine takes a large number of arguments and the order is a bit confusing
 	! with input and output parameters mixed in the order.
-	subroutine STEP(dt, now, number, wo, alfa, &
+	subroutine STEP(dt, now, wo, alfa, &
 					dendry, fmois, cheat, condry, diam, tpig, &
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
 					ddot, wodot, work, u, d, r0, dr, &
-					ncalls, tin, fint, fid)
+					ncalls, tin, fint, fid, number)
 		implicit none
 
-		!c Updates status of all fuel component pairs and returns a snapshot
-
-		!c Input parameters:
-
-! JMR_NOTE: All explicitly declared reals were real*4 but can probably be changed....
-		! JMR_NOTE: These are in original order, not argument order.
+		! Arguments: (by category, not argument order)
+		! JMR_NOTE: All explicitly declared reals were real*4 but can probably be changed....
 		real*4, intent(in) :: dt			! Time step, sec.
 		integer, intent(in) :: now			! Index marks end of time step.
-		integer, intent(in) :: number		! Actual number of fuel components.
 		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
 											! Each component pair, kg / sq m. [maxkl]
 		real*4, intent(in) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s. [maxno]
@@ -3349,8 +3347,7 @@ contains
 		real*4, intent(in) :: work(:)		! Factor of heat transfer rate hbar * (Tfire - Tebar)
 											! that yields ddot (k). [maxno]
 
-		! Not in argument order...
-		!c Constant parameters
+		! Constant parameters:
 		real*4, intent(in) :: u 			! Mean horizontal windspeed at top of fuelbed (m/s).
 		real*4, intent(in) :: d				! Fuelbed depth (m).
 		real*4, intent(in) :: r0			! Minimum value of mixing parameter.
@@ -3363,9 +3360,7 @@ contains
 											! used to up the fire intensity for fuel pieces
 											! that are burning without interacting with others.
 
-
-		!c Parameters updated [input and output)
-
+		! Parameters updated (input and output):
 		integer, intent(inout) :: ncalls	! Counter of calls to this routine ... 
 											! = 0 on first call or reset
 											! cumulates after first call.
@@ -3375,11 +3370,6 @@ contains
 		real*4, intent(inout) :: tign(:)	! Ignition time for the larger of each fuel component pair. [maxkl]
 		real*4, intent(inout) :: tout(:)	! Burnout time of larger component of pairs. [maxkl]
 		real*4, intent(inout) :: qcum(:)	! Cumulative heat input to larger of pair, J / sq m. [maxkl]
-
-		! The constants ch2o and tpdry were included as arguments in the original code.  They have
-		! chnaged to globals.
-		! Note: The original code documents the following variable, but it is mot actually used.
-		!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg
 
 
 ! -- Pagebreak --
@@ -3393,7 +3383,17 @@ contains
 		real*4, intent(inout) :: ddot(:)	! Diameter reduction rate, larger of pair, m / s. [maxkl]
 		real*4, intent(inout) :: wodot(:)	! Dry loading loss rate for larger of pair. [maxkl]
 
-		! Locals: (not in a consistant order.)
+		! Interactive context:
+		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
+												! this will be determined from the other inputs.
+
+		! The constants ch2o and tpdry were included as arguments in the original code.  They have
+		! chnaged to globals.
+		! Note: The original code documents the following variable, but it is mot actually used.
+		!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg
+
+		! Locals: (not in a consistant order)
+		integer :: numFuelTypes ! The actual number of fuel types, explicit or implied.
 		logical flag
 		real :: tnow, tnext ! The time of this and the next timestep.
 		real :: tdun	! The burnout time for a single pair.
@@ -3438,6 +3438,13 @@ contains
 		! There are a large number of locals in this routine that are not explictly initialized.
 		! Testing was done to confrim that explicit initialization was not needed.
 
+		! Determine the actual number of fuel types:
+		if (present(number)) then
+			numFuelTypes = number
+		else
+			numFuelTypes = size(alfa)
+		end if
+
 		ncalls = ncalls + 1
 		tnow = tin
 		tnext = tnow + dt
@@ -3445,7 +3452,7 @@ contains
 		tifi = tnow - float(now - 1) * dt
 		next = now + 1
 
-		kLoop : do k = 1, number
+		kLoop : do k = 1, numFuelTypes
 			c = condry(k)
 			lLoop : do l = 0, k
 				kl = Loc(k, l)
@@ -3712,7 +3719,7 @@ contains
 
 		!c Update fractions ignited and burned out, to apply at next step start
 
-		do k = 1, number
+		do k = 1, numFuelTypes
 			flit (k) = 0.0
 			fout (k) = 0.0
 			do l = 0, k
@@ -3739,6 +3746,7 @@ contains
 	!
 	! History: Modernized original Burnup subroutine.
 	! Several arguments have been removed that were present in the original routine.
+	! STASH() is only called in an interactive context so it retains an explicit number argument.
 	!
 	! Note: While this reproduces the original output that output has some alignment issues.
 	subroutine SUMMARY(outfil, number, parts, nun, &
