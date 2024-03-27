@@ -1437,7 +1437,7 @@ contains
 
 				read(*, *, iostat = readStat) nn
 				if (readStat .ne. 0) then
-					cycle ! If there is an error, request number again..
+					cycle ! If there is an error, request number again.
 				else
 					if (nn .eq. 0) then
 						return  ! Drop back to calling menu.
@@ -1465,7 +1465,7 @@ contains
 		implicit none
 
 		! Arguments:
-		character*12, intent(inout) :: parts(:)	! Fuel component names / labels.. [maxno]
+		character*12, intent(inout) :: parts(:)	! Fuel component names / labels. [maxno]
 		real*4, intent(inout) :: wdry(:)		! Ovendry mass loading, kg/sq m. [maxno]
 		real*4, intent(inout) :: ash(:)			! Mineral content, fraction dry mass. [maxno]
 		real*4, intent(inout) :: htval(:)		! Low heat of combustion, J / kg. [maxno]
@@ -1944,7 +1944,7 @@ contains
 		real*4, intent(in) :: condry(maxno)		! Thermal conductivity, W / m K, ovendry.
 		real*4, intent(in) :: tpig(maxno)		! Ignition temperature, K.
 		real*4, intent(in) :: tchar(maxno)		! Char temperature, K.
-		integer, intent(in) :: maxno			! The maximum number of fuel classes allowed..
+		integer, intent(in) :: maxno			! The maximum number of fuel classes allowed.
 		integer, intent(in) :: number			! The actual number of fuel classes.
 		real*4, intent(in) :: fi				! Current fire intensity (site avg), kW / sq m.
 		real*4, intent(in) :: ti				! Igniting fire residence time (s).
@@ -4118,9 +4118,7 @@ contains
 
 		! Format string for the variable output:
 		! Write the data in long format with tab delimited fields:
-		! timestep (integer), time (float), variable (string), value (float), and IDs (strings)...
-		! This works but yields a "Extraneous characters in format" warning.  The quoting of the
-		! tabs may be the issue.
+		! timestep (integer), time (float), variable (string), value (float), and IDs (strings).
 		! The IDs are currently only used to identify the fuel pairs.  If that is the only use they
 		! should be renamed.
 		character(len = *), parameter :: formatDelim = "(i0,'" // delim // "',g0,'" // delim // &
