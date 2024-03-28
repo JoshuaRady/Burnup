@@ -379,6 +379,10 @@ contains
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter.
 		real*4, intent(inout) :: dt		! Time step for integration of burning rates (s).
 										! On completion contains the time the fire went out.
+										! A value of -1 indicates the fuel did not ignite.  A value
+										! of -2 indicates the fuel did not complete drying.  In such
+										! cases most of remaining return variables will not be
+										! meaningful.
 
 		! Considering removing these two.  See below:
 		real*4, intent(in) :: wdf		! Duff loading (kg/m^2, aka W sub d).
@@ -495,6 +499,14 @@ contains
 					tchar, xmat, tpamb, fi, flit, fout, &
 					tdry, tign, tout, qcum, tcum, acum, qdot, &
 					ddot, wodot, work, u, d, r0, dr, ncalls)
+
+		if (tign(1) .lt. 0.0) then ! Fuels failed to ignite.
+			! We could use dt = 0 to indicate the condition but could be confused as an actual
+			! value.  A negative value is clearly not valid and the value can be used to provide
+			! more information.
+			dt = tign(1)
+			return
+		end if
 
 		! If the duff burns longer than the passing fire front then have it's intensity
 		! contribute to the post front fire environment, otherwise ignore it:
@@ -2592,6 +2604,8 @@ contains
 		! Interactive context:
 		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
 												! this will be determined from the other inputs.
+												! Here the presence of number is used to determine
+												! if we are in an interactive session as well.
 
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
 		! chnaged to globals.
@@ -2682,7 +2696,15 @@ contains
 		r = r0 + 0.25 * dr
 		tf = tempf(fi, r, tpamb)
 		ts = tpamb
-		if (tf .LE. (tpdry + 10.0)) stop ' Igniting fire cannot dry fuel'
+		if (tf .LE. (tpdry + 10.0)) then
+			if (present(number)) then ! In an interactive session, preserve the original behavior:
+				stop ' Igniting fire cannot dry fuel'
+			else ! Otherwise signal the condition and return 
+				tign = -2.0 ! Value signals fuel did not dry.
+				write(*, *) "Igniting fire cannot dry fuel."
+				return
+			end if
+		end if
 		thd = (tpdry - ts) / (tf - ts)
 		tx = 0.5 * (ts + tpdry)
 
@@ -2755,7 +2777,13 @@ contains
 		end do
 
 		if (nlit .EQ. 0) then
-			stop ' START ignites no fuel'
+			if (present(number)) then ! In an interactive session, preserve the original behavior:
+				stop ' START ignites no fuel'
+			else ! Otherwise signal the condition and return 
+				tign = -1.0 ! Value signals fuel did not ignite.
+				write(*, *) "Igniting fire cannot ignite fuel."
+				return
+			end if
 		end if
 
 		!c Deduct trt from all time estimates, resetting time origin
@@ -3415,7 +3443,7 @@ contains
 		real :: qdavg	! Average heat transfer...
 		real :: deltim, rate, dryt, dqdt
 		real :: qd
-		real :: dteff, heff, delt,
+		real :: dteff, heff, delt
 		real :: factor	! Moisture factor for a single element.
 		real :: dtef
 		real :: he		! qcum / tcum
