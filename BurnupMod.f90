@@ -2603,21 +2603,26 @@ contains
 		integer :: k, l, kl ! Counters.
 		real :: delm		! Moisture effect on burning rate (scale factor).
 		real :: heatk		! Burn rate factor.
-		real :: r, tf, ts, thd, tx
-		real :: dia			! Diameter for single element.
-		real :: cpwet, fac
-		real :: dryt		! Drying time for single element.
+		real :: r			! Dimensionless mixing parameter.
+		real :: tf			! Fire environment temperature.
+		real :: ts			! The charing temperature for a single element (K).
+		real :: thd, tx
+		real :: dia			! Diameter for a single element.
+		real :: cpwet		! Wet specific heat of a single element, J / kg K.
+		real :: fac			! A factor (radius squared / wet thermal diffusivity) used to convert
+							! the output of DRYTIM() from dimensionless to actual time.
+		real :: dryt		! Drying time for a single element.
 		real :: tsd
-		real :: c			! Thermal conductivity for single element.
-		real :: tigk		! Ignition temperature for single element.
+		real :: c			! Thermal conductivity for a single element.
+		real :: tigk		! Ignition temperature for a single element.
 		real :: en, e		! Modified Nusselt number obtained from HEATX() (in different places).
 		real :: trt			! Minimum ignition time across all fuels (initial estimate?).
 		real :: nlit		! Number of elements lit.
-		real :: factor
+		real :: factor		! Moisture factor for a single element.
 		real :: hb			! "Effective" film heat transfer coefficient returned from HEATX().
 		real :: hf			! Film heat transfer coefficient returned from HEATX().
 		real :: dtign		! Time to piloted ignition returned from TIGNIT().
-		real :: conwet
+		real :: conwet		! Wet thermal conductivity for a single element, w / sq m K.
 		real :: aint
 		real :: ddt			! Timestep to calculate.  May be less that dt if fuel burns out sooner.
 		real :: dnext		! Diameter after combustion in this timestep.
@@ -3410,13 +3415,16 @@ contains
 		real :: qdavg	! Average heat transfer...
 		real :: deltim, rate, dryt, dqdt
 		real :: qd
-		real :: dteff, heff, delt, factor, dtef
+		real :: dteff, heff, delt,
+		real :: factor	! Moisture factor for a single element.
+		real :: dtef
 		real :: he		! qcum / tcum
-		real*4 :: tf, ts
-		real :: biot
-		real :: cpwet
+		real*4 :: tf	! Fire environment temperature.
+		real*4 :: ts	! The charing temperature for a single element (K).
+		real :: biot	! Biot number for a single element.
+		real :: cpwet	! Wet specific heat of a single element, J / kg K.
 		real :: c		! Thermal conductivity for a single fuel component.
-		real :: conwet
+		real :: conwet	! Wet thermal conductivity for a single element, w / sq m K.
 		real :: ddt		! Timestep to calculate.  May be less that dt if fuel burns out sooner.
 		real :: dia		! Diameter for a single fuel component (kl).
 		real :: dnext	! Diameter after combustion in this timestep.
@@ -3424,9 +3432,10 @@ contains
 		real :: dtcum
 		real :: dtlite	! Time to ignition returned by TIGNIT().
 		real :: e
-		real :: fac
+		real :: fac		! A factor (radius squared / wet thermal diffusivity) used to convert
+						! the output of DRYTIM() from dimensionless to actual time.
 		real :: hb, hf
-		real :: r
+		real :: r		! Dimensionless mixing parameter.
 		real :: tfe
 		real :: thd
 		real :: tlit	! Ignition time for a single fuel component.
