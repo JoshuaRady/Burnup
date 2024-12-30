@@ -3564,7 +3564,6 @@ contains
 					tspan = 0.0
 					deltim = dt
 
-					! JMR: Mod -> parallel!!!!!
 					! Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
 					do
 						index = index - 1
@@ -3576,7 +3575,7 @@ contains
 							deltim = tavg - tspan
 						end if
 
-						qdsum = qdsum + qdot(kl, index) * deltim 
+						qdsum = qdsum + qdot(kl, index) * deltim
 						tspan = tspan + deltim
 
 						if ((tspan .LT. tavg) .AND. (index .GT. 1)) then
@@ -3603,13 +3602,15 @@ contains
 						rate = dia / (dia - dnext)
 						tout(kl) = tnow + rate * dt
 					end if
-					if (qdavg .LE. 20.0) tout(kl) = 0.5 * (tnow + tnext)
+					if (qdavg .LE. 20.0) then
+						tout(kl) = 0.5 * (tnow + tnext)
+					end if
 					ddt = min(dt, (tout(kl) - tnow))
 					wodot(kl) = (wo(kl) - wnext) / ddt
 					diam(kl) = dnext
 					wo(kl) = wnext
 					cycle lLoop
-				end if ! (tnow .GE. tlit) ! JMR: Mod -> parallel!!!!!
+				end if ! (tnow .GE. tlit)
 
 				!c See if k of (k, l) has reached outer surface drying stage yet
 
@@ -3640,7 +3641,7 @@ contains
 					tfe = ts + dteff
 					dtlite = rindef
 
-					if (.not. (tfe .LE. (tpig (k) + 10.0))) then
+					if (.not. (tfe .LE. (tpig(k) + 10.0))) then
 						call TIGNIT(tpamb, tpdry, tpig(k), tfe, &
 							condry(k), cheat(k), fmois(k), dendry(k), &
 							heff, dtlite)

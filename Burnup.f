@@ -1885,7 +1885,7 @@
       			heff = qcum( kl ) / tcum( kl )
       			tfe = ts + dteff
       			dtlite = rindef
-      			if( tfe .LE. ( tpig ( k ) + 10. ) ) goto 02
+      			if( tfe .LE. ( tpig( k ) + 10. ) ) goto 02
       			call TIGNIT( tpamb , tpdry , tpig( k ) , tfe ,
      +           condry( k ) , cheat( k ) , fmois( k ) , dendry( k ) ,
      +           heff , dtlite )
