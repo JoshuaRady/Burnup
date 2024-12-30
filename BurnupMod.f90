@@ -5,7 +5,7 @@
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
-! 9/2023
+! 2023-2024
 !
 ! This is an reimplementation of the Burnup wildfire fuel consumption model as a Fortran module.
 ! 
@@ -22,7 +22,9 @@
 ! 	Routines providing C interoperable interfaces have been included for the main program entry
 ! points to allow the code to interface with R when compiled as a shared library (.so file).
 !
-! 	The routines that run the UI of the original program have been left for now but may be removed.
+! 	The routines that run the UI of the original interactive program have been left for now but may
+! be removed or be moved to a separate file in the future.  The interactive program can be compiled
+! using the BurnupInteractive.f90 wrapper program.
 !
 ! Formating:
 ! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
@@ -39,7 +41,7 @@
 ! camelcase.
 !
 ! References:
-! 	The original source code was obtained from
+! 	The original source code was obtained from:
 !
 ! Program BURNUP, a simulation model of the burning of large woody natural fuels.
 ! Frank A. Albini
@@ -56,7 +58,7 @@
 ! been identified.
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
-! that man not be correct.  The licence for this code is under consideration.
+! that may not be correct.  The licence for this code is under consideration.
 !---------------------------------------------------------------------------------------------------
 
 module BurnupMod

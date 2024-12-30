@@ -5,7 +5,7 @@
 ! Original code by: Frank A. Albini
 ! Edited and updated by: Joshua M. Rady
 ! Woodwell Climate Research Center
-! 9/2023
+! 2023-2024
 !
 ! The following is modernized source code for the original version of the Burnup model from:
 !
@@ -18,7 +18,7 @@
 !
 ! Code Modernization:
 ! 	The original Burnup source code is self-described as being in Fortran IV, though there are
-! numerous features from Fortran 66 and 77.  It is in fixed form form.  Here I have revised the code
+! numerous features from Fortran 66 and 77.  It is in fixed form format.  Here I have revised the code
 ! to modern Fortran (2003+).  This involved replacing goto logic, removing statement functions,
 ! making all variable declarations explicit, added additional comments, and changing the code to
 ! free form. Additional routines were added as needed to reproduce the original behavior.  Original
@@ -27,11 +27,13 @@
 ! 	I have changed the formating to remove most of the idiosyncratic internal whitespace and to add
 ! full indenting.  Some styling inconstancies may remain.
 !
+! Formating:
 ! 	I have used tabs for code indenting and for alignment of comments.  This is to aid with reading
 ! and future porting of this code (e.g. to C++).  While tabs are not valid Fortran characters,
 ! compilers tend to tolerate them.  I have used 4-space equivalent tabs for layout purposes here,
 ! and they can easily be converted in the future.
 !
+! In-code Documentation:
 ! 	Many comments have been added to the code to increase it's readability and to document changes.
 ! Original comments are marked with '!c'.  Comments starting with just '!' have been added.  Page
 ! breaks and page numbers from the PDF have been marked in comments to make comparison to the
@@ -43,7 +45,7 @@
 ! identified.  Transcription errors may remain, some of which may affect results.
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
-! that man not be correct.
+! that may not be correct.
 !---------------------------------------------------------------------------------------------------
 
 

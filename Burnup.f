@@ -5,7 +5,7 @@
 ! Original code by: Frank A. Albini
 ! Edited and annotated by: Joshua M. Rady
 ! Woodwell Climate Research Center
-! 9/2023
+! 2023-2024
 !
 ! The following is annotated source code for the original version of the Burnup model from:
 !
@@ -24,7 +24,7 @@
 ! correspondence with the librarians.
 !
 ! 	The original Burnup source code is self-described as being in Fortran IV, though there are
-! numerous features from Fortran 66 and 77.  It is in fixed form form.  I have used this to help
+! numerous features from Fortran 66 and 77.  It is in fixed form format.  I have used this to help
 ! interpret the whitespace in the original text.  I have tried to preserve even arbitrary whitespace
 ! for fidelity with the print version but in some places it is approximate.  Some lines are longer
 ! than the 72 character limit imposed for fixed form.  For these line I commented out the original
@@ -48,7 +48,7 @@
 ! may affect results.
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
-! that man not be correct.
+! that may not be correct.
 !---------------------------------------------------------------------------------------------------
 
 
