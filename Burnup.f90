@@ -2214,7 +2214,7 @@ contains
 				kl = Loc(k, l)
 				dryt = tdry(kl)
 				if (dryt .LT. dt) then
-					dia = diam0(kl)
+					dia = diam(kl)
 					ts = 0.5 * (tsd + tigk)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
 					tcum(kl) = max((tf - ts) * (dt - dryt), 0.)
