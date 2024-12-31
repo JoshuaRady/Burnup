@@ -22,7 +22,9 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 //SORTER
 //OVLAPS
 //START
-//FIRINT
+void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
+            const std::vector<double> htval, const int number, const std::vector<double> area,
+            std::vector<double>& fint, double& fi);
 double TIGNIT(const double tpam, const double tpdr, const double tpig, const double tpfi,
               const double cond, const double chtd, const double fmof, const double dend,
               const double hbar);

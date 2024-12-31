@@ -17,6 +17,7 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 #include <algorithm>//For max().
 #include <cmath>//<math.h>//For pow(), sqrt(), abs().
 #include <iostream>//Or just <ostream>?
+#include <vector>
 
 #include "Burnup.h"
 
@@ -63,6 +64,76 @@ const int mxstep = 20;
 //START
 
 //FIRINT
+/**
+ *
+ * @par Original Burnup Description:
+!c Computes fi = site avg fire intensity given the burning rates of all
+!c interacting pairs of fuel components [ wodot ], the mineral ash content
+!c of each component [ ash ], the heat of combustion value [ htval ] for
+!c each, and the number of fuel components [ number ], where max - maxno.
+!c fi is in kW / sq m, while htval is in J / kg.
+!
+!c fint(k) is the correction to fi to adjust
+!c the intensity level to be the local value where size k is burning.
+
+! History: Modernized original Burnup subroutine.
+! Several arguments have been removed that were present in the original routine.
+
+ * @param wodot		Burning rates of interacting pairs of fuel components. [maxkl]
+ * @param ash		Mineral content, fraction dry mass. [maxno]
+ * @param htval		Low heat of combustion, J / kg. [maxno]
+ * @param number	The actual number of fuel classes.
+ * @param area		Fraction of site area expected to be covered at
+ *            		least once by initial planform area of ea size. [maxno]
+ * @param fint		A vector to hold the corrected local fire intensity for each fuel type (returned). [maxno]
+ * @param fi		Site avg fire intensity (kW / sq m) (returned).
+ *
+ * @returns fint[] and fi are returned it the parameters.
+ */
+void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
+            const std::vector<double> htval, const int number, const std::vector<double> area,
+            std::vector<double>& fint, double& fi)
+{
+	double sum;//Running total for fi.
+	//integer :: k, l, kl;//Counters
+	double wdotk;
+	double term;
+	double ark;//Area for element k.
+
+	//Constants:
+	const double small = 1.0e-06;
+
+	//We could check that the inputs are the same size?
+
+	//Don't assume that fint is the right size!
+
+	sum = 0.0;
+	//do k = 1, number
+	//for (int k = 1; k <= number; k++)//Need to work out the indexing for C++!!!!!
+	for (int k = 0; k < number; k++)
+	{
+		wdotk = 0.0;
+		//do l = 0, k
+		for (int l = 0; l <= k; l++)
+		{
+			int kl = Loc(k, l);
+			wdotk = wdotk + wodot[kl];
+		}
+		term = (1.0 - ash[k]) * htval[k] * wdotk * 1.0e-03;
+		ark = area[k];
+		if (ark < small)
+		{
+			fint[k] = term / ark - term;
+		}
+		else
+		{
+			fint[k] = 0.0;
+		}
+		sum = sum + term;
+	}
+
+	fi = sum;
+}
 
 //STASH
 
@@ -351,6 +422,9 @@ double TEMPF(const double q, const double r, const double tamb)
  * @param k Triangular matrix column (row) index, (1:number of fuel types).
  * @param l Triangular matrix row (column) index, (0:k), = partner.
  *          This index starts at 0, which represent the "no companion" pairs.
+ 
+ 	This probably needs to be reworked for C indexing!!!!!
+ 
  */
 int Loc(const int k, const int l)
 {
