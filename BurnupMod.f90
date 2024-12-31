@@ -116,8 +116,8 @@ module BurnupMod
 	public :: DufBrnR
 
 	! Program level dimensional constants:
-	! In the original code these parameters were passed into all routines that need.  Here we change
-	! to module level scope.  This allows us to reduce the number of arguments to routines.
+	! In the original code these parameters were passed into all routines that need them.  Here we
+	! change to module level scope.  This allows us to reduce the number of arguments to routines.
 	! While currently fixed, these can probably be made dynamic to be set a initialization.
 
 	! The maximum number of fuel components or types.  This is used to build fixed size data
