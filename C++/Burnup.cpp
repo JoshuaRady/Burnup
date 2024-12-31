@@ -58,6 +58,139 @@ const int mxstep = 20;
 //ARRAYS
 
 //SORTER
+/**
+ *
+ * @par Original Burnup Description:
+!c Sorts fuel element list in order of increasing size (decreasing sigma)
+!c For elements with same size order determined on increasing moisture
+!c content (fmois). If items have same size and moisture content, order
+!c on the basis of increasing mass density (dryden). "number" elements are
+!c included in the list, which has a maximum length of "maxno". The integer
+!c list: key(j), j = 1, number holds the indices in order, so other
+!c fuel parameters can be ordered and associated as necessary.
+ *
+ * @param sigma(:)		Surface to volume ratio, 1 / m. [maxno]
+ * @param fmois(:)		Moisture content, fraction dry mass. [maxno]
+ * @param dryden(:)		Ovendry mass density, kg / cu m. [maxno]
+ * @param key(:) 		Ordered index list. [maxno]					//out rather than inout?????
+ * @param number		The actual number of fuel classes.  If omitted
+ *              		this will be determined from the other inputs.
+ * Since SORTER() is only downstream of ARRAYS() making number optional doesn't gain us much.
+ *
+ * @returns On return sigma, fmois, dryden are reordered and key is set.
+
+! History: Modernized original Burnup subroutine.
+! The maxno argument has been removed.  The number argument has been moved and is now optional.
+*/
+void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<double>& dryden,
+            std::vector<int>& key, const int number)
+{
+	int maxNumFuelTypes;		//The maximum number of fuel classes allowed. The input arrays
+								//may exceed the actual number. (Not present in original code.)
+	int numFuelTypes;			//The actual number of fuel types, explicit or implied.
+	//int j, i;					//Counters.
+	int i;						//Counter.
+	double s, fm, de, keep, usi;			//Hold the values of the current search index. !!!!!
+	bool diam, mois, dens, tied;
+	bool newIndexFound;//Note: Not present in original code.
+
+	maxNumFuelTypes = sigma.size();//Determine maximum number of fuels from input arrays.
+	
+	//Determine the actual number of fuel types:
+	//if (present(number)) then
+	if (number <= 0)
+	{
+		numFuelTypes = number;
+	}
+	else
+	{
+		numFuelTypes = maxNumFuelTypes;
+	}
+
+	newIndexFound = false;
+
+	//do j = 1, maxNumFuelTypes
+	for (int j = 0; j < maxNumFuelTypes; j++)
+	{
+		key[j] = j;
+	}
+
+	//!c Replacement sort: order on increasing size, moisture, density
+	//do j = 2, numFuelTypes
+	for (int j = 1; j < numFuelTypes; j++)
+	{
+		//Store the values for this fuel index:
+		s = 1.0 / sigma[j];
+		fm = fmois[j];
+		de = dryden[j];
+		keep = key[j];
+
+		//Compare this index (j) with every index before it:
+		//do i = (j - 1), 1, -1
+		//for (int i = (j - 1); i >= 0; i--)
+		for (i = (j - 1); i >= 0; i--)
+		{
+			usi = 1.0 / sigma[i];
+			diam = (usi < s);
+
+			if (diam)
+			{
+				newIndexFound = true;
+				//exit
+				break;
+			}
+
+			tied = (usi == s);
+
+			if (tied)
+			{
+				mois = (fmois[i] < fm);
+				if (mois)
+				{
+					newIndexFound = true;
+					//exit
+					break;
+				}
+
+				tied = (fmois[i] == fm);
+				if (tied)
+				{
+					dens = (dryden [i] < de);
+					if (dens)
+					{
+						newIndexFound = true;
+						//exit
+						break;
+					}
+				}
+			}
+
+			//i is greater than j.
+			//Move entry i (the entry we are comparing to) down one:
+			sigma[i + 1] = sigma[i];
+			fmois[i + 1] = fmois[i];
+			dryden[i + 1] = dryden[i];
+			key[i + 1] = key[i];
+		}
+
+		if (newIndexFound)
+		{
+			//If a new location has been identified record entry j at i + 1 (below).
+			newIndexFound = false;//Reinitialize for the next comparison.
+		}
+		else
+		{
+			//i = 0;//Reseting i to 0 will move this entry (j) to postion 1.
+			i = -1;//Reseting i to -1 will move this entry (j) to postion 0.
+		}
+
+		//Record the values for fuel index j at the identified index:
+		sigma[i + 1] = 1.0 / s;
+		fmois[i + 1] = fm;
+		dryden[i + 1] = de;
+		key[i + 1] = keep;
+	}
+}
 
 //OVLAPS
 
