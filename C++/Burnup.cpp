@@ -67,6 +67,103 @@ const int mxstep = 20;
 //STASH
 
 //TIGNIT
+/** This routine computes the halfspace surface ignition time under steady radiant heating with
+* surface film cooling.
+*
+! History: Modernized original Burnup subroutine.
+!
+ *
+ * @param tpam	Ambient temperature, K.
+ * @param tpdr	Fuel temperature at start of drying, K.
+ *            	Currently this is always tpdry, so this argument could be cut.
+ * @param tpig	Fuel surface temperature at ignition, K.
+ * @param tpfi	Fire enviroriment temperature, K.
+ * @param cond	Fuel ovendry thermal conductivity, W / m K.
+ * @param chtd	Fuel ovendry specific heat capacity, J / kg K.
+ * @param fmof	Fuel moisture content, fraction dry weight.
+ * @param dend	Fuel ovendry density, kg / cu m.
+ * @param hbar	Effective film heat transfer coefficient [< HEATX] W / sq m K.
+	real*4, intent(out) :: tmig	! Predicted time to piloted ignition, s.
+ *
+ * @returns tmig Predicted time to piloted ignition, s.
+ * 
+! JMR_NOTE: Since this only has one return value it could be turned into a function.
+ * @note The orignal Fortran routine returns tmig as an argument.  !!!!!
+ */
+double TIGNIT(const double tpam, const double tpdr, const double tpig, const double tpfi,
+              const double cond, const double chtd, const double fmof, const double dend,
+              const double hbar)//, tmig)
+{
+	double b03;
+	double xlo, xhi, xav;	//Binary search bounds and middle (average).
+	double fav;				//Value of ff() for current search value.
+	double beta, conw;
+	double dtb;				//The temperature increase required to reach the drying temperature.
+	double dti;				//The temperature increase required to reach the ignition temperature.
+	double ratio, rhoc;
+	double tmig;//Return value: Predicted time to piloted ignition, s.
+
+	//Constants:
+	const double a03 = -1.3371565;	//ff() parameter 1
+	const double a13 = 0.4653628;	//ff() parameter 2
+	const double a23 = -0.1282064;	//ff() parameter 3
+	const double pinv = 2.125534;
+	const double small = 1.e-06;	//Terminate the search when we are this close.
+	const double hvap = 2.177e+06;	//Heat of vaporization of water J/kg.
+	const double cpm = 4186.0;
+	const double conc = 4.27e-04;
+
+	//!c radiant heating equivalent form gives end condition fixes beta
+
+	b03 = a03 * (tpfi - tpig) / (tpfi - tpam);
+
+	//!c find x that solves ff(x) = 0 ; method is binary search
+
+	xlo = 0.0;
+	xhi = 1.0;
+	// Testing was done to confrim that explicit initialization of other locals was not needed.
+
+	while (true)
+	{
+		xav = 0.5 * (xlo + xhi);
+
+		//The original code implements this as a statement function:
+		//fav = ff(xav)
+		/*Original notes:
+		!c approximate function of beta to be solved is ff(x) where
+		!c x  =  1 / (1 + p * beta)  { Hastings, Approximations for
+		!c digital computers } and we employ      pinv  =  1 / p*/
+		fav = b03 + xav * (a13 + xav * (a23 + xav));
+		/* Or:
+		fav = b03 + xav * (a13 + (a23 * xav + xav * xav))
+		fav = b03 + (a13 * xav) + (a23 * xav ** 2) + (xav ** 3)*/
+
+		if (abs(fav) < small)
+		{
+			//exit
+			break;
+		}
+		else if (fav < 0.0)
+		{
+			xlo = xav;
+		}
+		else if (fav < 0.0)
+		{
+			xhi = xav;
+		}
+	}
+
+	beta = pinv * (1.0 - xav) / xav;
+	conw = cond + conc * dend * fmof;
+	dtb = tpdr - tpam;
+	dti = tpig - tpam;
+	ratio = (hvap + cpm * dtb) / (chtd * dti);
+	rhoc = dend * chtd * (1.0 + fmof * ratio);
+	//tmig = ((beta / hbar) ** 2) * conw * rhoc;
+	tmig = (pow((beta / hbar), 2)) * conw * rhoc;
+
+	return tmig;
+}
 
 //DRYTIM
 /**

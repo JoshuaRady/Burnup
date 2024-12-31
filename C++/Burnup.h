@@ -23,7 +23,9 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 //OVLAPS
 //START
 //FIRINT
-//TIGNIT
+double TIGNIT(const double tpam, const double tpdr, const double tpig, const double tpfi,
+              const double cond, const double chtd, const double fmof, const double dend,
+              const double hbar);
 double DRYTIM(const double enu, const double theta);
 void HEATX(const double u, const double d, const double dia, const double tf, const double ts,
            double& hfm, double& hbar, const double cond, double& en);
