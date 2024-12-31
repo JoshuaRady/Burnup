@@ -109,8 +109,8 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 
 	sum = 0.0;
 	//do k = 1, number
-	//for (int k = 1; k <= number; k++)//Need to work out the indexing for C++!!!!!
-	for (int k = 0; k < number; k++)
+	for (int k = 1; k <= number; k++)//The k fuel types start at 1.
+	//for (int k = 0; k < number; k++)
 	{
 		wdotk = 0.0;
 		//do l = 0, k
@@ -409,21 +409,30 @@ double TEMPF(const double q, const double r, const double tamb)
 //SUMMARY
 
 //Loc
-/**
-! This function converts the indexes of the pairwise fuel interaction triangular matrix space
-! to indexes of the arrays used to represent it for several computed variables.
-!
-! Note: This will only return valid (occupied) coordinates of the triangular matrix.
-! Error checking would require that the number of fuel classes be know. 
-!
+/** This function converts the indexes of the pairwise fuel interaction triangular matrix space
+ * to indexes of the arrays used to represent it for several computed variables.
+ *
+ * @param k Triangular matrix column (row) index, (1 - number of fuel types).
+ * @param l Triangular matrix row (column) index, (0 - k), = partner.
+ *          This index starts at 0, which represent the "no companion" pairs.
+ *
+ * @returns The compact array index representing triangular matrix position [k, l]. 
+ * 
+ * @par Indexes:
+ * The matrix indices represent the fuel types and are 1 based, i.e. 1 = fuel type 1.  The l index
+ * represent the partner fuel with 0 representing no partner.  This indexing approach makes
+ * reasonable sense.  In the orignal Fortran it also alignes with the default 1 based array
+ * indexing.  There is no easy way to make this more C-ish since one dimension is already 0 based.
+ * Therefore we keep the indexing the same.  Calling code must keep the index model in mind.
+ * However, this implementation differes from the Fortran code in that we assume the arrays used to
+ * represent triangular matrix data use native 0 indexing.
+ * 
+ * @note: This will only return valid (occupied) coordinates of the triangular matrix.
+ * The code assumes maxno and maxkl are the maximum dimensions.
+ * Further error checking would require that the number of fuel classes be know. ?????
+ 
 ! History: This function was originally implemented as a statement function defined in seven places
 ! in the original code.
-
- * @param k Triangular matrix column (row) index, (1:number of fuel types).
- * @param l Triangular matrix row (column) index, (0:k), = partner.
- *          This index starts at 0, which represent the "no companion" pairs.
- 
- 	This probably needs to be reworked for C indexing!!!!!
  
  */
 int Loc(const int k, const int l)
@@ -444,8 +453,10 @@ int Loc(const int k, const int l)
 	}
 
 	loc = k * (k + 1) / 2 + l;
+	loc -= 1;//Convert to 0 based index.
 
-	if ((loc < 1) || (loc > maxkl))
+	//if ((loc < 1) || (loc > maxkl))
+	if ((loc < 0) || (loc > (maxkl - 1)))
 	{
 		//print *, "Loc(): Invalid index returned ", loc
 		std::cout << "Loc(): Invalid index returned " << loc << std::endl;
