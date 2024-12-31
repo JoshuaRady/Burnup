@@ -3964,7 +3964,7 @@ contains
 			print *, "Loc(): Invalid value of k ", k
 		end if
 
-		if ((k .lt. 0) .or. (k .gt. k)) then
+		if ((l .lt. 0) .or. (l .gt. k)) then
 			print *, "Loc(): Invalid value of l ", l
 		end if
 
