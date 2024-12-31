@@ -15,8 +15,26 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 ***************************************************************************************************/
 
 #include <cmath>//<math.h>//For pow()/
+#include <iostream>//Or just <ostream>?
 
 #include "Burnup.h"
+
+/* Program level dimensional constants:
+In the original code these parameters were passed into all routines that need them.  Here we
+change to module level scope.  This allows us to reduce the number of arguments to routines.
+While currently fixed, these can probably be made dynamic to be set a initialization.*/
+//Update!!!!!
+
+/*The maximum number of fuel components or types.  This is used to build fixed size data
+structures.  The number of elements may be less than this so some indexes may be empty.
+The original program fixes this arbitrarily at 10 fuel components.*/
+const int maxno = 12;
+//The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
+//Add one to one dimension for the  'no companion' interaction element.
+const int maxkl = maxno * (maxno + 1) / 2 + maxno;
+//The maximum dimension of historical sequences (primarily for qdot):
+const int mxstep = 20;
+
 
 
 //InteractiveUI()
@@ -156,6 +174,47 @@ double TEMPF(const double q, const double r, const double tamb)
 //SUMMARY
 
 //Loc
+/**
+! This function converts the indexes of the pairwise fuel interaction triangular matrix space
+! to indexes of the arrays used to represent it for several computed variables.
+!
+! Note: This will only return valid (occupied) coordinates of the triangular matrix.
+! Error checking would require that the number of fuel classes be know. 
+!
+! History: This function was originally implemented as a statement function defined in seven places
+! in the original code.
+
+ * @param k Triangular matrix column (row) index, (1:number of fuel types).
+ * @param l Triangular matrix row (column) index, (0:k), = partner.
+ *          This index starts at 0, which represent the "no companion" pairs.
+ */
+int Loc(const int k, const int l)
+{
+	int loc;//Return value: Index in a compact array representing the triangular matrix values.
+
+	//Validity checking:
+	if ((k < 1) || (k > maxno))
+	{
+		//print *, "Loc(): Invalid value of k ", k
+		std::cout << "Loc(): Invalid value of k " << k << std::endl;
+	}
+
+	if ((l < 0) || (l > k))
+	{
+		//print *, "Loc(): Invalid value of l ", l
+		std::cout << "Loc(): Invalid value of l " << l << std::endl;
+	}
+
+	loc = k * (k + 1) / 2 + l;
+
+	if ((loc < 1) || (loc > maxkl))
+	{
+		//print *, "Loc(): Invalid index returned ", loc
+		std::cout << "Loc(): Invalid index returned " << loc << std::endl;
+	}
+
+	return loc;
+}
 
 //ErrorApprox
 /**

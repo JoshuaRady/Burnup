@@ -31,7 +31,7 @@ double TEMPF(const double q, const double r, const double tamb);
 
 
 //Utilities:
-//Loc
+int Loc(const int k, const int l);
 double ErrorApprox(const double h, const double theta);
 //AskForReal1
 //AskForReal2
