@@ -14,7 +14,8 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 
 ***************************************************************************************************/
 
-#include <cmath>//<math.h>//For pow()/
+#include <algorithm>//For max().
+#include <cmath>//<math.h>//For pow(), sqrt(), abs().
 #include <iostream>//Or just <ostream>?
 
 #include "Burnup.h"
@@ -125,6 +126,72 @@ double DRYTIM(const double enu, const double theta)//, tau)
 
 
 //HEATX
+/** This routine calculates how heat is transfered from the fire environment to a given fuel type.
+ *
+ * @par Original Burnup Description:
+ !c Given horizontal windspeed u at height d [top of fuelbed], cylindrical
+!c fuel particle diameter dia, fire environment temperature tf, and mean
+!c surface temperature, ts, subroutine returns film heat transfer coefficient
+!c hfm and an "effective" film heat transfer coefficient including radiation
+!c heat transfer, hbar.  Using the wood's thermal conductivity, cond, the
+!c modified Nusselt number [ en ] used to estimate onset of surface drying
+!c is returned as well.
+!
+! History: Modernized original Burnup subroutine.
+ *
+ * @param u		Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param d		Fuelbed depth (m).
+ * @param dia	Fuel diameter.									Units?????
+ * @param tf	Fire environment temperature.					Units?????
+ * @param ts	Mean surface temperature.						Units?????
+ * @param hfm	Film heat transfer coefficient (returned).
+ * @param hbar	"Effective" film heat transfer coefficient (returned).
+ * @param cond	Wood thermal conductivity.						Units?????
+ * @param  en	Modified Nusselt number (returned).
+ *
+ * @returns hfm, hbar, and en are returned via parameters.
+ *
+ * The arguments are in the original order but it might be good to reorder so the return values are together!!!!!
+ */
+void HEATX(const double u, const double d, const double dia, const double tf, const double ts,
+           double& hfm, double& hbar, const double cond, double& en)
+{
+	double v;		//Estimate of relative vertical air velocity over fuel element.
+	double re;		//Reynolds number (air).
+	double enuair;	//Nusselt number.
+	double conair;	//(Forced) convection of air?
+	double fac;
+	double hfmin;	//Film heat transfer coefficient for natural convection (used as minimum value).
+	double hrad;	//Radiation contribution.
+
+	//Constants:
+	const double g = 9.8;
+	const double vis = 7.5e-05;//Kinematic viscosity of hot air.
+	const double a = 8.75e-03;
+	const double b = 5.75e-05;
+	const double rad = 5.67e-08;//Stefan-Boltzmann radiation constant(W/m^2-K^4).
+	const double fmfac = 0.382;
+	const double hradf = 0.5;//View factor emissivity.
+
+	hfm = 0.0;
+	//Testing was done to confrim that explicit initialization of other locals was not needed.
+
+	if (dia > b)
+	{
+		v = sqrt(u * u + 0.53 * g * d);
+		re = v * dia / vis;
+		//enuair = 0.344 * (re**0.56)
+		enuair = 0.344 * pow(re, 0.56);
+		conair = a + b * tf;
+		fac = sqrt(abs(tf - ts) / dia);
+		hfmin = fmfac * sqrt(fac);
+		hfm = std::max((enuair * conair / dia), hfmin);
+	}
+
+	hrad = hradf * rad * (tf + ts) * (tf * tf + ts * ts);
+	hbar = hfm + hrad;
+	en = hbar * dia / cond;
+}
 
 //TEMPF
 /**
