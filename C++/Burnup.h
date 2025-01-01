@@ -19,8 +19,12 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 //Core calculation functions:
 //DUFBRN
 //ARRAYS
-//SORTER
-//OVLAPS
+void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<double>& dryden,
+            std::vector<int>& key, const int number = -1);
+void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
+            const std::vector<double> dryden, const double ak, const std::vector<double> fmois,
+            std::vector<double>& beta, std::vector<std::vector<double>>& elam,
+            std::vector<double>& alone, std::vector<double>& area, const int number = -1);
 //START
 void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
             const std::vector<double> htval, const int number, const std::vector<double> area,

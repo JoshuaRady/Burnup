@@ -14,7 +14,7 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 
 ***************************************************************************************************/
 
-#include <algorithm>//For max().
+#include <algorithm>//For max(), fill().
 #include <cmath>//<math.h>//For pow(), sqrt(), abs().
 #include <iostream>//Or just <ostream>?
 #include <vector>
@@ -98,7 +98,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 	
 	//Determine the actual number of fuel types:
 	//if (present(number)) then
-	if (number <= 0)
+	if (number > 0)
 	{
 		numFuelTypes = number;
 	}
@@ -193,6 +193,178 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 }
 
 //OVLAPS
+/**
+ *
+ * @par Original Burnup Description:
+!c Computes the interaction matrix elam(j, k) which apportions the
+!c influence of smaller and equal size pieces on eaqh size class for the
+!c purpose of establishing the rates at which the elemnts burn out.
+!c Input quantities are dryld, the ovendry mass per unit area of each
+!c element available for burning after the passage of the igniting surface
+!c fire; sigma, the particle's surface/ volume ratio, and dryden, the
+!c ovendry mass density of the particle; ak a dimensionless parameter that
+!c scales the planform area of a particle to its area of influence. There
+!c are "number" separate particle classes, of a maximum number = maxno.
+!c It is assumed that the 1ist are ordered on size class (nonincreasing
+!c surface/ volume ratio). List "alone" gives the fraction of each loading
+!c that is not influenced by any other category.
+!
+! History: Modernized original Burnup subroutine.
+! We modify the original behavior such that a negative value for ak indicates the the value of
+! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
+! original arguments.
+! Several arguments have been removed that were present in the original routine.  The number
+! argument has been moved and is now optional.
+
+ * @param dryld		Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
+ * @param sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param dryden	Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
+ * @param ak		Area influence factor (ak / K_a parameter).
+ * @param fmois		Moisture fraction of component. [maxno]
+ * @param beta		Consolidated interaction matrix (returned). (elsewhere = xmat). [maxkl]
+ * @param elam(:,:)	Interaction matrix (returned). [maxno, maxno]
+ * @param alone		Non-interacting fraction for each fuel class (returned). [maxno]
+ * @param area		Fraction of site area expected to be covered at
+ *            		least once by initial planform area of ea size (returned). [maxno]
+ * @param number	The actual number of fuel classes.  If omitted
+ *              	this will be determined from the other inputs.
+ * Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
+ *
+ * @returns On return beta, elam, alone, and area are returned.
+ */
+void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
+            const std::vector<double> dryden, const double ak, const std::vector<double> fmois,
+            std::vector<double>& beta, std::vector<std::vector<double>>& elam,
+            std::vector<double>& alone, std::vector<double>& area, const int number)
+{
+	double pi;//Convert to a constant?
+	int numFuelTypes;//The actual number of fuel types, explicit or implied.
+	int j, k, l, kj, kl;//Counters
+	double siga;//K_a * diameter
+	double a;
+	double bb;
+	double frac;//Intermediate for calculating alone().
+	double K_a;//Value of K_a (ak) parameter, fixed or calculated depending on the mode.
+
+	pi = abs(acos(-1.0));//Calculate pi.
+
+	//Determine the actual number of fuel types:
+	//if (present(number)) then
+	if (number > 0)
+	{
+		numFuelTypes = number;
+	}
+	else
+	{
+		numFuelTypes = dryld.size();
+	}
+
+	//Initialize arrays to 0:
+// 	do j = 1, numFuelTypes
+// 		alone(j) = 0.0
+// 		do k = 1, j
+// 			kj = Loc(j, k)
+// 			beta(kj) = 0.0
+// 		end do
+// 		do k = 1, numFuelTypes
+// 			elam(j, k) = 0.0
+// 		end do
+// 	end do
+	std::fill(alone.begin(), alone.end(), 0);
+	std::fill(beta.begin(), beta.end(), 0);
+	for (auto& row : elam)
+	{
+		std::fill(row.begin(), row.end(), 0);
+	}
+	//We should allow the vectors of any size, including empty vectors, to be passed in!!!!!
+
+	//do k = 1, numFuelTypes
+	//for (int k = 1; k <= numFuelTypes, k++)
+	//The indexing for all inputs and outputs are 0 based but we have to convert for Loc():
+	for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
+	{
+		//do l = 1, k
+		for (int l = 0; l <= k; l++)//Use 0 indexing.
+		{
+			if (ak > 0.0)//or .ge. ?
+			{
+				//If a valid value has been supplied use a fixed K_a as in the original Burnup:
+				K_a = ak;
+			}
+			else
+			{
+				//A negative value indicates that the K_a should be calculated:
+				//Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
+				//Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
+				K_a = 3.25 * exp(-20 * pow(fmois[l], 2));
+			}
+
+			//SAV / pi = diameter (units are carried by ak):
+			siga = K_a * sigma[k] / pi;
+
+			//kl = Loc(k, l)
+			kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+			a = siga * dryld[l] / dryden[l];//siga * ? units in meters
+			if (k == l)
+			{
+				bb = 1.0 - exp(-a);			// JMR: FOFEM suggests this can hit 0?
+				area[k] = bb;
+			}
+			else
+			{
+				bb = std::min(1.0, a);
+			}
+			beta[kl] = bb;
+		}
+	}
+
+	// If there is only one fuel type:
+	if (numFuelTypes == 1)
+	{
+		//elam(1, 1) = beta(2)
+		elam[0][0] = beta[1];
+		alone[0] = 1.0 - elam[0][0];
+		return;
+		//break;
+	}
+
+	//do k = 1, numFuelTypes
+	for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
+	{
+		//These inner loops could be combined to simplify the logic and make it more readable!!!!!
+		
+		frac = 0.0;
+		//do l = 1, k
+		for (int l = 0; l <= k; l++)//Use 0 indexing.
+		{
+			//kl = Loc(k, l);
+			kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+			frac = frac + beta[kl];
+		}
+
+		if (frac > 1.0)
+		{
+			//do l = 1, k
+			for (int l = 0; l <= k; l++)//Use 0 indexing.
+			{
+				//kl = Loc(k, l)
+				kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+				elam[k][l] = beta[kl] / frac;
+			}
+			alone[k] = 0.0;
+		}
+		else
+		{
+			for (int l = 0; l <= k; l++)//Use 0 indexing.
+			{
+				//kl = Loc(k, l)
+				kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+				elam[k][l] = beta[kl];
+			}
+			alone[k] = 1.0 - frac;
+		}
+	}
+}
 
 //START
 
