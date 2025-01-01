@@ -16,9 +16,18 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 #ifndef BURNUP_H
 #define BURNUP_H
 
+#include <string>
+
 //Core calculation functions:
 //DUFBRN
-//ARRAYS
+void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<double>& dendry,
+            std::vector<double>& fmois, std::vector<double>& sigma, std::vector<double>& htval,
+            std::vector<double>& cheat, std::vector<double>& condry, std::vector<double>& tpig,
+            std::vector<double>& tchar, std::vector<double>& diam, std::vector<int>& key,
+            std::vector<double>& work, const double ak, std::vector<std::vector<double>>& elam,
+            std::vector<double>& alone, std::vector<double>& xmat, std::vector<double>& wo,
+            std::vector<std::string>& parts, std::vector<std::string>& list,
+            std::vector<double>& area, const int number = -1);
 void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<double>& dryden,
             std::vector<int>& key, const int number = -1);
 void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,

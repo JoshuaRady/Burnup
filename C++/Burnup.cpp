@@ -56,6 +56,192 @@ const int mxstep = 20;
 //RETRY()
 
 //ARRAYS
+/**
+ *
+ * @par Original Burnup Description:
+!c Orders the fuel description arrays according to the paradigm described in
+!c subroutine SORTER and computes the interaction matrix xmat from the array
+!c elam and the list alone returned from subroutine OVLAPS.
+ *
+ * The large number of parameters are hard to handle...
+
+ * The following may be updated on return, in/out: [Refine notes!!!!!!]
+ * @param wdry		Ovendry mass loading, kg / sq m. [maxno]
+ * @param ash		Mineral content, fraction dry mass. [maxno]
+ * @param dendry		Ovendry mass density, kg / cu m. [maxno]
+ * @param fmois		Moisture content, fraction dry mass. [maxno]
+ * @param sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param htval		Low heat of combustion, J / kg. [maxno]
+ * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param condry		Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param tpig		Ignition temperature, K. [maxno]
+ * @param tchar		Char temperature, K. [maxno]
+ * Out:
+ * @param diam		Initial diameter, m [by interaction pairs]. [maxkl]
+ * @param key 		Ordered index list. [maxno]
+ * @param work		Workspace array. [maxno]
+ * In:
+ * @param  ak		Area influence factor [ak parameter].
+ * Out:
+ * @param elam		Interaction matrix from OVLAPS. [maxno, maxno]
+ * @param alone		Noninteraction fraction list from OVLAPS. [maxno]
+ * @param xmat		Consolidated interaction matrix. [maxkl]
+ * @param wo		Initial dry loading by interaction pairs. [maxkl]
+ * In/out:
+ * @param parts		Fuel component names / labels. [maxno]
+ * Out?
+ * @param list		Intermediary for reordering parts name array. [maxno]
+ *            		This is passed in but is not initialized prior
+ *            		to that.  It doesn't appear that it is used
+ *            		after it is returned.  It appears to only be
+ *            		used internal to this routine.
+ *            		The same seems to be true for elam and alone?
+ * In/out:
+ * @param  area		Fraction of site area expected to be covered at
+ *             							least once by initial planform area of ea size. [maxno]
+ * @param  number	The actual number of fuel classes.  If omitted
+ *               	this will be determined from the other inputs.
+ *
+ * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
+
+! History: Modernized original Burnup subroutine.
+! Several arguments have been removed that were present in the original routine.  The number
+! argument has been moved and is now optional and is only used in the interactive context.
+*/
+void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<double>& dendry,
+            std::vector<double>& fmois, std::vector<double>& sigma, std::vector<double>& htval,
+            std::vector<double>& cheat, std::vector<double>& condry, std::vector<double>& tpig,
+            std::vector<double>& tchar, std::vector<double>& diam, std::vector<int>& key,
+            std::vector<double>& work, const double ak, std::vector<std::vector<double>>& elam,
+            std::vector<double>& alone, std::vector<double>& xmat, std::vector<double>& wo,
+            std::vector<std::string>& parts, std::vector<std::string>& list,
+            std::vector<double>& area, const int number)
+{
+	int numFuelTypes;//The actual number of fuel types, explicit or implied.
+	//int j, k, kl, kj;Counters
+	int j, k;//Counters
+	//double diak, wtk;
+
+	//Testing was done to confrim that explicit initialization of locals was not needed here. [in Fotran]
+
+	//Determine the actual number of fuel types:
+	if (number > 0)
+	{
+		numFuelTypes = number;
+	}
+	else
+	{
+		numFuelTypes = wdry.size();
+	}
+
+	SORTER(sigma, fmois, dendry, key, number);
+
+	//do j = 1, numFuelTypes
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		list[j] = parts[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		parts[j] = list[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = wdry[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		wdry[j] = work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = ash[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		ash[j] = work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = htval[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		htval[j] = work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = cheat[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		cheat[j] = work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = condry[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		condry[j] = work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = tpig[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		tpig[j] =  work[j];
+	}
+
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		k = key[j];
+		work[j] = tchar[k];
+	}
+	for (int j = 0; j < numFuelTypes; j++)
+	{
+		tchar[j] = work[j];
+	}
+
+	OVLAPS(wdry, sigma, dendry, ak, fmois, xmat, elam, alone, area, number);
+
+	//do k = 1, numFuelTypes
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		double diak = 4.0 / sigma[k];
+		double wtk = wdry[k];
+
+		//Populate the alone/no companion indexes of the arrays:
+		int kl = Loc(k, 0);
+		diam[kl] = diak;
+		xmat[kl] = alone[k];
+		wo[kl] = wtk * xmat[kl];
+
+		//Populate the interacting indexes of the arrays:
+		//do j = 1, k
+		for (int j = 0; j < numFuelTypes; j++)
+		{
+			int kj = Loc(k, j);
+			diam[kj] = diak;
+			xmat[kj] = elam[k][j];
+			wo[kj] = wtk * xmat[kj];
+		}
+	}
+}
 
 //SORTER
 /**
