@@ -2189,7 +2189,7 @@ contains
 			list(j) = parts(k)
 		end do
 		do j = 1, numFuelTypes
-			parts(j) = list (j)
+			parts(j) = list(j)
 		end do
 		do j = 1, numFuelTypes
 
@@ -2242,7 +2242,7 @@ contains
 			work(j) = tpig(k)
 		end do
 		do j = 1, numFuelTypes
-			tpig(j) =  work (j)
+			tpig(j) =  work(j)
 		end do
 
 		do j = 1, numFuelTypes

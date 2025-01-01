@@ -1728,7 +1728,7 @@ contains
 			list(j) = parts(k)
 		end do
 		do j = 1, number
-			parts(j) = list (j)
+			parts(j) = list(j)
 		end do
 		do j = 1, number
 
@@ -1781,7 +1781,7 @@ contains
 			work(j) = tpig(k)
 		end do
 		do j = 1, number
-			tpig(j) =  work (j)
+			tpig(j) =  work(j)
 		end do
 
 		do j = 1, number
