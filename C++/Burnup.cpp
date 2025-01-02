@@ -46,6 +46,35 @@ const int mxstep = 20;
 //SimulateR()
 
 //DUFBRN()
+/** Calculate duff fire properties.
+ *
+ * @par Original Burnup Description:
+!c Duff burning rate (ergo, intensity) and duration
+
+ * @param wdf	Duff loading (kg/m^2, aka W sub d)
+ * @param dfm	Ratio of moisture mass to dry organic mass / duff fractional moisture (aka R sub M)
+ * @param dfi	Duff fire intensity (aka I sub d)		Units?????
+ * @param tdf	Burning duration (aka t sub d)			Units?????
+ *
+ * @returns On return dfi and tdf are returned in parameters.
+ *
+
+! History: Modernized original Burnup subroutine.
+ */
+void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf)
+{
+	double ff;//Fractional duff reduction depth from Brown et al. 1985, (aka F in report equation 4)
+
+	dfi = 0.0;
+	tdf = 0.0;
+	if ((wdf <= 0.0) || (dfm > 1.96))//This limiting duff moisture should be reviewed!!!!!
+	{
+		return;
+	}
+	dfi = 11.25 - 4.05 * dfm;
+	ff = 0.837 - 0.426 * dfm;
+	tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm);
+}
 
 //DufBrnR()
 
@@ -416,7 +445,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
  *              	this will be determined from the other inputs.
  * Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
  *
- * @returns On return beta, elam, alone, and area are returned.
+ * @returns On return beta, elam, alone, and area are returned in parameters.
  */
 void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
             const std::vector<double> dryden, const double ak, const std::vector<double> fmois,

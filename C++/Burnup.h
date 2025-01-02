@@ -19,7 +19,7 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 #include <string>
 
 //Core calculation functions:
-//DUFBRN
+void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf);
 void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<double>& dendry,
             std::vector<double>& fmois, std::vector<double>& sigma, std::vector<double>& htval,
             std::vector<double>& cheat, std::vector<double>& condry, std::vector<double>& tpig,
