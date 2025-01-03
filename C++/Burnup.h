@@ -34,7 +34,17 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
             const std::vector<double> dryden, const double ak, const std::vector<double> fmois,
             std::vector<double>& beta, std::vector<std::vector<double>>& elam,
             std::vector<double>& alone, std::vector<double>& area, const int number = -1);
-//START
+void START(const double dt, const int now, std::vector<double>& wo, std::vector<double>& alfa,
+           const std::vector<double> dendry, const std::vector<double> fmois,
+           const std::vector<double> cheat, const std::vector<double> condry,
+           std::vector<double>& diam, const std::vector<double> tpig,
+           const std::vector<double> tchar, const std::vector<double> xmat, const double tpamb,
+           const double fi, std::vector<double>& flit, std::vector<double>& fout,
+           std::vector<double>& tdry, std::vector<double>& tign, std::vector<double>& tout,
+           std::vector<double>& qcum, std::vector<double>& tcum, std::vector<double>& acum,
+           std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
+           std::vector<double>& wodot, std::vector<double>& work, const double u, const double d,
+           const double r0, const double dr, double& ncalls, const int number = -1);
 void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
             const std::vector<double> htval, const int number, const std::vector<double> area,
             std::vector<double>& fint, double& fi);
