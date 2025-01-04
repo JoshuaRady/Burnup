@@ -190,7 +190,8 @@ contains
 		real*4 :: qcum(maxkl) 			! Cumulative heat input to larger of pair, J / sq m.
 		real*4 :: tcum(maxkl) 			! Cumulative temp integral for qcum (drying).
 		real*4 :: acum(maxkl) 			! Heat pulse area for historical rate averaging.
-		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate.
+		real*4 :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+										! to the larger of each component pair, W / sq m.
 		integer :: key(maxno)			! Ordered index list.
 		character*12 :: parts(maxno)	! Fuel component names / labels.
 		character*12 :: list(maxno)		!
@@ -446,7 +447,8 @@ contains
 		real*4 :: qcum(size(wo)) 			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
 		real*4 :: tcum(size(wo)) 			! Cumulative temp integral for qcum (drying). [maxkl]
 		real*4 :: acum(size(wo)) 			! Heat pulse area for historical rate averaging. [maxkl]
-		real*4 :: qdot(size(wo), mxstep)	! History (post ignite) of heat transfer rate. [maxkl, mxstep]
+		real*4 :: qdot(size(wo), mxstep)	! History (post ignite) of heat transfer rate
+		                                    ! to the larger of each component pair, W / sq m. [maxkl, mxstep]
 		integer :: key(number)				! Ordered index list. [maxno]
 		character*12 :: list(number)		! Intermediary for reordering parts name array. [maxno]
 											! Probably not needed here.  See notes in ARRAYS().
@@ -2556,7 +2558,7 @@ contains
 		real*4, intent(inout) :: wo(:)		! Current ovendry loading for the larger of
 											! each component pair, kg / sq m.  Updated on return. [maxkl]
 		real*4, intent(out) :: alfa(:)		! Dry thermal diffusivity of component, sq m / s. [maxno]
-		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg /cu m. [maxno]
+		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg / cu m. [maxno]
 		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
 		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K. [maxno]
 		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, W / sq m K. [maxno]
@@ -2564,12 +2566,12 @@ contains
 											! fuel component pair, m.  Updated on return. [maxkl]
 		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component. [maxno]
 		real*4, intent(in) :: tchar(:)		! tchar = end - pyrolysis temperature (K), by component. [maxno]
-		real*4, intent(in) :: xmat(:)		! Table-of-influence fractions between components. [maxkl]
+		real*4, intent(in) :: xmat(:)		! Table of influence fractions between components. [maxkl]
 		real*4, intent(in) :: tpamb			! Ambient temperature (K).
 		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m.
 
 		! Parameters updated (input and output):
-		integer, intent(inout) :: ncalls	! Counter of calls to this routine
+		integer, intent(inout) :: ncalls	! Counter of calls to this routine:
 											! = 0 on first call or reset,
 											! cumulates after first call.
 											! JMR_NOTE: This is a strange argument as it is only
@@ -2586,8 +2588,8 @@ contains
 		real*4, intent(out) :: qcum(:)		! Cumulative heat input to larger of pair, J / sq m. [maxkl]
 		real*4, intent(out) :: tcum(:)		! Cumulative temp integral for qcum (drying). [maxkl]
 		real*4, intent(out) :: acum(:)		! Heat pulse area for historical rate averaging. [maxkl]
-		real*4, intent(out) :: qdot(:,:)	! History (post ignite) of heat transfer rate.
-											! to the larger of each component pair. [maxkl, maxno]
+		real*4, intent(out) :: qdot(:,:)	! History (post ignite) of heat transfer rate
+											! to the larger of each component pair, W / sq m.. [maxkl, maxno]
 		real*4, intent(out) :: ddot(:)		! Diameter reduction rate, larger of pair, m / s. [maxkl]
 		real*4, intent(out) :: wodot(:)		! Dry loading loss rate for larger of pair. [maxkl]
 		real*4, intent(inout) :: work(:)	! Workspace array. [maxno]
@@ -2599,7 +2601,7 @@ contains
 
 		! Constant parameters:
 		real*4, intent(in) :: u			! Mean horizontal windspeed at top of fuelbed (m/s).
-		real*4, intent(in) :: d 		! Fuelbed depth.
+		real*4, intent(in) :: d 		! Fuelbed depth (m).
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter.
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter.
 
@@ -2610,7 +2612,7 @@ contains
 												! if we are in an interactive session as well.
 
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
-		! chnaged to globals.
+		! changed to globals.
 		! The original comments include hvap as a constant, but is not actually used:
 		! hvap = heat of vaporization of water J / kg
 
@@ -2638,7 +2640,7 @@ contains
 		real :: hb			! "Effective" film heat transfer coefficient returned from HEATX().
 		real :: hf			! Film heat transfer coefficient returned from HEATX().
 		real :: dtign		! Time to piloted ignition returned from TIGNIT().
-		real :: conwet		! Wet thermal conductivity for a single element, w / sq m K.
+		real :: conwet		! Wet thermal conductivity for a single element, W / sq m K.
 		real :: aint
 		real :: ddt			! Timestep to calculate.  May be less that dt if fuel burns out sooner.
 		real :: dnext		! Diameter after combustion in this timestep.
@@ -2716,7 +2718,7 @@ contains
 			do l = 0, k
 				kl = Loc(k, l)
 				dia = diam(kl)
-				call heatx(u, d, dia, tf, tx, hf, hb, conwet, en)
+				call HEATX(u, d, dia, tf, tx, hf, hb, conwet, en)
 				call DRYTIM(en, thd, dryt)
 				cpwet = cheat(k) + fmois(k) * ch2o
 				fac = ((0.5 * dia) ** 2) / conwet
@@ -2739,7 +2741,7 @@ contains
 				if (dryt .LT. dt) then
 					dia = diam(kl)
 					ts = 0.5 * (tsd + tigk)
-					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
+					call HEATX(u, d, dia, tf, ts, hf, hb, c, e)
 					tcum(kl) = max((tf - ts) * (dt - dryt), 0.0)
 					qcum(kl) = hb * tcum(kl)
 					if (tf .GT. (tigk + 10.0)) then
@@ -2768,7 +2770,7 @@ contains
 		!c Determine minimum ignition time and verify ignition exists
 
 		do k = 1, numFuelTypes
-			if (flit(k) .GT. 0.0)then
+			if (flit(k) .GT. 0.0) then
 				nlit = nlit + 1
 			end if
 
@@ -2781,7 +2783,7 @@ contains
 		if (nlit .EQ. 0) then
 			if (present(number)) then ! In an interactive session, preserve the original behavior:
 				stop ' START ignites no fuel'
-			else ! Otherwise signal the condition and return 
+			else ! Otherwise signal the condition and return:
 				tign = -1.0 ! Value signals fuel did not ignite.
 				write(*, *) "Igniting fire cannot ignite fuel."
 				return
@@ -2819,7 +2821,7 @@ contains
 				do l = 0, k
 					kl = Loc(k, l)
 					dia = diam(kl)
-					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
+					call HEATX(u, d, dia, tf, ts, hf, hb, c, e)
 					qdot(kl, now) = hb * max((tf - ts), 0.0)
 					aint = (c / hb) ** 2
 					ddt = dt - tign(kl)
@@ -3371,33 +3373,20 @@ contains
 		real*4, intent(in) :: dendry(:)		! Ovendry density of component, kg / cu m. [maxno]
 		real*4, intent(in) :: fmois(:)		! Moisture fraction of component. [maxno]
 		real*4, intent(in) :: cheat(:)		! Specific heat capacity of component, J / kg K. [maxno]
-		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, w / sq m K. [maxno]
-		real*4, intent(inout) :: diam(:)	! Current diameter of the larger of each.
-											! Fuel component pair, m.  Updated on return. [maxkl]
+		real*4, intent(in) :: condry(:)		! Ovendry thermal conductivity, W / sq m K. [maxno]
+		real*4, intent(inout) :: diam(:)	! Current diameter of the larger of each
+											! fuel component pair, m.  Updated on return. [maxkl]
 		real*4, intent(in) :: tpig(:)		! Ignition temperature (K), by component. [maxno]
-		real*4, intent(in) :: tchar(:)		! End - pyrolysis temperature (K), by component. [maxno]
+		real*4, intent(in) :: tchar(:)		! tchar = end - pyrolysis temperature (K), by component. [maxno]
 		real*4, intent(in) :: xmat(:)		! Table of influence fractions between components. [maxkl]
 		real*4, intent(in) :: tpamb			! Ambient temperature (K). [maxkl]
 		real*4, intent(in) :: fi			! Current fire intensity (site avg), kW / sq m.
 		real*4, intent(in) :: work(:)		! Factor of heat transfer rate hbar * (Tfire - Tebar)
 											! that yields ddot (k). [maxno]
 
-		! Constant parameters:
-		real*4, intent(in) :: u 			! Mean horizontal windspeed at top of fuelbed (m/s).
-		real*4, intent(in) :: d				! Fuelbed depth (m).
-		real*4, intent(in) :: r0			! Minimum value of mixing parameter.
-		real*4, intent(in) :: dr			! Max - min value of mixing parameter.
-
-		real*4, intent(in) :: tin			! Start of current time step.
-		real*4, intent(in) :: fint(:)		! Correction to fi to compute local intensity
-											! that may be different due to k burning. [maxno]
-		real*4, intent(in) :: fid			! Fire intensity due to duff burning ... this is
-											! used to up the fire intensity for fuel pieces
-											! that are burning without interacting with others.
-
 		! Parameters updated (input and output):
-		integer, intent(inout) :: ncalls	! Counter of calls to this routine ... 
-											! = 0 on first call or reset
+		integer, intent(inout) :: ncalls	! Counter of calls to this routine:
+											! = 0 on first call or reset,
 											! cumulates after first call.
 		real*4, intent(inout) :: flit(:)	! Fraction of each component currently alight. [maxno]
 		real*4, intent(inout) :: fout(:)	! Fraction of each component currently gone out. [maxno]
@@ -3414,17 +3403,30 @@ contains
 		real*4, intent(inout) :: tcum(:)	! Cumulative temp integral for qcum (drying). [maxkl]
 		real*4, intent(inout) :: acum(:)	! Heat pulse area for historical rate averaging. [maxkl]
 		real*4, intent(inout) :: qdot(:,:)	! History (post ignite) of heat transfer rate
-											! to the larger of component pair, W / sq m. [maxkl, mxstep]
+											! to the larger of each component pair, W / sq m. [maxkl, mxstep]
 		real*4, intent(inout) :: ddot(:)	! Diameter reduction rate, larger of pair, m / s. [maxkl]
 		real*4, intent(inout) :: wodot(:)	! Dry loading loss rate for larger of pair. [maxkl]
+
+		! Constant parameters:
+		real*4, intent(in) :: u 			! Mean horizontal windspeed at top of fuelbed (m/s).
+		real*4, intent(in) :: d				! Fuelbed depth (m).
+		real*4, intent(in) :: r0			! Minimum value of mixing parameter.
+		real*4, intent(in) :: dr			! Max - min value of mixing parameter.
+
+		real*4, intent(in) :: tin			! Start of current time step.
+		real*4, intent(in) :: fint(:)		! Correction to fi to compute local intensity
+											! that may be different due to k burning. [maxno]
+		real*4, intent(in) :: fid			! Fire intensity due to duff burning ... this is
+											! used to up the fire intensity for fuel pieces
+											! that are burning without interacting with others.
 
 		! Interactive context:
 		integer, intent(in), optional :: number	! The actual number of fuel classes.  If omitted
 												! this will be determined from the other inputs.
 
 		! The constants ch2o and tpdry were included as arguments in the original code.  They have
-		! chnaged to globals.
-		! Note: The original code documents the following variable, but it is mot actually used.
+		! changed to globals.
+		! Note: The original code documents the following variable, but it is not actually used.
 		!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg
 
 		! Locals: (not in a consistant order)
@@ -3454,7 +3456,7 @@ contains
 		real :: biot	! Biot number for a single element.
 		real :: cpwet	! Wet specific heat of a single element, J / kg K.
 		real :: c		! Thermal conductivity for a single fuel component.
-		real :: conwet	! Wet thermal conductivity for a single element, w / sq m K.
+		real :: conwet	! Wet thermal conductivity for a single element, W / sq m K.
 		real :: ddt		! Timestep to calculate.  May be less that dt if fuel burns out sooner.
 		real :: dia		! Diameter for a single fuel component (kl).
 		real :: dnext	! Diameter after combustion in this timestep.
@@ -3539,7 +3541,7 @@ contains
 					tf = tempf(gi, r, tpamb)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qqq = hb * max((tf - ts),  0.0)
+					qqq = hb * max((tf - ts), 0.0)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
 					if (nspan .LE. mxstep) then
@@ -3556,7 +3558,7 @@ contains
 					! Time over which to perform averaging:
 					tav1 = tnext - tlit ! Time since ignition.
 					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
-					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
+					tav3 = ((dia / 4.0) ** 2) / alfa(k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 
 					index = 1 + min(nspan, mxstep)
@@ -3585,7 +3587,7 @@ contains
 						endif
 					end do
 
-					qdavg = max (qdsum / tspan, 0.0)
+					qdavg = max(qdsum / tspan, 0.0)
 					ddot(kl) = qdavg * work(k)
 					dnext = max(0.0, dia - dt * ddot(kl))
 
@@ -3626,7 +3628,7 @@ contains
 					end if
 					if ((l .NE. 0) .AND. (l .NE. k)) then
 						r = r0 + 0.5 * flit(l) * dr
-						gi = fi + flit (l) * fint(l)
+						gi = fi + flit(l) * fint(l)
 					end if
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
@@ -3760,8 +3762,8 @@ contains
 		!c Update fractions ignited and burned out, to apply at next step start
 
 		do k = 1, numFuelTypes
-			flit (k) = 0.0
-			fout (k) = 0.0
+			flit(k) = 0.0
+			fout(k) = 0.0
 			do l = 0, k
 				kl = Loc(k, l)
 				flag = (tnext .GE. tign(kl))
@@ -4186,7 +4188,7 @@ contains
 		!real*4, intent(out) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
 		!real*4, intent(out) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
 		!real*4, intent(out) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
-													! to the larger of each component pair.
+													! to the larger of each component pair, W / sq m..
 		!real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
 		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
 		!real*4, intent(inout) :: work(maxno)	! Workspace array.

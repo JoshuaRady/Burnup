@@ -2053,7 +2053,7 @@ contains
 		real*4, intent(inout) :: wo(maxkl)		! Current ovendry loading for the larger of
 												! each component pair, kg / sq m
 		real*4, intent(out) :: alfa(maxno)		! Dry thermal diffusivity of component, sq m / s
-		real*4, intent(in) :: dendry(maxno)		! Ovendry density of component, kg /cu m
+		real*4, intent(in) :: dendry(maxno)		! Ovendry density of component, kg / cu m
 		real*4, intent(in) :: fmois(maxno)		! Moisture fraction of component
 		real*4, intent(in) :: cheat(maxno)		! Specific heat capacity of component, J / kg K
 		real*4, intent(in) :: condry(maxno)		! Ovendry thermal conductivity, W / sq m K
@@ -2076,7 +2076,7 @@ contains
 												! returned and passed on to STEP().  It is probably
 												! initialized here to prevent isses related to
 												! persistance should more than one simulation be run in
-												! on interactive session.
+												! an interactive session.
 		real*4, intent(inout) :: flit(maxno)	! Fraction of each component currently alight
 		real*4, intent(inout) :: fout(maxno)	! Fraction of each component currently gone out
 		real*4, intent(inout) :: tdry(maxkl)	! Time of drying start of the larger of each
@@ -2106,7 +2106,7 @@ contains
 
 		! These variables are a little odd.  They are treated as constants but are declared as
 		! arguments that are initialized and returned for use elsewhere in the program.  It would be
-		! better to define them are program or global scope as true constants (parameter ::):
+		! better to define them at program or global scope as true constants (parameter ::):
 		real*4, intent(inout) :: ch2o	! Specific heat capacity of water, J / kg K
 		real*4, intent(inout) :: tpdry	! Temperature (all components) start drying (K)
 		! The original comments include hvap as a constant, but is not actually used:
@@ -2562,6 +2562,7 @@ contains
 
 	! This routine computes the halfspace surface ignition time under steady radiant heating with
 	! surface film cooling.
+	!
 	! History: Modernized original Burnup subroutine.
 	!
 	! JMR_NOTE: Since this only has one return value it could be turned into a function.
@@ -2757,13 +2758,13 @@ contains
 		implicit none
 
 		! Arguments:
-		real, intent(in) :: q		! Fire intensity
-		real, intent(in) :: r		! Dimensionless mixing parameter
-		real, intent(in) :: tamb	! Ambient temperature (K)
+		real, intent(in) :: q		! Fire intensity.
+		real, intent(in) :: r		! Dimensionless mixing parameter.
+		real, intent(in) :: tamb	! Ambient temperature (K).
 
 		! Locals:
 		real :: term, rlast, den, rnext
-		real*4 :: tempf !TEMPF ! Return value.
+		real*4 :: tempf ! Return value.
 
 		! Constants:
 		real, parameter :: err = 1.0e-04
@@ -2818,7 +2819,7 @@ contains
 		real*4, intent(in) :: dendry(maxno)		! ovendry density of component, kg / cu m
 		real*4, intent(in) :: fmois(maxno)		! moisture fraction of component
 		real*4, intent(in) :: cheat(maxno)		! specific heat capacity of component, J / kg K
-		real*4, intent(in) :: condry(maxno)		! ovendry thermal conductivity, w / sq m K
+		real*4, intent(in) :: condry(maxno)		! ovendry thermal conductivity, W / sq m K
 		real*4, intent(inout) :: diam(maxkl)	! current diameter of the larger of each
 												! fuel component pair, m.  Updated on return.
 		real*4, intent(in) :: tpig(maxno)		! ignition temperature (K), by component
@@ -2970,7 +2971,7 @@ contains
 					tf = tempf(gi, r, tpamb)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
-					qqq = hb * max((tf - ts),  0.0)
+					qqq = hb * max((tf - ts), 0.0)
 					tst = max(tlit, tifi)
 					nspan = max(l, nint((tnext - tst) / dt))
 					if (nspan .LE. mxstep) qdot(kl, nspan) = qqq
@@ -2986,7 +2987,7 @@ contains
 					! Time over which to perform averaging:
 					tav1 = tnext - tlit ! Time since ignition.
 					tav2 = acum(kl) / alfa(k) ! Measure of square of distance heat has penetrated fuel.
-					tav3 = ((dia / 4.0) ** 2) / alfa (k) ! Measure of time heat takes to reach center of fuel.
+					tav3 = ((dia / 4.0) ** 2) / alfa(k) ! Measure of time heat takes to reach center of fuel.
 					tavg = min(tav1, tav2, tav3)
 
 					index = 1 + min(nspan, mxstep)
@@ -3015,7 +3016,7 @@ contains
 						endif
 					end do
 
-					qdavg = max (qdsum / tspan, 0.0)
+					qdavg = max(qdsum / tspan, 0.0)
 					ddot(kl) = qdavg * work(k)
 					dnext = max(0.0, dia - dt * ddot(kl))
 
@@ -3056,7 +3057,7 @@ contains
 					end if
 					if ((l .NE. 0) .AND. (l .NE. k)) then
 						r = r0 + 0.5 * flit(l) * dr
-						gi = fi + flit (l) * fint(l)
+						gi = fi + flit(l) * fint(l)
 					end if
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
@@ -3188,8 +3189,8 @@ contains
 		!c Update fractions ignited and burned out, to apply at next step start
 
 		do k = 1, number
-			flit (k) = 0.0
-			fout (k) = 0.0
+			flit(k) = 0.0
+			fout(k) = 0.0
 			do l = 0, k
 				kl = Loc(k, l)
 				flag = (tnext .GE. tign(kl))

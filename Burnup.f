@@ -1806,7 +1806,7 @@
       			tf = tempf( gi , r , tpamb )
       			dia = diam( kl )
       			call heatx( u, d , dia , tf , ts , hf , hb , c , e )
-      			qqq = hb * max( ( tf - ts ) ,  0. )
+      			qqq = hb * max( ( tf - ts ) , 0. )
       			tst = max( tlit , tifi )
       			nspan = max( l , nint( ( tnext - tst ) / dt ) )
       			if( nspan .LE. mxstep) qdot( kl , nspan ) = qqq
@@ -1820,7 +1820,7 @@
       			acum( kl ) = acum( kl ) + aint * dt
       			tav1 = tnext - tlit
       			tav2 = acum( kl ) / alfa( k )
-      			tav3 = ( ( dia / 4. ) ** 2 ) / alfa ( k )
+      			tav3 = ( ( dia / 4. ) ** 2 ) / alfa( k )
       			tavg = min( tav1 , tav2 , tav3 )
       			index = 1 + min( nspan , mxstep )
       			qdsum = 0.
@@ -1832,7 +1832,7 @@
       			qdsum = qdsum + qdot( kl , index ) * deltim
       			tspan = tspan + deltim
       			if( ( tspan .LT. tavg ) .AND. ( index .GT. 1 ) ) goto 01
-      			qdavg = max ( qdsum / tspan , 0. )
+      			qdavg = max( qdsum / tspan , 0. )
       			ddot( kl ) = qdavg * work( k )
       			dnext = max( 0. , dia - dt * ddot( kl ) )
 
@@ -1871,7 +1871,7 @@
       			end if
       			if( ( l .NE. 0 ) .AND. ( l .NE. k) ) then
       				r = r0 + 0.5 * flit( l ) * dr
-      				gi = fi + flit ( l ) * fint( l )
+      				gi = fi + flit( l ) * fint( l )
       			end if
       			tf = tempf( gi, r , tpamb )
       			ts = tpamb
@@ -1995,8 +1995,8 @@
 !c Update fractions ignited and burned out , to apply at next step start
 
       do k = 1 , number
-      	flit ( k ) = 0.
-      	fout ( k ) = 0.
+      	flit( k ) = 0.
+      	fout( k ) = 0.
       	do l = 0 , k
       		kl = loc( k , l )
       		flag = ( tnext .GE. tign( kl ) )
