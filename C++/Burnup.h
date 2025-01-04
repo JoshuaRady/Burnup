@@ -44,7 +44,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
            std::vector<double>& qcum, std::vector<double>& tcum, std::vector<double>& acum,
            std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
            std::vector<double>& wodot, std::vector<double>& work, const double u, const double d,
-           const double r0, const double dr, double& ncalls, const int number = -1);
+           const double r0, const double dr, int& ncalls, const int number = -1);
 void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
             const std::vector<double> htval, const int number, const std::vector<double> area,
             std::vector<double>& fint, double& fi);
@@ -55,7 +55,18 @@ double DRYTIM(const double enu, const double theta);
 void HEATX(const double u, const double d, const double dia, const double tf, const double ts,
            double& hfm, double& hbar, const double cond, double& en);
 double TEMPF(const double q, const double r, const double tamb);
-//STEP
+void STEP(const double dt, const int now, std::vector<double>& wo, const std::vector<double> alfa,
+          const std::vector<double> dendry, const std::vector<double> fmois,
+          const std::vector<double> cheat, const std::vector<double> condry,
+          std::vector<double>& diam, const std::vector<double> tpig,
+          const std::vector<double> tchar, const std::vector<double> xmat, const double tpamb,
+          const double fi, std::vector<double>& flit, std::vector<double>& fout,
+          std::vector<double>& tdry, std::vector<double>& tign, std::vector<double>& tout,
+          std::vector<double>& qcum, std::vector<double>& tcum, std::vector<double>& acum,
+          std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
+          std::vector<double>& wodot, const std::vector<double> work, const double u, const double d,
+          const double r0, const double dr, int& ncalls,
+          const double tin, const double fint, const double fid, const int number = -1);
 
 
 //Utilities:

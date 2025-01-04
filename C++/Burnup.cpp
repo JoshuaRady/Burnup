@@ -20,6 +20,7 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 #include <vector>
 
 #include "Burnup.h"
+#include "FireweedMessaging.h"
 
 /* Program level dimensional constants:
 In the original code these parameters were passed into all routines that need them.  Here we
@@ -602,11 +603,11 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 ! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 ! However the code is not consistant with that.
  * @param dt		Spreading fire residence time (s) (= ti, tis, or time elsewhere).
- * @param now 		Index marks end of time step.
+ * @param now		Index marks end of time step.
  * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m.
  *          		Updated on return. [maxkl]
  * @param alfa		Dry thermal diffusivity of component, sq m / s. [maxno]
- * @param dendry	Ovendry density of component, kg /cu m. [maxno]
+ * @param dendry	Ovendry density of component, kg / cu m. [maxno]
  * @param fmois		Moisture fraction of component. [maxno]
  * @param cheat		Specific heat capacity of component, J / kg K. [maxno]
  * @param condry	Ovendry thermal conductivity, W / sq m K. [maxno]
@@ -614,12 +615,12 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
  *            		fuel component pair, m.  Updated on return. [maxkl]
  * @param tpig		Ignition temperature (K), by component. [maxno]
  * @param tchar		tchar = end - pyrolysis temperature (K), by component. [maxno]
- * @param xmat		Table-of-influence fractions between components. [maxkl]
+ * @param xmat		Table of influence fractions between components. [maxkl]
  * @param tpamb		Ambient temperature (K).
  * @param fi		Current fire intensity (site avg), kW / sq m.
  *
  * Parameters updated (input and output):
- * @param ncalls	Counter of calls to this routine
+ * @param ncalls	Counter of calls to this routine:
  *              	= 0 on first call or reset,
  *              	cumulates after first call.
  *              	JMR_NOTE: This is a strange argument as it is only
@@ -630,29 +631,29 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
  *              	an interactive session.
  * @param flit		Fraction of each component currently alight. [maxno]
  * @param fout		Fraction of each component currently gone out. [maxno]
- * @param tdry		Time of drying start of the larger of each fuel component pair. [maxkl]	Units?????
- * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]		Units?????
+ * @param tdry		Time of drying start of the larger of each fuel component pair. [maxkl]	[Units = s?????]
+ * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]		[Units = s?????]
  * @param tout		Burnout time of larger component of pairs. [maxkl]
  * @param qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
  * @param tcum		Cumulative temp integral for qcum (drying). [maxkl]
  * @param acum		Heat pulse area for historical rate averaging. [maxkl]
- * @param qdot		History (post ignite) of heat transfer rate.
- *            		to the larger of each component pair. [maxkl, maxno]
+ * @param qdot		History (post ignite) of heat transfer rate
+ *            		to the larger of each component pair, W / sq m. [maxkl, mxstep]
  * @param ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
  * @param wodot		Dry loading loss rate for larger of pair. [maxkl]
- * @param work		Workspace array. [maxno]
-
+ * @param work		Workspace array. [maxno]		[Or alternative description in STEP()?????]
+ *
  * Constant parameters:
  * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d 		Fuelbed depth.															Units?????
+ * @param d			Fuelbed depth (m).
  * @param r0		Minimum value of mixing parameter.
  * @param dr		Max - min value of mixing parameter.
-
+ *
  * Interactive context:
- * int number	The actual number of fuel classes.  If omitted
-                this will be determined from the other inputs.
-                Here the presence of number is used to determine
-                if we are in an interactive session as well.
+ * @param number	The actual number of fuel classes.  If omitted
+ *              	this will be determined from the other inputs.
+ *              	Here the presence of number is used to determine
+ *              	if we are in an interactive session as well.
 
 ! The constants ch2o and tpdry were included as arguments in the original code.  They have
 ! chnaged to globals.
@@ -673,12 +674,12 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
            std::vector<double>& qcum, std::vector<double>& tcum, std::vector<double>& acum,
            std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
            std::vector<double>& wodot, std::vector<double>& work, const double u, const double d,
-           const double r0, const double dr, double& ncalls, const int number)
+           const double r0, const double dr, int& ncalls, const int number)
 {
 	int numFuelTypes;	//The actual number of fuel types, explicit or implied.
 	//integer :: k, l, kl ! Counters.
-	int kl;//Triangular matrix index, 0 based.
-	double delm;			//Moisture effect on burning rate (scale factor).
+	int kl;				//Triangular matrix index, 0 based.
+	double delm;		//Moisture effect on burning rate (scale factor).
 	double heatk;		//Burn rate factor.
 	double r;			//Dimensionless mixing parameter.
 	double tf;			//Fire environment temperature.
@@ -688,10 +689,10 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	double cpwet;		//Wet specific heat of a single element, J / kg K.
 	double fac;			//A factor (radius squared / wet thermal diffusivity) used to convert
 	           			//the output of DRYTIM() from dimensionless to actual time.
-	double dryt;			//Drying time for a single element.
+	double dryt;		//Drying time for a single element.
 	double tsd;
 	double c;			//Thermal conductivity for a single element.
-	double tigk;			//Ignition temperature for a single element.
+	double tigk;		//Ignition temperature for a single element.
 	double en, e;		//Modified Nusselt number obtained from HEATX() (in different places).
 	double trt;			//Minimum ignition time across all fuels (initial estimate?).
 	double nlit	;		//Number of elements lit.
@@ -699,7 +700,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	double hb;			//"Effective" film heat transfer coefficient returned from HEATX().
 	double hf;			//Film heat transfer coefficient returned from HEATX().
 	double dtign;		//Time to piloted ignition returned from TIGNIT().
-	double conwet;		//Wet thermal conductivity for a single element, w / sq m K.
+	double conwet;		//Wet thermal conductivity for a single element, W / sq m K.
 	double aint;
 	double ddt;			//Timestep to calculate.  May be less that dt if fuel burns out sooner.
 	double dnext;		//Diameter after combustion in this timestep.
@@ -775,12 +776,14 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		if (number > 0)//In an interactive session, preserve the original behavior:
 		{
 			//stop ' Igniting fire cannot dry fuel'
+			Stop("Igniting fire cannot dry fuel");
 		}
 		else//Otherwise signal the condition and return
 		{
 			//tign = -2.0;//Value signals fuel did not dry.
 			std::fill(tign.begin(), tign.end(), -2.0);//Value signals fuel did not dry.
 			//write(*, *) "Igniting fire cannot dry fuel."
+			Msg.Log("Igniting fire cannot dry fuel");
 			return;
 		}
 	}
@@ -874,12 +877,14 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		if (number > 0)//In an interactive session, preserve the original behavior:
 		{
 			//stop ' START ignites no fuel'
+			Stop("START ignites no fuel");
 		}
 		else//Otherwise signal the condition and return:
 		{
 			//tign = -1.0;//Value signals fuel did not ignite.
 			std::fill(tign.begin(), tign.end(), -1.0);//Value signals fuel did not ignite.
 			//write(*, *) "Igniting fire cannot ignite fuel."
+			Msg.Log("Igniting fire cannot ignite fuel.");
 			return;
 		}
 	}
@@ -1154,7 +1159,7 @@ double DRYTIM(const double enu, const double theta)//, tau)
 	double xl, xh, xm;//The binary search low and high bounds, and the search center.
 	double x;
 	double approx;
-	int n;//Counter
+	//int n;//Counter
 	double tau;//Return value: Time required for the start of moisture loss.
 
 	//Constants:
@@ -1303,6 +1308,503 @@ double TEMPF(const double q, const double r, const double tamb)
 
 //STEP
 
+/** This routine calculates one timestep of the fuel consumption process.
+ *
+ * @par Original Burnup Description:
+!c Updates status of all fuel component pairs and returns a snapshot
+
+
+ * Arguments: (by category, not argument order)
+ * @param dt		Time step, sec.		[Or: Spreading fire residence time????? Confirm!!!!!]
+ * @param now		Index marks end of time step.
+ * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
+ * @param alfa		Dry thermal diffusivity of component, sq m / s. [maxno]
+ * @param dendry	Ovendry density of component, kg / cu m. [maxno]
+ * @param fmois		Moisture fraction of component. [maxno]
+ * @param cheat		Specific heat capacity of component, J / kg K. [maxno]
+ * @param condry	Ovendry thermal conductivity, W / sq m K. [maxno]
+ * @param diam		Current diameter of the larger of each
+ *            		fuel component pair, m.  Updated on return. [maxkl]
+ * @param tpig		Ignition temperature (K), by component. [maxno]
+ * @param tchar		tchar = end - pyrolysis temperature (K), by component. [maxno]
+ * @param xmat		Table of influence fractions between components. [maxkl]
+ * @param tpamb		Ambient temperature (K).
+ * @param fi		Current fire intensity (site avg), kW / sq m.
+ * @param work		Factor of heat transfer rate hbar * (Tfire - Tebar)
+ *            		that yields ddot (k). [maxno]
+ *
+ * Parameters updated (input and output):
+ * @param ncalls	Counter of calls to this routine:
+ *              	= 0 on first call or reset,
+ *              	cumulates after first call.
+ * @param flit		Fraction of each component currently alight. [maxno]
+ * @param fout		Fraction of each component currently gone out. [maxno]
+ * @param tdry		Time of drying start of the larger of each fuel component pair. [maxkl]
+ * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param tout		Burnout time of larger component of pairs. [maxkl]
+ * @param qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
+ * @param tcum		Cumulative temp integral for qcum (drying). [maxkl]
+ * @param acum		Heat pulse area for historical rate averaging. [maxkl]
+ * @param qdot		History (post ignite) of heat transfer rate
+ *            		to the larger of each component pair, W / sq m. [maxkl, mxstep]
+ * @param ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
+ * @param wodot		Dry loading loss rate for larger of pair. [maxkl]
+ *
+ * Constant parameters:
+ * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param d			Fuelbed depth (m).
+ * @param r0		Minimum value of mixing parameter.
+ * @param dr		Max - min value of mixing parameter.
+ *
+ * @param tin		Start of current time step.
+ * @param fint		Correction to fi to compute local intensity
+ *            		that may be different due to k burning. [maxno]
+ * @param fid		Fire intensity due to duff burning ... this is
+ *           		used to up the fire intensity for fuel pieces
+ *           		that are burning without interacting with others.
+ *
+ * Interactive context:
+ * @param number	The actual number of fuel classes.  If omitted
+ *              	this will be determined from the other inputs.
+
+* Differences from the interface of START:
+- alfa is input rather than output
+- work is nput rather than output
+- tin, fint, fid are added.
+
+! History: Modernized original Burnup subroutine.
+! Several arguments have been removed that were present in the original routine.  The number
+! argument has been moved and is now optional and is only used in the interactive context.
+!
+! JMR_NOTE: This routine takes a large number of arguments and the order is a bit confusing
+! with input and output parameters mixed in the order.
+ */
+void STEP(const double dt, const int now, std::vector<double>& wo, const std::vector<double> alfa,
+          const std::vector<double> dendry, const std::vector<double> fmois,
+          const std::vector<double> cheat, const std::vector<double> condry,
+          std::vector<double>& diam, const std::vector<double> tpig,
+          const std::vector<double> tchar, const std::vector<double> xmat, const double tpamb,
+          const double fi, std::vector<double>& flit, std::vector<double>& fout,
+          std::vector<double>& tdry, std::vector<double>& tign, std::vector<double>& tout,
+          std::vector<double>& qcum, std::vector<double>& tcum, std::vector<double>& acum,
+          std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
+          std::vector<double>& wodot, const std::vector<double> work, const double u, const double d,
+          const double r0, const double dr, int& ncalls,
+          const double tin, const std::vector<double> fint, const double fid, const int number)
+{
+	/* The constants ch2o and tpdry were included as arguments in the original code.  They have
+	! changed to globals.
+	! Note: The original code documents the following variable, but it is not actually used.
+	!real*4, intent(in) :: hvap			! heat of vaporization of water, J / kg*/
+
+	// Locals: (not in a consistant order)
+	int numFuelTypes;//The actual number of fuel types, explicit or implied.
+	bool flag;
+	double tnow, tnext;//The time of this and the next timestep.
+	double tdun;	//The burnout time for a single pair.
+	double tgo;		//Time left to burnout.
+	double tifi;	//Time when fire ignition phase ended.
+	double next;
+	double gi;
+	int nspan;
+	double tst, aint, qqq;
+	double tav1, tav2, tav3, tavg;//Time over which to perform averaging.
+	double tbar;
+	int index;											//Is index a keyword?????
+	double qdsum;	//Sum of heat transfer (W/m^2 * s = J/m^2 ?).
+	double qdavg;	//Average heat transfer...
+	double deltim, rate, dryt, dqdt;
+	double qd;
+	double dteff, heff, delt;
+	double factor;	//Moisture factor for a single element.
+	double dtef;
+	double he;		//qcum / tcum
+	double tf;		//Fire environment temperature.
+	double ts;		//The charing temperature for a single element (K).
+	double biot;	//Biot number for a single element.
+	double cpwet;	//Wet specific heat of a single element, J / kg K.
+	double c;		//Thermal conductivity for a single fuel component.
+	double conwet;	//Wet thermal conductivity for a single element, W / sq m K.
+	double ddt;		//Timestep to calculate.  May be less that dt if fuel burns out sooner.
+	double dia;		//Diameter for a single fuel component (kl).
+	double dnext;	//Diameter after combustion in this timestep.
+	double wnext;	//wo after combustion in this timestep.
+	double dtcum;
+	double dtlite;	//Time to ignition returned by TIGNIT().
+	double e;
+	double fac;		//A factor (radius squared / wet thermal diffusivity) used to convert
+					//the output of DRYTIM() from dimensionless to actual time.
+	double hb, hf;
+	double r;		//Dimensionless mixing parameter.
+	double tfe;
+	double thd;
+	double tlit;	//Ignition time for a single fuel component.
+	double tspan;
+	double dtemp;
+
+	//integer :: k, l, mu, kl; //Counters (kl is a bit different)
+	int kl;			//Triangular matrix index, 0 based.
+
+	//There are a large number of locals in this routine that are not explictly initialized.
+	//Testing was done to confrim that explicit initialization was not needed.
+
+	//Determine the actual number of fuel types:
+	if (number > 0)
+	{
+		numFuelTypes = number;
+	}
+	else
+	{
+		numFuelTypes = alfa.size();
+	}
+
+	ncalls = ncalls + 1;
+	tnow = tin;
+	tnext = tnow + dt;
+	//!c tifi = time when fire ignition phase ended (at now = 1)
+	//tifi = tnow - float(now - 1) * dt;
+	tifi = tnow - static_cast<double>(now - 1) * dt;
+	next = now + 1;
+
+	//kLoop : do k = 1, numFuelTypes				//!!!!!!
+	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	{
+		c = condry[k0];
+		//lLoop : do l = 0, k
+		for (int l = 0; l <= k0; l++)//Start major lLoop.
+		{
+			//kl = Loc(k, l);
+			kl = Loc(k0 + 1, l);
+			tdun = tout[kl];
+
+			//!c See if k of (k, l) pair burned out
+
+			if (tnow >= tdun)
+			{
+				ddot[kl] = 0.0;
+				wodot[kl] = 0.0;
+				//cycle lLoop				//!!!!!!
+				continue;//Back to start of lLoop
+			}
+			if (tnext >= tdun)
+			{
+				tgo = tdun - tnow;
+				ddot[kl] = diam[kl] / tgo;
+
+				wodot[kl] = wo[kl] / tgo;
+				wo[kl] = 0.0;
+				diam[kl] = 0.0;
+				//cycle lLoop				//!!!!!!
+				continue;//Back to start of lLoop
+			}
+
+			//!c k has not yet burned out ... see if k of (k, l) pair is ignited
+
+			tlit = tign[kl];
+			if (tnow >= tlit)
+			{
+				ts = tchar[k0];
+				if (l == 0)
+				{
+					r = r0 + 0.5 * dr;
+					gi = fi + fid;
+				}
+				//if ((l != 0) && (l != k))
+				if ((l != 0) && (l != k0 + 1))
+				{
+					r = r0 + 0.5 * (1.0 + flit[l]) * dr;
+					gi = fi + fint[k0] + flit[l] * fint[l];
+				}								//JMR: Link with following if!!!!!!
+				//if (l == k)
+				if (l == k0 + 1)
+				{
+					r = r0 + 0.5 * (1.0 + flit[k0]) * dr;
+					gi = fi + flit [k0] * fint[k0];
+				}
+				tf = TEMPF(gi, r, tpamb);
+				dia = diam[kl];
+				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
+				qqq = hb * std::max((tf - ts), 0.0);
+				tst = std::max(tlit, tifi);
+				//nspan = std::max(l, nint((tnext - tst) / dt));
+				//nspan = std::max(l, std::round((tnext - tst) / dt));
+				nspan = std::max(l, static_cast<int>(std::round((tnext - tst) / dt)));//Ugly!!!!!
+				if (nspan <= mxstep)
+				{
+					qdot[kl][nspan] = qqq;
+				}
+				else//if (nspan > mxstep)
+				{
+					//do mu = 2, mxstep
+					for (int mu = 1; mu < mxstep; mu++)//Is this right?????
+					{
+						qdot[kl][mu - 1] = qdot[kl][mu];
+					}
+					qdot[kl][mxstep] = qqq;
+				}
+				aint = pow((c / hb), 2);
+				acum[kl] = acum[kl] + aint * dt;
+
+				//Time over which to perform averaging:
+				tav1 = tnext - tlit;//Time since ignition.
+				tav2 = acum[kl] / alfa[k0];//Measure of square of distance heat has penetrated fuel.
+				tav3 = pow((dia / 4.0), 2) / alfa [k0];//Measure of time heat takes to reach center of fuel.
+				//tavg = std::min(tav1, tav2, tav3);
+				tavg = std::min({tav1, tav2, tav3});
+
+				index = 1 + std::min(nspan, mxstep);
+				qdsum = 0.0;
+				tspan = 0.0;
+				deltim = dt;
+
+				//Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
+				//do
+				while (true)
+				{
+					index = index - 1;
+					if (index == 1)
+					{
+						deltim = tnext - tspan - tlit;
+					}
+
+					if ((tspan + deltim) >= tavg)
+					{
+						deltim = tavg - tspan;
+					}
+
+					qdsum = qdsum + qdot[kl][index] * deltim;
+					tspan = tspan + deltim;
+
+					if ((tspan < tavg) && (index > 1))
+					{
+						//cycle
+						continue;
+					}
+					else
+					{
+						//exit
+						break;
+					}
+				}
+
+				qdavg = std::max(qdsum / tspan, 0.0);
+				ddot[kl] = qdavg * work[k0];
+				dnext = std::max(0.0, dia - dt * ddot[kl]);
+
+				wnext = wo[kl] * pow((dnext / dia), 2);
+				if ((dnext == 0.0) && (ddot[kl] > 0.0))
+				{
+					tout[kl] = tnow + dia / ddot[kl];
+				}
+				if ((dnext > 0.0) && (dnext < dia))
+				{
+					rate = dia / (dia - dnext);
+					tout[kl] = tnow + rate * dt;
+				}
+				if (qdavg <= 20.0)
+				{
+					tout[kl] = 0.5 * (tnow + tnext);
+				}
+				ddt = std::min(dt, (tout[kl] - tnow));
+				wodot[kl] = (wo[kl] - wnext) / ddt;
+				diam[kl] = dnext;
+				wo[kl] = wnext;
+				//cycle lLoop						//!!!!!!
+				continue;//Back to start of lLoop
+			}//if (tnow >= tlit)
+
+			//!c See if k of (k, l) has reached outer surface drying stage yet
+
+			dryt = tdry[kl];
+			if ((tnow >= dryt) && (tnow < tlit))
+			{
+				if (l == 0)
+				{
+					r = r0;
+					gi = fi + fid;
+				}
+				//if (l == k)
+				if (l == k0 + 1)
+				{
+					r = r0;
+					gi = fi;
+				}
+				//if ((l != 0) && (l != k))
+				if ((l != 0) && (l != k0 + 1))
+				{
+					r = r0 + 0.5 * flit[l] * dr;
+					gi = fi + flit[l] * fint[l];
+				}
+				tf = TEMPF(gi, r, tpamb);
+				ts = tpamb;
+				dia = diam[kl];
+				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
+				dtemp = std::max(0.0, (tf - ts));
+				dqdt = hb * dtemp;
+				qcum[kl] = qcum[kl] + dqdt * dt;
+				tcum[kl] = tcum[kl] + dtemp * dt;
+				dteff = tcum[kl] / (tnext - dryt);
+				heff = qcum[kl] / tcum[kl];
+				tfe = ts + dteff;
+				dtlite = rindef;
+
+				if (!(tfe <= (tpig[k0] + 10.0)))
+				{
+					//TIGNIT(tpamb, tpdry, tpig[k0], tfe, condry[k0], cheat[k0], fmois[k0], dendry[k0],
+					//       heff, dtlite);
+					dtlite = TIGNIT(tpamb, tpdry, tpig[k0], tfe, condry[k0], cheat[k0], fmois[k0],
+					                dendry[k0], heff);
+				}
+				tign[kl] = 0.5 * (dryt + dtlite);
+
+				//!c If k will ignite before time step over, must interpolate
+
+				if (tnext > tign[kl])
+				{
+					ts = tchar[k0];
+					HEATX(u, d, dia, tf, ts, hf, hb, c, e);
+
+					//qdot(kl, 1) = hb * max((tf - ts), 0.0)
+					qdot[kl][0] = hb * std::max((tf - ts), 0.0);
+					//qd = qdot(kl, 1)
+					qd = qdot[kl][0];
+					ddot[kl] = qd * work[k0];
+					delt = tnext - tign[kl];
+					dnext = std::max(0.0, dia - delt * ddot[kl]);
+					wnext = wo[kl] * pow((dnext / dia), 2);
+					if (dnext == 0.0) tout[kl] = tnow + dia / ddot[kl];//Oneliner!!!!!
+					if ((dnext > 0.0) && (dnext < dia))
+					{
+						rate = dia / (dia - dnext);
+						tout[kl] = tnow + rate * dt;
+					}
+					if (tout[kl] > now)
+					{
+						ddt = std::min(dt, (tout[kl] - tnow));
+						wodot[kl] = (wo[kl] - wnext) / ddt;
+					}
+					else
+					{
+						wodot[kl] = 0.0;
+					}
+					diam[kl] = dnext;
+					wo[kl] = wnext;
+				}
+				//cycle lLoop					//!!!!!
+				continue;//Back to start of lLoop
+			}
+
+			//!c If k of (k, l) still coming up to drying temperature, accumulate
+			//!c heat input and driving temperature difference, predict drying start
+
+			if (tnow < dryt)
+			{
+				factor = fmois[k0] * dendry[k0];
+				conwet = condry[k0] + 4.27e-04 * factor;
+				if (l == 0)
+				{
+					r = r0;
+					gi = fi + fid;
+				}
+				//if (l == k)
+				if (l == k0 + 1)
+				{
+					r = r0;
+					gi = fi;
+				}
+				//if ((l != 0) && (l != k))
+				if ((l != 0) && (l != k0 + 1))
+				{
+					r = r0 + 0.5 * flit[l] * dr;
+					gi = fi + flit[l] * fint[l];
+				}
+				tf = TEMPF(gi, r, tpamb);
+				if (tf <= (tpdry + 10.0))
+				{
+					//cycle lLoop				//!!!!!!!
+					continue;//Back to start of lLoop
+				}
+				dia = diam[kl];
+				ts = 0.5 * (tpamb + tpdry);
+				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
+				dtcum = std::max((tf - ts) * dt, 0.0);
+				tcum[kl] = tcum[kl] + dtcum;
+				qcum[kl] = qcum[kl] + hb * dtcum;
+				he = qcum[kl] / tcum[kl];
+				dtef = tcum[kl] / tnext;
+				thd = (tpdry - tpamb) / dtef;
+				if (thd > 0.9)
+				{
+					//cycle lLoop			//!!!!!!
+					continue;//Back to start of lLoop
+				}
+				biot = he * dia / conwet;
+				//call DRYTIM(biot, thd, dryt)
+				dryt = DRYTIM(biot, thd);
+
+				cpwet = cheat[k0] + ch2o * fmois[k0];
+				fac = pow((0.5 * dia), 2) / conwet;
+				fac = fac * cpwet * dendry[k0];
+				tdry[kl] = fac * dryt;
+
+				if (tdry[kl] < tnext)
+				{
+					ts = tpdry;
+					HEATX(u, d, dia, tf, ts, hf, hb, c, e);
+					dqdt = hb * (tf - ts);
+					delt = tnext - tdry[kl];
+					qcum[kl] = dqdt * delt;
+					tcum[kl] = (tf - ts) * delt;
+					tbar = 0.5 * (tpdry + tpig[k0]);
+
+					//!c See if ignition to occur before time step complete
+
+					if (tf <= (tpig[k0] + 10.0))
+					{ 
+						//cycle lLoop					//!!!!!
+						continue;//Back to start of lLoop
+					}
+					//TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0], dendry[k0],
+					//       hb, dtlite);
+					dtlite = TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0],
+					                dendry[k0], hb);
+					tign[kl] = 0.5 * (tdry[kl] + dtlite);
+
+					if (tnext > tign[kl])
+					{
+						ts = tchar[k0];
+						//qdot(kl, 1) = hb * max((tf - ts), 0.0)
+						qdot[kl][1] = hb * std::max((tf - ts), 0.0);
+					}
+				}
+			}
+		}//lLoop
+	}//kLoop
+
+	//!c Update fractions ignited and burned out, to apply at next step start
+
+	//do k = 1, numFuelTypes
+	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	{
+		flit[k0] = 0.0;
+		fout[k0] = 0.0;
+		//do l = 0, k
+		for (int l = 0; l <= k0; l++)
+		{
+			kl = Loc(k0 + 1, l);
+			flag = (tnext >= tign[kl]);
+			if (flag && (tnext <= tout[kl]))
+			{
+				flit[k0] = flit[k0] + xmat[kl];
+			}
+			if (tnext > tout[kl])
+			{
+				fout[k0] = fout[k0] + xmat[kl];
+			}
+		}
+	}
+}
+
 //SUMMARY
 
 //Loc
@@ -1340,13 +1842,15 @@ int Loc(const int k, const int l)
 	if ((k < 1) || (k > maxno))
 	{
 		//print *, "Loc(): Invalid value of k ", k
-		std::cout << "Loc(): Invalid value of k " << k << std::endl;
+		//std::cout << "Loc(): Invalid value of k " << k << std::endl;
+		Stop("Loc(): Invalid value of k " + std::to_string(k));
 	}
 
 	if ((l < 0) || (l > k))
 	{
 		//print *, "Loc(): Invalid value of l ", l
-		std::cout << "Loc(): Invalid value of l " << l << std::endl;
+		//std::cout << "Loc(): Invalid value of l " << l << std::endl;
+		Stop("Loc(): Invalid value of l " + std::to_string(l));
 	}
 
 	loc = k * (k + 1) / 2 + l;
@@ -1357,6 +1861,7 @@ int Loc(const int k, const int l)
 	{
 		//print *, "Loc(): Invalid index returned ", loc
 		std::cout << "Loc(): Invalid index returned " << loc << std::endl;
+		Stop("Loc(): Invalid index returned " + std::to_string(loc));
 	}
 
 	return loc;
