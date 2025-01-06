@@ -65,7 +65,10 @@ module BurnupMod
 	implicit none
 	! private
 
-	! These should be calculation only.
+	! Noninteractive Burnup entry point:
+	public :: Simulate
+
+	! Core calculation routines:
 	public :: DUFBRN
 	public :: ARRAYS
 	public :: SORTER
