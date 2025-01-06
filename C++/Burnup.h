@@ -18,6 +18,17 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 
 #include <string>
 
+//Noninteractive Burnup entry point:
+void Simulate(double& fi, const double ti, const double u, const double d, const double tpamb,
+              const double ak, const double r0, const double dr, double& dt, const double wdf,
+              const double dfm, const int ntimes, const int number,
+              std::vector<std::string>& parts, std::vector<double>& wdry, std::vector<double>& ash,
+              std::vector<double>& htval, std::vector<double>& fmois, std::vector<double>& dendry,
+              std::vector<double>& sigma, std::vector<double>& cheat, std::vector<double>& condry,
+              std::vector<double>& tpig, std::vector<double>& tchar, std::vector<double>& xmat,
+              std::vector<double>& tign, std::vector<double>& tout, std::vector<double>& wo,
+              std::vector<double>& diam, const bool outputHistory = false);
+
 //Core calculation functions:
 void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf);
 void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<double>& dendry,
