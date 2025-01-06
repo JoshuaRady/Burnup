@@ -44,12 +44,249 @@ const double ch2o = 4186.0;//Specific heat capacity of water, J / kg K
 const double tpdry = 353.0;//Temperature (all components) start drying (K)
 
 //Empty / undefined value constant:
-const double  rindef = 1.0e+30;//In the original code this defined both in START() and STEP().
+const double rindef = 1.0e+30;//In the original code this defined both in START() and STEP().
+
+// Names...
+
+//Globals:
+bool SaveHistory = false;//Should fire history be output to file?
 
 
 //InteractiveUI()
 
 //Simulate()
+/** Perform a simulation with prescribed inputs and return fuel consumption properties.
+ * The main fire properties are returned as output parameters.  Optionally additional a detailed
+ * fire history can be output to file.
+ *
+ * Igniting fire and environmental data:
+ * @param fi	Current fire intensity (site avg), kW / sq m
+ * The value passed in for fi is the fire front intensity.  [Actually this is probably not quite right!!!!!  It is probably not the FRONT intensity...]
+ * The variable is later reused and
+ * updated by FIRINT().  It is passed on to other routines that use but do not change it.
+ * These two uses could be separated.  The value returned is the final intensity, which might
+ * be of use.  A history would be more valuable.
+ *
+ * @param ti		Igniting fire residence time (s).
+ * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param d			Fuelbed depth (m).
+ * @param tpamb		Ambient temperature (K).
+ * 
+ * Internal and control variables:
+ * @param ak		Area influence factor (ak / K_a parameter).
+ * @param r0		Minimum value of mixing parameter.
+ * @param dr		Max - min value of mixing parameter.
+ * @param dt		Time step for integration of burning rates (s).
+ *          		On completion contains the time the fire went out.
+ *          		A value of -1 indicates the fuel did not ignite.  A value
+ *          		of -2 indicates the fuel did not complete drying.  In such
+ *          		cases most of remaining return variables will not be
+ *          		meaningful.
+ * 
+ * Considering removing these two.  See below:
+ * @param wdf		Duff loading (kg/m^2, aka W sub d).
+ * @param dfm		Ratio of moisture mass to dry organic mass /
+ *           		duff fractional moisture (aka R sub M).
+ * @param ntimes	Number of time steps to run.  Move down?
+ * @param number	The number of fuel classes.
+ *
+ * Fuel component property arrays:  The values will not change but they may be reordered.
+ * Returning the reordered arrays may be overkill.  The revised order might be sufficient.
+ * However, setting these to inout allows the values to be reordered internally by SORTER(),
+ * which eliminates the need for parallel local variables.
+ * @param parts		Fuel component names / labels. [maxno]
+ * @param wdry		Ovendry mass loading, kg/sq m. [maxno]
+ * @param ash		Mineral content, fraction dry mass. [maxno]
+ * @param htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
+ * @param fmois		Moisture fraction of component. [maxno]
+ * @param dendry	Ovendry mass density, kg / cu m. [maxno]
+ * @param sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param condry	Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param tpig		Ignition temperature, K. [maxno]
+ * @param tchar		Char temperature, K. [maxno]
+ *
+ * Calculated outputs:
+ * The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
+ *
+ * Use the first argument with maxkl length to calculate its value.  This can then be used
+ * by subsequent variables.  I don't like this approach much but a better alternative has
+ * not be determined.
+ * wo should be moved to the front in any case because it is the most valuable output.  This
+ * would have the advantage of making the size() shorthand shorter.
+ * JMR_Note: No longer in argument order!!!!!
+	! real*4, intent(out) :: wo(number * (number + 1) / 2 + number)
+ * @param wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
+ * @param xmat		Table of influence fractions between components. [maxkl]
+ * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param tout		Burnout time of larger component of pairs. [maxkl]
+ * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
+ *
+ * @note Currently it is expected that the calculated output vectors be supplied in the correct size.
+ * We could move the sizing into the function allowing empty vectors to be passed in.
+ *
+ * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
+ *
+ * Settings:
+ * @param outputHistory	Should fire history be saved?  Defaults to false.
+ *
+
+! History: Added as an programatic alternative entry point to the original interactive program.
+ */
+void Simulate(double& fi, const double ti, const double u, const double d, const double tpamb,
+              const double ak, const double r0, const double dr, double& dt, const double wdf,
+              const double dfm, const int ntimes, const int number,
+              std::vector<std::string>& parts, std::vector<double>& wdry, std::vector<double>& ash,
+              std::vector<double>& htval, std::vector<double>& fmois, std::vector<double>& dendry,
+              std::vector<double>& sigma, std::vector<double>& cheat, std::vector<double>& condry,
+              std::vector<double>& tpig, std::vector<double>& tchar, std::vector<double>& xmat,
+              std::vector<double>& tign, std::vector<double>& tout, std::vector<double>& wo,
+              std::vector<double>& diam, const bool outputHistory)
+{
+	//Arrays:
+	std::vector<double> alfa(number);		//Dry thermal diffusivity of component, sq m / s. [maxno]
+	std::vector<double> flit(number);		//Fraction of each component currently alight. [maxno]
+	std::vector<double> fout(number);		//Fraction of each component currently gone out. [maxno]
+	std::vector<double> work(number);		//Workspace array. [maxno]
+	std::vector<std::vector<double>> elam(number, std::vector<double>(number));//Interaction matrix. [maxno, maxno]
+	std::vector<double> alone(number);		//Non-interacting fraction for each fuel class. [maxno]
+	std::vector<double> area(number);		//Fraction of site area expected to be covered at
+	                                 		//least once by initial planform area of ea size. [maxno]
+	std::vector<double> fint(number);		//Corrected local fire intensity for each fuel type. [maxno]
+	std::vector<double> tdry(wo.size());	//Time of drying start of the larger of each fuel component pair. [maxkl]
+	std::vector<double> wodot(wo.size());	//Dry loading loss rate for larger of pair. [maxkl]
+	std::vector<double> ddot(wo.size());	//Diameter reduction rate, larger of pair, m / s. [maxkl]
+	std::vector<double> qcum(wo.size());	//Cumulative heat input to larger of pair, J / sq m. [maxkl]
+	std::vector<double> tcum(wo.size());	//Cumulative temp integral for qcum (drying). [maxkl]
+	std::vector<double> acum(wo.size());	//Heat pulse area for historical rate averaging. [maxkl]
+	std::vector<std::vector<double>> qdot(wo.size(), std::vector<double>(mxstep));//History (post ignite) of heat transfer rate
+	                                    	//to the larger of each component pair, W / sq m. [maxkl, mxstep]
+	std::vector<int> key(number);			//Ordered index list. [maxno]
+	std::vector<std::string> list(number);		//Intermediary for reordering parts name array. [maxno]
+	                                 		//Probably not needed here.  See notes in ARRAYS().
+
+	//Scalars in order of appearance:
+	double dfi; 			//Duff fire intensity (aka I sub d) for DUFBRN().
+	double tdf; 			//Burning duration (aka t sub d) for DUFBRN().
+	int now;			//Index marking the current time step.
+	double tis;				//Current time (ti + number of time steps * dt).
+	int ncalls;		//Counter of calls to START().
+	double fid;				//Fire intensity due to duff burning.
+
+	//In the original code fmin was a local treated as a constant.  Passing it in might be good:
+	const double fimin = 0.1;//Fire intensity (kW / sq m) at which fire goes out.
+
+	//There are a large number of locals in this routine that are not explictly initialized.
+	//Most are initialized in ARRAYS() and START().  Testing was done to confrim that explicit
+	//initialization was not needed for the remaining locals.
+
+	//Set SaveHistory:
+// 	if (present(outputHistory)) then
+// 		SaveHistory = outputHistory
+// 	else
+// 		SaveHistory = .false.
+// 	end if
+	SaveHistory = outputHistory;
+
+	//Adding size checking on incoming arrays would be good here.
+
+	//Sort the fuel components and calculate the interaction matrix...
+	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
+	       elam, alone, xmat, wo, parts, list, area);
+
+	//Record the state before the start of the simulation.  This need to be done after ARRAYS()
+	//because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
+	//set the time explicitly.  
+	//SaveStateToFile(0, 0.0, number, parts, wo, diam, fi);
+	//The first simulated time point starts at the end of the Igniting fire residence time.  The
+	//fire intensity is a constant value for this period.  It would make sense to make another
+	//record of fire intensity at the end of the residence time.  However, this would lead to
+	//two values at time point 1.  Likewise, this would result in two values for fuel loadings.
+	//Both fire intensity and fine fuel loads can drop significantly at the first time step.
+
+	//The original code calls DUFBRN() here.  I'm leaving this here while getting the code
+	//running but it would probably better to pass the output of DUFBRN() in instead.
+	DUFBRN(wdf, dfm, dfi, tdf);
+
+	//Initialize variables and data structures:
+	now = 1;
+	tis = ti;
+	START(tis, now, wo, alfa, dendry, fmois, cheat, condry, diam, tpig, tchar, xmat, tpamb, fi,
+	      flit, fout, tdry, tign, tout, qcum, tcum, acum, qdot, ddot, wodot, work, u, d, r0, dr,
+	      ncalls);
+
+	//if (tign(1) .lt. 0.0) then //Fuels failed to ignite.
+	if (tign[0] < 0.0)//Fuels failed to ignite.
+	{
+		//We could use dt = 0 to indicate the condition but could be confused as an actual
+		//value.  A negative value is clearly not valid and the value can be used to provide
+		//more information.
+		dt = tign[0];
+		return;
+	}
+
+	//If the duff burns longer than the passing fire front then have it's intensity
+	//contribute to the post front fire environment, otherwise ignore it:
+	if (tis < tdf)
+	{
+		fid = dfi;
+	}
+	else
+	{
+		fid = 0.0;
+	}
+
+	//Calculate the initial fire intensity:
+	FIRINT(wodot, ash, htval, number, area, fint, fi);
+
+	//Record the state after START() and the first call to FIRINT(): Make optional!!!!!
+	//SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+
+	//If the fire intensity is above the extinguishing threshold calculate combustion until
+	//the fire goes out or the number of timesteps is reached:
+	if (fi > fimin)
+	{
+		while (now < ntimes)
+		{
+			STEP(dt, now, wo, alfa, dendry, fmois, cheat, condry, diam, tpig, tchar, xmat, tpamb,
+			     fi, flit, fout, tdry, tign, tout, qcum, tcum, acum, qdot, ddot, wodot, work, u, d,
+			     r0, dr, ncalls, tis, fint, fid);
+
+			//Update time trackers:
+			now += 1;
+			tis = tis + dt;
+			//JMR_NOTE: It is a bit strange that START() and STEP() both start at the same
+			//time step.  Think on this a bit!!!!!
+
+			//Get the duff contribution while it remains burning:
+			if (tis < tdf)
+			{
+				fid = dfi;
+			}
+			else
+			{
+				fid = 0.0;
+			}
+
+			//Calculate the fire intensity at this time step:
+			FIRINT(wodot, ash, htval, number, area, fint, fi);
+
+			//Save the state at each timestep: Make optional!!!!!
+			//SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+
+			if (fi <= fimin)
+			{
+				//exit
+				break;
+			}
+		}
+	}//(fi > fimin)
+
+	//Return the time when the fire dropped below fimin as the time the fire "went out".
+	//We return the value in dt.  This may be changed in the future.
+	dt = tis;
+	//We could also return the number of timesteps completed in ntimes but that doesn't add much.
+}
 
 //SimulateR()
 

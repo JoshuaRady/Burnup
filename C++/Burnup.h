@@ -66,7 +66,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
           std::vector<std::vector<double>>& qdot, std::vector<double>& ddot,
           std::vector<double>& wodot, const std::vector<double> work, const double u, const double d,
           const double r0, const double dr, int& ncalls,
-          const double tin, const double fint, const double fid, const int number = -1);
+          const double tin, const std::vector<double> fint, const double fid, const int number = -1);
 
 
 //Utilities:
