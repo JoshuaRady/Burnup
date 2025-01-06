@@ -355,8 +355,8 @@ contains
 
 
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
-	! The main fire properties are returned as output arguments.  Optionally additional detail fire
-	! history can be output to file.
+	! The main fire properties are returned as output arguments.  Optionally additional a detailed
+	! fire history can be output to file.
 	!
 	! History: Added as an programatic alternative entry point to the original interactive program.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
@@ -443,10 +443,10 @@ contains
 		real*4 :: fint(number)				! Corrected local fire intensity for each fuel type. [maxno]
 		real*4 :: tdry(size(wo))			! Time of drying start of the larger of each fuel component pair. [maxkl]
 		real*4 :: wodot(size(wo))			! Dry loading loss rate for larger of pair. [maxkl]
-		real*4 :: ddot(size(wo))  			! Diameter reduction rate, larger of pair, m / s. [maxkl]
-		real*4 :: qcum(size(wo)) 			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
-		real*4 :: tcum(size(wo)) 			! Cumulative temp integral for qcum (drying). [maxkl]
-		real*4 :: acum(size(wo)) 			! Heat pulse area for historical rate averaging. [maxkl]
+		real*4 :: ddot(size(wo))			! Diameter reduction rate, larger of pair, m / s. [maxkl]
+		real*4 :: qcum(size(wo))			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
+		real*4 :: tcum(size(wo))			! Cumulative temp integral for qcum (drying). [maxkl]
+		real*4 :: acum(size(wo))			! Heat pulse area for historical rate averaging. [maxkl]
 		real*4 :: qdot(size(wo), mxstep)	! History (post ignite) of heat transfer rate
 		                                    ! to the larger of each component pair, W / sq m. [maxkl, mxstep]
 		integer :: key(number)				! Ordered index list. [maxno]
