@@ -128,6 +128,8 @@ bool SaveHistory = false;//Should fire history be output to file?
  * @param tout		Burnout time of larger component of pairs. [maxkl]
  * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
+ * @param outputHistory	Should fire history be saved?  Defaults to false.
+ *
  * @note Currently it is expected that the calculated output vectors be supplied in the correct size.
  * We could move the sizing into the function allowing empty vectors to be passed in.
  *
@@ -295,6 +297,133 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 }
 
 //SimulateR()
+/**This is a wrapper for Simulate() that allows it to be called from R (using .C()):
+ *
+ * The parameters parallel those of Simulate() but are pointers meet the requirements of R's .C()
+ * function.  There is no easy way to pass a string so the 'parts' parameter is omitted.
+ *
+ * Igniting fire and environmental data:
+ * @param fi		Current fire intensity (site avg), kW / sq m
+ * @param ti		Igniting fire residence time (s).
+ * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param d			Fuelbed depth (m).
+ * @param tpamb		Ambient temperature (K).
+ * 
+ * Internal and control variables:
+ * @param ak		Area influence factor (ak / K_a parameter).
+ * @param r0		Minimum value of mixing parameter.
+ * @param dr		Max - min value of mixing parameter.
+ * @param dt		Time step for integration of burning rates (s).
+ *          		On completion contains the time the fire went out.
+ *          		A value of -1 indicates the fuel did not ignite.  A value
+ *          		of -2 indicates the fuel did not complete drying.  In such
+ *          		cases most of remaining return variables will not be
+ *          		meaningful.
+ * 
+ * @param wdf		Duff loading (kg/m^2, aka W sub d).
+ * @param dfm		Ratio of moisture mass to dry organic mass /
+ *           		duff fractional moisture (aka R sub M).
+ * @param ntimes	Number of time steps to run.  Move down?
+ * @param number	The number of fuel classes.
+ *
+ * Fuel component property arrays:
+ * @param wdry		Ovendry mass loading, kg/sq m. [maxno]
+ * @param ash		Mineral content, fraction dry mass. [maxno]
+ * @param htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
+ * @param fmois		Moisture fraction of component. [maxno]
+ * @param dendry	Ovendry mass density, kg / cu m. [maxno]
+ * @param sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param condry	Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param tpig		Ignition temperature, K. [maxno]
+ * @param tchar		Char temperature, K. [maxno]
+ *
+ * Calculated outputs:
+ * JMR_Note: No longer in argument order!!!!!
+ * @param wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
+ * @param xmat		Table of influence fractions between components. [maxkl]
+ * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param tout		Burnout time of larger component of pairs. [maxkl]
+ * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
+ *
+ * @param outputHistory	Should fire history be saved? (0 = no, 1 = yes)
+
+! History: Added for module.
+ */
+extern "C" void SimulateR(double* fi, const double* ti, const double* u, const double* d,
+                          const double* tpamb, const double* ak, const double* r0, const double* dr,
+                          double* dt, const double* wdf, const double* dfm, const int* ntimes,
+                          const int* number, double* wdry, double* ash, double* htval,
+                          double* fmois, double* dendry, double* sigma, double* cheat,
+                          double* condry, double* tpig, double* tchar, double* xmat, double* tign,
+                          double* tout, double* wo, double* diam, const int* outputHistory)
+{
+	//Local type conversion intermediates:
+	bool historyLogical;
+	
+	//Character strings can't be passed in from R so we assemble some generic names to pass in:
+	std::vector<std::string> parts(*number);//Fuel component names / labels. [maxno]
+
+	for (int i = 0; i < *number; i++)
+	{
+		parts[i] = "Fuel " + std::to_string(i);
+	}
+
+	//Convert input arrays to vectors:
+	std::vector<double> wdryVec(wdry, wdry + *number);
+	std::vector<double> ashVec(ash, ash + *number);
+	std::vector<double> htvalVec(htval, htval + *number);
+	std::vector<double> fmoisVec(fmois, fmois + *number);
+	std::vector<double> dendryVec(dendry, dendry + *number);
+	std::vector<double> sigmaVec(sigma, sigma + *number);
+	std::vector<double> cheatVec(cheat, cheat + *number);
+	std::vector<double> condryVec(condry, condry + *number);
+	std::vector<double> tpigVec(tpig, tpig + *number);
+	std::vector<double> tcharVec(tchar, tchar + *number);
+	std::vector<double> xmatVec(xmat, xmat + *number);
+	std::vector<double> tignVec(tign, tign + *number);
+	std::vector<double> toutVec(tout, tout + *number);
+	std::vector<double> woVec(wo, wo + *number);
+	std::vector<double> diamVec(diam, diam + *number);
+
+	//R logical variables come in as ints:
+	if (outputHistory == 0)
+	{
+		historyLogical = false;
+	}
+	else
+	{
+		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
+	}
+
+	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
+	         parts,
+	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+	         historyLogical);
+
+	//Convert back:
+	for (int i = 0; i < *number; i++)
+	{
+		//(*wdry)[i] = wdryVec[i];
+		//(*ash)[i] = ashVec[i];
+		wdry[i] = wdryVec[i];
+		ash[i] = ashVec[i];
+		htval[i] = htvalVec[i];
+		fmois[i] = fmoisVec[i];
+		dendry[i] = dendryVec[i];
+		sigma[i] = sigmaVec[i];
+		cheat[i] = cheatVec[i];
+		condry[i] = condryVec[i];
+		tpig[i] = tpigVec[i];
+		tchar[i] = tcharVec[i];
+		xmat[i] = xmatVec[i];
+		tign[i] = tignVec[i];
+		tout[i] = toutVec[i];
+		wo[i] = woVec[i];
+		diam[i] = diamVec[i];
+	}
+}
 
 //DUFBRN()
 /** Calculate duff fire properties.
