@@ -203,7 +203,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//Record the state before the start of the simulation.  This need to be done after ARRAYS()
 	//because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
 	//set the time explicitly.  
-	//SaveStateToFile(0, 0.0, number, parts, wo, diam, fi);
+	SaveStateToFile(0, 0.0, number, parts, wo, diam, fi);
 	//The first simulated time point starts at the end of the Igniting fire residence time.  The
 	//fire intensity is a constant value for this period.  It would make sense to make another
 	//record of fire intensity at the end of the residence time.  However, this would lead to
@@ -246,7 +246,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	FIRINT(wodot, ash, htval, number, area, fint, fi);
 
 	//Record the state after START() and the first call to FIRINT(): Make optional!!!!!
-	//SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+	SaveStateToFile(now, tis, number, parts, wo, diam, fi);
 
 	//If the fire intensity is above the extinguishing threshold calculate combustion until
 	//the fire goes out or the number of timesteps is reached:
@@ -278,7 +278,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 			FIRINT(wodot, ash, htval, number, area, fint, fi);
 
 			//Save the state at each timestep: Make optional!!!!!
-			//SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+			SaveStateToFile(now, tis, number, parts, wo, diam, fi);
 
 			if (fi <= fimin)
 			{
