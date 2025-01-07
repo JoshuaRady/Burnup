@@ -4178,23 +4178,26 @@ contains
 		character*12, intent(in) :: parts(:)	! Fuel component names / labels. [maxno]
 
 		! All the outputs from START() and STEP():
+		! Currently only some of these are passed in to be saved. In the future others may be added.
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
 												! each component pair, kg / sq m. [maxkl]
 		real*4, intent(in) :: diam(:)		! Current diameter of the larger of each		!!!!!
 												! fuel component pair, m. [maxkl]
-		!real*4, intent(out) :: flit(maxno)		! Fraction of each component currently alight.
-		!real*4, intent(out) :: fout(maxno)		! Fraction of each component currently gone out.
-		!real*4, intent(out) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair.
-		!real*4, intent(out) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair. [maxkl]
-		!real*4, intent(out) :: tout(maxkl)		! Burnout time of larger component of pairs.
-		!real*4, intent(out) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
-		!real*4, intent(out) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
-		!real*4, intent(out) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
-		!real*4, intent(out) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+		!real*4, intent(in) :: flit(maxno)		! Fraction of each component currently alight.
+		!real*4, intent(in) :: fout(maxno)		! Fraction of each component currently gone out.
+		! The following are recomputed at each time point but only the final values would be needed:
+		!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair.
+		!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair. [maxkl]
+		!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs.
+		!real*4, intent(in) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
+		!real*4, intent(in) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
+		!real*4, intent(in) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
+ 		! This includes time so again only the final value would be needed:
+		!real*4, intent(in) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
 													! to the larger of each component pair, W / sq m..
-		!real*4, intent(out) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
-		!real*4, intent(out) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
-		!real*4, intent(inout) :: work(maxno)	! Workspace array.
+		!real*4, intent(in) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
+		!real*4, intent(in) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
+		!real*4, intent(in) :: work(maxno)		! Workspace array.
 		real*4, intent(in) :: fi				! Current fire intensity (site avg), kW / sq m.
 
 		! Local constants:
