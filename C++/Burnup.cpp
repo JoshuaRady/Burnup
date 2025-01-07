@@ -642,9 +642,14 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 
 		//Populate the interacting indexes of the arrays:
 		//do j = 1, k
-		for (int j = 0; j < numFuelTypes; j++)
+		//for (int j = 0; j < numFuelTypes; j++)
+		//for (int j = 0; j < k; j++)//?????
+		//for (int j = 1; j <= k; j++)//?????
+		/for (int j = 0; j <= k; j++)//?????
 		{
-			int kj = Loc(k, j);
+			//int kj = Loc(k, j);
+			//int kj = Loc(k + 1, j);
+			int kj = Loc(k + 1, j + 1);//?????
 			diam[kj] = diak;
 			xmat[kj] = elam[k][j];
 			wo[kj] = wtk * xmat[kj];
@@ -1383,14 +1388,16 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 
 	sum = 0.0;
 	//do k = 1, number
-	for (int k = 1; k <= number; k++)//The k fuel types start at 1.
+	//for (int k = 1; k <= number; k++)//The k fuel types start at 1.
+	for (int k = 0; k < number; k++)
 	//for (int k = 0; k < number; k++)
 	{
 		wdotk = 0.0;
 		//do l = 0, k
 		for (int l = 0; l <= k; l++)
 		{
-			int kl = Loc(k, l);
+			//int kl = Loc(k, l);
+			int kl = Loc(k + 1, l);
 			wdotk = wdotk + wodot[kl];
 		}
 		term = (1.0 - ash[k]) * htval[k] * wdotk * 1.0e-03;
