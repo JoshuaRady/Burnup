@@ -87,4 +87,9 @@ double ErrorApprox(const double h, const double theta);
 //AskForReal2
 //AskForReal
 
+//File IO:
+void SaveStateToFile(const int ts, const double time, const int number,
+                     const std::vector<std::string> parts, const std::vector<double> wo,
+                     const std::vector<double> diam, const double fi);
+
 #endif

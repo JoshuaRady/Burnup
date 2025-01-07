@@ -15,7 +15,10 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 ***************************************************************************************************/
 
 #include <algorithm>//For max(), min(), fill().
+#include <cerrno>
 #include <cmath>//<math.h>//For pow(), sqrt(), abs().
+#include <cstring>//For strerror().
+#include <fstream>
 #include <iostream>//Or just <ostream>?
 #include <vector>
 
@@ -46,7 +49,10 @@ const double tpdry = 353.0;//Temperature (all components) start drying (K)
 //Empty / undefined value constant:
 const double rindef = 1.0e+30;//In the original code this defined both in START() and STEP().
 
-// Names...
+//Names:
+const char noCmpStr[] = "no companion";//The name for no companion pairs.
+                                       //In the original code this was declared as a variable 'none'
+                                       //in Summary().  'none' is a Fortran keyword so it was renamed.
 
 //Globals:
 bool SaveHistory = false;//Should fire history be output to file?
@@ -2133,3 +2139,154 @@ double ErrorApprox(const double h, const double theta)
 //AskForReal1
 
 //...
+
+//SaveStateToFile
+/** Output the state of the simulation at the current timestep to file:
+ * Sequential calls to this routine will produce a full history of the simulated fire.
+ *
+ * Successful output from this routine is treated as non-critical as it doesn't impact the
+ * simulation process.  Output failures are reported but are not treated as fatal.
+ *
+ * The file name is currently fixed.  A history file from a previous run will prevent a new one
+ * from being created.  In the future we may automatically number the file if it already exists.
+ * Allowing the file name to be specified would only work in some contexts.  For example, we
+ * currently have no way to pass in a file name via the R interface.
+ *
+ * @param ts		Current timestep count.
+ * @param time		Current time (s).
+ * @param number	Actual number of fuel components.
+ * @param parts		Fuel component names / labels. [maxno]
+ *
+ * All the outputs from START() and STEP():
+ * Currently only some of these are passed in to be saved. In the future others may be added.
+ * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
+ * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]	!!!!!
+	!real*4, intent(in) :: flit(maxno)		Fraction of each component currently alight.
+	!real*4, intent(in) :: fout(maxno)		Fraction of each component currently gone out.
+ * The following are recomputed at each time point but only the final values would be needed:
+	!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair.
+	!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair. [maxkl]
+	!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs.
+	!real*4, intent(in) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
+	!real*4, intent(in) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
+	!real*4, intent(in) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
+ * This includes time so again only the final value would be needed:
+	!real*4, intent(in) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
+												! to the larger of each component pair, W / sq m..
+	!real*4, intent(in) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
+	!real*4, intent(in) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
+	!real*4, intent(in) :: work(maxno)	! Workspace array.
+ * @param fi		Current fire intensity (site avg), kW / sq m.
+ *
+ * @returns Nothing.
+ *
+ * @par Format for the variable output:
+ * The data is written in long format with tab delimited fields:
+ * timestep (integer), time (float), variable (string), value (float), and IDs (strings).
+ * The IDs are currently only used to identify the fuel pairs.  If that is the only use they
+ * should be renamed.
+ *
+ ! History: Added for module.
+ */
+void SaveStateToFile(const int ts, const double time, const int number,
+                     const std::vector<std::string> parts, const std::vector<double> wo,
+                     const std::vector<double> diam, const double fi)//const
+{
+	//Local constants:
+	//const char histFileName[] = "BurnupHistory.txt";//histFile in Fortran!!!!!
+	const std::string histFileName("BurnupHistory.txt");//histFile in Fortran!!!!!
+	const char delim = '\t';//Delimiter = tab character
+
+	//Locals:
+	//integer :: k, l, kl ! Counters.
+	//int kl;//Triangular matrix index, 0 based.
+
+	std::string fuelName;//Name of the (larger) fuel type.
+	std::string compName;//The name of the companion/partner fuel.
+
+	std::ofstream histFile;
+
+	if (SaveHistory)
+	{
+		//Create or open the history file:
+		if (ts == 0)//In the first timestep create and set up the file:
+		{
+			//open(hUnit, file = histFile, status = 'NEW', iostat = openStat, iomsg = ioMsg)
+			//std;:iostream histFile(histFileName);
+			histFile.open(histFileName);
+			//if (openStat .ne. 0) then
+			if (!histFile.is_open())
+			{
+				//print *, "Can't create file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
+				//The error message will likely include the file name so we can omit it.
+				//print warnFmt, "Can't create file, Error: ", openStat, ", Message: ", ioMsg
+				
+				Warning("Can't create file: " + histFileName + ", Error: " + std::strerror(errno));
+				SaveHistory = false;//If we can't create the file don't try anything further.
+				return;
+			}
+
+			//Write a column header for the file:
+			//write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
+			histFile << "Timestep	TimeSec	Variable	Value	ID1	ID2" << std::endl;
+		}
+		else//Reopen the file and append:
+		{
+			//open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', &
+			//	 iostat = openStat, iomsg = ioMsg)
+			histFile.open(histFileName);
+			//if (openStat .ne. 0) then
+			if (!histFile.is_open())
+			{
+				//print warnFmt, "Can't reopen file, Error: ", openStat, ", Message: ", ioMsg
+				
+				Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
+				SaveHistory = false;//Assume the error will persist so don't try again.
+				return;
+			}
+		}
+
+		//do k = 1, number
+		for (int k0 = 0; k0 < number; k0++)
+		{
+			fuelName = parts[k0];
+
+			//do l = 0, k
+			for (int l = 0; l < number; l++)
+			{
+				int kl = Loc(k0 + 1, l);//Triangular matrix index, 0 based.
+
+				//Get the name of the partner component:
+				if (l == 0)
+				{
+					compName = noCmpStr;//NEED to make a string for this to work!!!!
+				}
+				else
+				{
+					compName = parts[l];
+				}
+
+				//Fuel loading:
+				//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+				//	  ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
+				histFile << ts << delim << time << delim << "w_o" << delim << wo[kl] << delim
+				         << fuelName << delim << compName << '\n';
+
+				//Particle diameter:
+				//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+				//	  ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
+				histFile << ts << delim << time << delim << "Diameter" << delim << diam[kl] << delim
+				         << fuelName << delim << compName << '\n';
+			}
+		}
+
+		//Average fire intensity:
+		//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
+		//	  ts, time, "FireIntensity", fi, "NA", "NA"
+		histFile << ts << delim << time << delim << "FireIntensity" << delim << fi << delim
+				         << "NA" << delim << "NA" << std::endl;
+
+		histFile.close();//Close the file.
+		//Should check for any write errors here!!!!!
+	}//(SaveHistory)
+}
