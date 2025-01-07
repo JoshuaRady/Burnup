@@ -651,6 +651,7 @@ contains
 		tpigReal = real(tpig)
 		tcharReal = real(tchar)
 
+		! R logical variables come in as integers:
 		if (outputHistory == 0) then
 			historyLogical = .false.
 		else
