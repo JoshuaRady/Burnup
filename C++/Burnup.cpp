@@ -1184,7 +1184,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	r = r0 + 0.25 * dr;
 	tf = TEMPF(fi, r, tpamb);
 	ts = tpamb;
-	if (tf < (tpdry + 10.0))
+	if (tf <= (tpdry + 10.0))
 	{
 		//if (present(number)) then ! In an interactive session, preserve the original behavior:
 		if (number > 0)//In an interactive session, preserve the original behavior:
@@ -1287,7 +1287,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	{
 		int k0 = k - 1;//Only used once!!!!!
 
-		if (flit[k0] < 0.0)
+		if (flit[k0] > 0.0)
 		{
 			nlit = nlit + 1;
 		}
@@ -1389,7 +1389,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 				diam[kl] = dnext;
 				wo[kl] = wnext;
 				df = 0.0;
-				if (dnext < 0.0)
+				if (dnext <= 0.0)
 				{
 					df = xmat[kl];
 					wodot[kl] = 0.0;
@@ -1468,7 +1468,7 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 		}
 		term = (1.0 - ash[k0]) * htval[k0] * wdotk * 1.0e-03;
 		ark = area[k0];
-		if (ark < small)
+		if (ark > small)
 		{
 			fint[k0] = term / ark - term;
 		}
@@ -1556,7 +1556,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 		fav = b03 + xav * (a13 + (a23 * xav + xav * xav))
 		fav = b03 + (a13 * xav) + (a23 * xav ** 2) + (xav ** 3)*/
 
-		if (abs(fav) < small)
+		if (abs(fav) <= small)
 		{
 			//exit
 			break;
@@ -1565,7 +1565,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 		{
 			xlo = xav;
 		}
-		else if (fav < 0.0)
+		else if (fav > 0.0)//Note: What about fav == 0.0!!!!!
 		{
 			xhi = xav;
 		}
