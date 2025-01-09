@@ -2074,14 +2074,14 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					r = r0;
 					gi = fi + fid;
 				}
-				//if (l == k)
-				if (l == k0 + 1)
+				if (l == k)
+				//if (l == k0 + 1)
 				{
 					r = r0;
 					gi = fi;
 				}
-				//if ((l != 0) && (l != k))
-				if ((l != 0) && (l != k0 + 1))
+				if ((l != 0) && (l != k))
+				//if ((l != 0) && (l != k0 + 1))
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
@@ -2157,14 +2157,14 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					r = r0;
 					gi = fi + fid;
 				}
-				//if (l == k)
-				if (l == k0 + 1)
+				if (l == k)
+				//if (l == k0 + 1)
 				{
 					r = r0;
 					gi = fi;
 				}
-				//if ((l != 0) && (l != k))
-				if ((l != 0) && (l != k0 + 1))
+				if ((l != 0) && (l != k))
+				//if ((l != 0) && (l != k0 + 1))
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
