@@ -528,7 +528,10 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 {
 	int numFuelTypes;//The actual number of fuel types, explicit or implied.
 	//int j, k, kl, kj;Counters
-	int j, k;//Counters
+	//int j, k;//Counters
+	//The original Fortran code used counters k and j, which are 1 bases indexes.  We use k and j
+	//for 1 based triangular matrix indexes and k0 and j0 for 0 based array indexes.
+	int k0;//Counter
 	//double diak, wtk;
 
 	//Testing was done to confrim that explicit initialization of locals was not needed here. [in Fotran]
@@ -546,112 +549,120 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 	SORTER(sigma, fmois, dendry, key, number);
 
 	//do j = 1, numFuelTypes
-	for (int j = 0; j < numFuelTypes; j++)
+	//for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		k = key[j];
-		list[j] = parts[k];
+		//k = key[j];
+		k0 = key[j0];
+		//list[j] = parts[k];
+		list[j0] = parts[k0];
 	}
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		parts[j] = list[j];
-	}
-
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		k = key[j];
-		work[j] = wdry[k];
-	}
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		wdry[j] = work[j];
+		parts[j0] = list[j0];
 	}
 
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		k = key[j];
-		work[j] = ash[k];
+		k0 = key[j0];
+		work[j0] = wdry[k0];
 	}
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		ash[j] = work[j];
-	}
-
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		k = key[j];
-		work[j] = htval[k];
-	}
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		htval[j] = work[j];
+		wdry[j0] = work[j0];
 	}
 
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		k = key[j];
-		work[j] = cheat[k];
+		k0 = key[j0];
+		work[j0] = ash[k0];
 	}
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		cheat[j] = work[j];
-	}
-
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		k = key[j];
-		work[j] = condry[k];
-	}
-	for (int j = 0; j < numFuelTypes; j++)
-	{
-		condry[j] = work[j];
+		ash[j0] = work[j0];
 	}
 
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		k = key[j];
-		work[j] = tpig[k];
+		k0 = key[j0];
+		work[j0] = htval[k0];
 	}
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		tpig[j] =  work[j];
+		htval[j0] = work[j0];
 	}
 
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		k = key[j];
-		work[j] = tchar[k];
+		k0 = key[j0];
+		work[j0] = cheat[k0];
 	}
-	for (int j = 0; j < numFuelTypes; j++)
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		tchar[j] = work[j];
+		cheat[j0] = work[j0];
+	}
+
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		k0 = key[j0];
+		work[j0] = condry[k0];
+	}
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		condry[j0] = work[j0];
+	}
+
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		k0 = key[j0];
+		work[j0] = tpig[k0];
+	}
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		tpig[j0] =  work[j0];
+	}
+
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		k0 = key[j0];
+		work[j0] = tchar[k0];
+	}
+	for (int j0 = 0; j0 < numFuelTypes; j0++)
+	{
+		tchar[j0] = work[j0];
 	}
 
 	OVLAPS(wdry, sigma, dendry, ak, fmois, xmat, elam, alone, area, number);
 
 	//do k = 1, numFuelTypes
-	for (int k = 0; k < numFuelTypes; k++)
+	//for (int k = 0; k < numFuelTypes; k++)
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
-		double diak = 4.0 / sigma[k];
-		double wtk = wdry[k];
+		//int k0 = k - 1;
+		k0 = k - 1;	
+		double diak = 4.0 / sigma[k0];
+		double wtk = wdry[k0];
 
 		//Populate the alone/no companion indexes of the arrays:
+		//int kl = Loc(k + 1, 0);
 		int kl = Loc(k, 0);
 		diam[kl] = diak;
-		xmat[kl] = alone[k];
+		xmat[kl] = alone[k0];
 		wo[kl] = wtk * xmat[kl];
 
 		//Populate the interacting indexes of the arrays:
 		//do j = 1, k
 		//for (int j = 0; j < numFuelTypes; j++)
 		//for (int j = 0; j < k; j++)//?????
-		//for (int j = 1; j <= k; j++)//?????
-		/for (int j = 0; j <= k; j++)//?????
+		for (int j = 1; j <= k; j++)//?????
+		//for (int j = 0; j <= k; j++)//?????
 		{
-			//int kj = Loc(k, j);
+			int kj = Loc(k, j);
 			//int kj = Loc(k + 1, j);
-			int kj = Loc(k + 1, j + 1);//?????
+			//int kj = Loc(k + 1, j + 1);//?????
 			diam[kj] = diak;
-			xmat[kj] = elam[k][j];
+			//xmat[kj] = elam[k][j - 1];//Convert j to 0 based index.
+			xmat[kj] = elam[k0][j - 1];//Convert j to 0 based index.
 			wo[kj] = wtk * xmat[kj];
 		}
 	}
@@ -710,25 +721,31 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 	newIndexFound = false;
 
 	//do j = 1, maxNumFuelTypes
-	for (int j = 0; j < maxNumFuelTypes; j++)
+	//for (int j = 0; j < maxNumFuelTypes; j++)
+	for (int j0 = 0; j < maxNumFuelTypes; j0++)
 	{
-		key[j] = j;
+		key[j0] = j0;
 	}
 
 	//!c Replacement sort: order on increasing size, moisture, density
 	//do j = 2, numFuelTypes
-	for (int j = 1; j < numFuelTypes; j++)
+	//for (int j = 1; j < numFuelTypes; j++)
+	//for (int j = 2; j <= numFuelTypes; j++) = 
+	for (int j0 = 1; j0 < numFuelTypes; j0++)
 	{
-		//Store the values for this fuel index:
-		s = 1.0 / sigma[j];
-		fm = fmois[j];
-		de = dryden[j];
-		keep = key[j];
+		//int j0 = j - 1;
 
-		//Compare this index (j) with every index before it:
+		//Store the values for this fuel index:
+		s = 1.0 / sigma[j0];
+		fm = fmois[j0];
+		de = dryden[j0];
+		keep = key[j0];
+
+		//Compare this index (j0) with every index before it:
 		//do i = (j - 1), 1, -1
 		//for (int i = (j - 1); i >= 0; i--)
-		for (i = (j - 1); i >= 0; i--)
+		//for (i = (j - 1); i >= 0; i--)
+		for (i = (j0 - 1); i >= 0; i--)//i is only used as a 0 based array index.
 		{
 			usi = 1.0 / sigma[i];
 			diam = (usi < s);
@@ -755,7 +772,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 				tied = (fmois[i] == fm);
 				if (tied)
 				{
-					dens = (dryden [i] < de);
+					dens = (dryden[i] <= de);
 					if (dens)
 					{
 						newIndexFound = true;
@@ -784,7 +801,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 			i = -1;//Reseting i to -1 will move this entry (j) to postion 0.
 		}
 
-		//Record the values for fuel index j at the identified index:
+		//Record the values for fuel index j0 at the identified index:
 		sigma[i + 1] = 1.0 / s;
 		fmois[i + 1] = fm;
 		dryden[i + 1] = de;
@@ -879,13 +896,18 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	//We should allow the vectors of any size, including empty vectors, to be passed in!!!!!
 
 	//do k = 1, numFuelTypes
-	//for (int k = 1; k <= numFuelTypes, k++)
+	for (int k = 1; k <= numFuelTypes, k++)
 	//The indexing for all inputs and outputs are 0 based but we have to convert for Loc():
-	for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
+	//for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
 	{
+		int k0 = k - 1;
+		
 		//do l = 1, k
-		for (int l = 0; l <= k; l++)//Use 0 indexing.
+		//for (int l = 0; l <= k; l++)//Use 0 indexing.
+		for (int l = 1; l <= k; l++)//Use 0 indexing.
 		{
+			int l0 = l - 1;
+
 			if (ak > 0.0)//or .ge. ?
 			{
 				//If a valid value has been supplied use a fixed K_a as in the original Burnup:
@@ -896,19 +918,21 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 				//A negative value indicates that the K_a should be calculated:
 				//Calculate ak from the fuel moisture of the smaller or similar fuel member (l):
 				//Albini & Reinhardt 1997 Equation 4: K_a = K exp(-B * M^2)
-				K_a = 3.25 * exp(-20 * pow(fmois[l], 2));
+				//K_a = 3.25 * exp(-20 * pow(fmois[l], 2));
+				K_a = 3.25 * exp(-20 * pow(fmois[l0], 2));
 			}
 
 			//SAV / pi = diameter (units are carried by ak):
-			siga = K_a * sigma[k] / pi;
+			siga = K_a * sigma[k0] / pi;
 
 			//kl = Loc(k, l)
-			kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
-			a = siga * dryld[l] / dryden[l];//siga * ? units in meters
+			//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+			kl = Loc(k, l);
+			a = siga * dryld[l0] / dryden[l0];//siga * ? units in meters
 			if (k == l)
 			{
 				bb = 1.0 - exp(-a);			// JMR: FOFEM suggests this can hit 0?
-				area[k] = bb;
+				area[k0] = bb;
 			}
 			else
 			{
@@ -922,46 +946,54 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	if (numFuelTypes == 1)
 	{
 		//elam(1, 1) = beta(2)
-		elam[0][0] = beta[1];
+		elam[0][0] = beta[1];//?????
 		alone[0] = 1.0 - elam[0][0];
 		return;
 		//break;
 	}
 
 	//do k = 1, numFuelTypes
-	for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
+	//for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
+	for (int k = 1; k <= numFuelTypes; k++)//Use 0 indexing.
 	{
 		//These inner loops could be combined to simplify the logic and make it more readable!!!!!
+		int k0 = k - 1;
 		
 		frac = 0.0;
 		//do l = 1, k
-		for (int l = 0; l <= k; l++)//Use 0 indexing.
+		//for (int l = 0; l <= k; l++)//Use 0 indexing.
+		for (int l = 1; l <= k; l++)
 		{
-			//kl = Loc(k, l);
-			kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+			kl = Loc(k, l);
+			//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
 			frac = frac + beta[kl];
 		}
 
 		if (frac > 1.0)
 		{
 			//do l = 1, k
-			for (int l = 0; l <= k; l++)//Use 0 indexing.
+			//for (int l = 0; l <= k; l++)//Use 0 indexing.
+			for (int l = 1; l <= k; l++)
 			{
-				//kl = Loc(k, l)
-				kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
-				elam[k][l] = beta[kl] / frac;
+				kl = Loc(k, l);
+				//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+				//elam[k][l - 1] = beta[kl] / frac;//l0
+				elam[k0][l - 1] = beta[kl] / frac;//l0
 			}
-			alone[k] = 0.0;
+			//alone[k] = 0.0;
+			alone[k0] = 0.0;
 		}
 		else
 		{
-			for (int l = 0; l <= k; l++)//Use 0 indexing.
+			//for (int l = 0; l <= k; l++)//Use 0 indexing.
+			for (int l = 1; l <= k; l++)
 			{
-				//kl = Loc(k, l)
-				kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
-				elam[k][l] = beta[kl];
+				kl = Loc(k, l);
+				//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
+				//elam[k][l - 1] = beta[kl];//l0
+				elam[k0][l - 1] = beta[kl];//l0
 			}
-			alone[k] = 1.0 - frac;
+			alone[k0] = 1.0 - frac;
 		}
 	}
 }
@@ -1102,8 +1134,12 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	//do k = 1, numFuelTypes
 	//for (int k = 0; k < numFuelTypes; k++)//k in 0 based
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k = 1; k < numFuelTypes; k++)//k in 0 based
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
+		int k0 = k - 1;
+
 		fout[k0] = 0.0;
 		flit[k0] = 0.0;
 		alfa[k0] = condry[k0] / (dendry[k0] * cheat[k0]);
@@ -1118,9 +1154,10 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		work[k0] = 1.0 / (255.0 * heatk);
 
 		//do l = 0, k
-		for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		for (int l = 0; l <= k; l++)//l in kl space, 0 based
 		{
-			kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			tout[kl] = rindef;
 			tign[kl] = rindef;
 			tdry[kl] = rindef;
@@ -1168,14 +1205,20 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	tx = 0.5 * (ts + tpdry);
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 1; k <= numFuelTypes; k++)//k0 = k as base 0 index
 	{
+		int k0 = k - 1;
+
 		factor = dendry[k0] * fmois[k0];
 		conwet = condry[k0] + 4.27e-04 * factor;
 		//do l = 0, k
-		for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		for (int l = 0; l <= k; l++)//l in kl space, 0 based
 		{
-			kl = Loc(k0 + 1, l);
+			//kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			dia = diam[kl];
 			HEATX(u, d, dia, tf, tx, hf, hb, conwet, en);
 			//DRYTIM(en, thd, dryt);
@@ -1193,14 +1236,19 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	tsd = tpdry;
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
+		int k0 = k - 1;
+
 		c = condry[k0];
 		tigk = tpig[k0];
 		//do l = 0, k
-		for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		for (int l = 0; l <= k + 1; l++)/
 		{
-			kl = Loc(k0 + 1, l);
+			//kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			dryt = tdry[kl];
 			if (dryt < dt)
 			{
@@ -1233,17 +1281,21 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	//!c Determine minimum ignition time and verify ignition exists
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
+		int k0 = k - 1;//Only used once!!!!!
+
 		if (flit[k0] < 0.0)
 		{
 			nlit = nlit + 1;
 		}
 
 		//do l = 0, k
-		for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		for (int l = 0; l <= k; l++)
 		{
-			kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			trt = std::min(trt, tign[kl]);
 		}
 	}
@@ -1269,10 +1321,12 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	//!c Deduct trt from all time estimates, resetting time origin
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		//do l = 0, k
-		for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+		for (int l = 0; l <= k; l++)
 		{
 			kl = Loc(k0 + 1, l);
 			if (tdry[kl] < rindef)
@@ -1290,14 +1344,19 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	//!c for all the components that are ignited; extrapolate to end time dt
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 0; k <= numFuelTypes; k++)
 	{
+		int k0 = k - 1;
+
 		if (flit[k0] == 0.0)
 		{
 			//do l = 0, k
-			for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+			//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+			for (int l = 0; l <= k; l++)
 			{
-				kl = Loc(k0 + 1, l);
+				//kl = Loc(k0 + 1, l);
+				kl = Loc(k, l);
 				ddot[kl] = 0.0;
 				tout[kl] = rindef;
 				wodot[kl] = 0.0;
@@ -1308,9 +1367,11 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 			ts = tchar[k0];
 			c = condry[k0];
 			//do l = 0, k
-			for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+			//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
+			for (int l = 0; l <= k; l++)
 			{
-				kl = Loc(k0 + 1, l);
+				//kl = Loc(k0 + 1, l);
+				kl = Loc(k, l);
 				dia = diam[kl];
 				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
 				qdot[kl][now] = hb * std::max((tf - ts), 0.0);
@@ -1389,26 +1450,29 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 	sum = 0.0;
 	//do k = 1, number
 	//for (int k = 1; k <= number; k++)//The k fuel types start at 1.
-	for (int k = 0; k < number; k++)
 	//for (int k = 0; k < number; k++)
+	//for (int k = 0; k < number; k++)
+	for (int k = 1; k <= number; k++)
 	{
+		int k0 = k - 1;
+
 		wdotk = 0.0;
 		//do l = 0, k
 		for (int l = 0; l <= k; l++)
 		{
-			//int kl = Loc(k, l);
-			int kl = Loc(k + 1, l);
+			int kl = Loc(k, l);
+			//int kl = Loc(k + 1, l);
 			wdotk = wdotk + wodot[kl];
 		}
-		term = (1.0 - ash[k]) * htval[k] * wdotk * 1.0e-03;
-		ark = area[k];
+		term = (1.0 - ash[k0]) * htval[k0] * wdotk * 1.0e-03;
+		ark = area[k0];
 		if (ark < small)
 		{
-			fint[k] = term / ark - term;
+			fint[k0] = term / ark - term;
 		}
 		else
 		{
-			fint[k] = 0.0;
+			fint[k0] = 0.0;
 		}
 		sum = sum + term;
 	}
@@ -1846,14 +1910,19 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	next = now + 1;
 
 	//kLoop : do k = 1, numFuelTypes				//!!!!!!
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 0; k <= numFuelTypes; k++)
 	{
+		int k0 = k - 1;
+
 		c = condry[k0];
 		//lLoop : do l = 0, k
-		for (int l = 0; l <= k0; l++)//Start major lLoop.
+		//for (int l = 0; l <= k0; l++)//Start major lLoop.
+		for (int l = 0; l <= k; l++)//Start major lLoop.
 		{
-			//kl = Loc(k, l);
-			kl = Loc(k0 + 1, l);
+			int l0 = l - 1;
+			kl = Loc(k, l);
+			//kl = Loc(k0 + 1, l);
 			tdun = tout[kl];
 
 			//!c See if k of (k, l) pair burned out
@@ -1888,14 +1957,14 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					r = r0 + 0.5 * dr;
 					gi = fi + fid;
 				}
-				//if ((l != 0) && (l != k))
-				if ((l != 0) && (l != k0 + 1))
+				if ((l != 0) && (l != k))
+				//if ((l != 0) && (l != k0 + 1))
 				{
-					r = r0 + 0.5 * (1.0 + flit[l]) * dr;
-					gi = fi + fint[k0] + flit[l] * fint[l];
+					r = r0 + 0.5 * (1.0 + flit[l0]) * dr;
+					gi = fi + fint[k0] + flit[l0] * fint[l0];
 				}								//JMR: Link with following if!!!!!!
-				//if (l == k)
-				if (l == k0 + 1)
+				if (l == k)
+				//if (l == k0 + 1)
 				{
 					r = r0 + 0.5 * (1.0 + flit[k0]) * dr;
 					gi = fi + flit [k0] * fint[k0];
@@ -1910,7 +1979,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				nspan = std::max(l, static_cast<int>(std::round((tnext - tst) / dt)));//Ugly!!!!!
 				if (nspan <= mxstep)
 				{
-					qdot[kl][nspan] = qqq;
+					//qdot[kl][nspan] = qqq;//?????
+					qdot[kl][nspan - 1] = qqq;//nspan is 1 based and must be converted.
 				}
 				else//if (nspan > mxstep)
 				{
@@ -2011,8 +2081,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				//if ((l != 0) && (l != k))
 				if ((l != 0) && (l != k0 + 1))
 				{
-					r = r0 + 0.5 * flit[l] * dr;
-					gi = fi + flit[l] * fint[l];
+					r = r0 + 0.5 * flit[l0] * dr;
+					gi = fi + flit[l0] * fint[l0];
 				}
 				tf = TEMPF(gi, r, tpamb);
 				ts = tpamb;
@@ -2094,8 +2164,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				//if ((l != 0) && (l != k))
 				if ((l != 0) && (l != k0 + 1))
 				{
-					r = r0 + 0.5 * flit[l] * dr;
-					gi = fi + flit[l] * fint[l];
+					r = r0 + 0.5 * flit[l0] * dr;
+					gi = fi + flit[l0] * fint[l0];
 				}
 				tf = TEMPF(gi, r, tpamb);
 				if (tf <= (tpdry + 10.0))
@@ -2163,14 +2233,19 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	//!c Update fractions ignited and burned out, to apply at next step start
 
 	//do k = 1, numFuelTypes
-	for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
+	for (int k = 0; k <= numFuelTypes; k0++)
 	{
+		int k0 = k - 1;
+
 		flit[k0] = 0.0;
 		fout[k0] = 0.0;
 		//do l = 0, k
-		for (int l = 0; l <= k0; l++)
+		//for (int l = 0; l <= k0; l++)
+		for (int l = 0; l <= k; l++)
 		{
-			kl = Loc(k0 + 1, l);
+			//kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			flag = (tnext >= tign[kl]);
 			if (flag && (tnext <= tout[kl]))
 			{
@@ -2194,23 +2269,31 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
  * @param l Triangular matrix row (column) index, (0 - k), = partner.
  *          This index starts at 0, which represent the "no companion" pairs.
  *
- * @returns The compact array index representing triangular matrix position [k, l]. 
+ * @returns The compact array index representing triangular matrix position [k, l], notated as kl. 
  * 
  * @par Indexes:
- * The matrix indices represent the fuel types and are 1 based, i.e. 1 = fuel type 1.  The l index
- * represent the partner fuel with 0 representing no partner.  This indexing approach makes
- * reasonable sense.  In the orignal Fortran it also alignes with the default 1 based array
- * indexing.  There is no easy way to make this more C-ish since one dimension is already 0 based.
- * Therefore we keep the indexing the same.  Calling code must keep the index model in mind.
- * However, this implementation differes from the Fortran code in that we assume the arrays used to
- * represent triangular matrix data use native 0 indexing.
+ * The matrix indices representing the fuel types and are 1 based, i.e. 1 = fuel type 1.  The two
+ * dimensions of the matrix are represented by index variables k and l, where k represents the first
+ * fuel type and the l index represents the partner fuel, with 0 representing no partner.  In this
+ * way the indexes for the two dimensions have the same meaning for all positive values.  In the
+ * orignal Fortran, which uses 1 based array indexing by default, the fuel type value align with all
+ * arrays organized by fuel type.  However, things are a bit prone to confusion in C++.  There is no
+ * easy way to make the triangular matrix more C-ish since one dimension is already 0 based.
+ * Therefore we keep the indexing scheme the same.  Calling code must keep the index model in mind.
+ * However, this function's return valued differes from the Fortran implementation in that we assume
+ * the arrays used to represent triangular matrix data use native.
+ *
+ * The fact that fuel types start at 1 in triangular matrix space but start with 0 in C array space
+ * can make the code confusing.  To make things clearer we have introduced the convention of using
+ * k and l only where 1 based indexes are used.  Where the 0 based equivalent is needed k0, and to a
+ * lesser extent l0????? are substituted.
  * 
  * @note: This will only return valid (occupied) coordinates of the triangular matrix.
  * The code assumes maxno and maxkl are the maximum dimensions.
  * Further error checking would require that the number of fuel classes be know. ?????
  
 ! History: This function was originally implemented as a statement function defined in seven places
-! in the original code.
+! in the original Fortran code.
  
  */
 int Loc(const int k, const int l)
@@ -2383,14 +2466,19 @@ void SaveStateToFile(const int ts, const double time, const int number,
 		}
 
 		//do k = 1, number
-		for (int k0 = 0; k0 < number; k0++)
+		//for (int k0 = 0; k0 < number; k0++)
+		for (int k = 0; k <= number; k++)
 		{
+			int k0 = k - 1;//Only used once.
 			fuelName = parts[k0];
 
 			//do l = 0, k
-			for (int l = 0; l < number; l++)
+			//for (int l = 0; l < number; l++)
+			for (int l = 0; l <= k; l++)
 			{
-				int kl = Loc(k0 + 1, l);//Triangular matrix index, 0 based.
+				//int l0 = l - 1;
+				//int kl = Loc(k0 + 1, l);//Triangular matrix index, 0 based.
+				int kl = Loc(k, l);
 
 				//Get the name of the partner component:
 				if (l == 0)
@@ -2399,7 +2487,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 				}
 				else
 				{
-					compName = parts[l];
+					compName = parts[l - 1];//l0
 				}
 
 				//Fuel loading:
