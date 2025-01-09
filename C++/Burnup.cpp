@@ -722,7 +722,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 
 	//do j = 1, maxNumFuelTypes
 	//for (int j = 0; j < maxNumFuelTypes; j++)
-	for (int j0 = 0; j < maxNumFuelTypes; j0++)
+	for (int j0 = 0; j0 < maxNumFuelTypes; j0++)
 	{
 		key[j0] = j0;
 	}
@@ -896,7 +896,7 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	//We should allow the vectors of any size, including empty vectors, to be passed in!!!!!
 
 	//do k = 1, numFuelTypes
-	for (int k = 1; k <= numFuelTypes, k++)
+	for (int k = 1; k <= numFuelTypes; k++)
 	//The indexing for all inputs and outputs are 0 based but we have to convert for Loc():
 	//for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
 	{
@@ -1245,7 +1245,8 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		tigk = tpig[k0];
 		//do l = 0, k
 		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
-		for (int l = 0; l <= k + 1; l++)/
+		//for (int l = 0; l <= k + 1; l++)
+		for (int l = 0; l <= k; l++)
 		{
 			//kl = Loc(k0 + 1, l);
 			kl = Loc(k, l);
@@ -1328,7 +1329,8 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 		for (int l = 0; l <= k; l++)
 		{
-			kl = Loc(k0 + 1, l);
+			//kl = Loc(k0 + 1, l);
+			kl = Loc(k, l);
 			if (tdry[kl] < rindef)
 			{
 				tdry[kl] = tdry[kl] - trt;
@@ -2234,7 +2236,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 	//do k = 1, numFuelTypes
 	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	for (int k = 0; k <= numFuelTypes; k0++)
+	for (int k = 0; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
