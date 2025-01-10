@@ -863,7 +863,7 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	double frac;//Intermediate for calculating alone().
 	double K_a;//Value of K_a (ak) parameter, fixed or calculated depending on the mode.
 
-	pi = abs(acos(-1.0));//Calculate pi.
+	pi = std::abs(std::acos(-1.0));//Calculate pi.
 
 	//Determine the actual number of fuel types:
 	//if (present(number)) then
@@ -1556,7 +1556,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 		fav = b03 + xav * (a13 + (a23 * xav + xav * xav))
 		fav = b03 + (a13 * xav) + (a23 * xav ** 2) + (xav ** 3)*/
 
-		if (abs(fav) <= small)
+		if (std::abs(fav) <= small)
 		{
 			//exit
 			break;
@@ -1693,13 +1693,13 @@ void HEATX(const double u, const double d, const double dia, const double tf, co
 
 	if (dia > b)
 	{
-		v = sqrt(u * u + 0.53 * g * d);
+		v = std::sqrt(u * u + 0.53 * g * d);
 		re = v * dia / vis;
 		//enuair = 0.344 * (re**0.56)
 		enuair = 0.344 * pow(re, 0.56);
 		conair = a + b * tf;
-		fac = sqrt(abs(tf - ts) / dia);
-		hfmin = fmfac * sqrt(fac);
+		fac = std::sqrt(std::abs(tf - ts) / dia);
+		hfmin = fmfac * std::sqrt(fac);
 		hfm = std::max((enuair * conair / dia), hfmin);
 	}
 
@@ -1739,7 +1739,7 @@ double TEMPF(const double q, const double r, const double tamb)
 	{
 		den = 1.0 + term * (rlast + 1.0) * (rlast * rlast + 1.0);
 		rnext = 0.5 * (rlast + 1.0 + r / den);
-		if (abs(rnext - rlast) < err)
+		if (std::abs(rnext - rlast) < err)
 		{
 			tempf = rnext * tamb;
 			//return
