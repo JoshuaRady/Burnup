@@ -1347,7 +1347,8 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	//do k = 1, numFuelTypes
 	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	for (int k = 0; k <= numFuelTypes; k++)
+	//for (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
@@ -1913,7 +1914,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 	//kLoop : do k = 1, numFuelTypes				//!!!!!!
 	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	for (int k = 0; k <= numFuelTypes; k++)
+	//for (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
+	ror (int k = 1; k <= numFuelTypes; k++)/
 	{
 		int k0 = k - 1;
 
@@ -2236,7 +2238,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 	//do k = 1, numFuelTypes
 	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	for (int k = 0; k <= numFuelTypes; k++)
+	// (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
@@ -2469,7 +2472,8 @@ void SaveStateToFile(const int ts, const double time, const int number,
 
 		//do k = 1, number
 		//for (int k0 = 0; k0 < number; k0++)
-		for (int k = 0; k <= number; k++)
+		//for (int k = 0; k <= number; k++)//Bad!!!!!
+		for (int k = 1; k <= number; k++)
 		{
 			int k0 = k - 1;//Only used once.
 			fuelName = parts[k0];
