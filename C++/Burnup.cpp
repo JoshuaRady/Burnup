@@ -367,6 +367,8 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	for (int i = 0; i < *number; i++)
 	{
 		parts[i] = "Fuel " + std::to_string(i);
+		
+		std::cout << parts[i] << std::endl;
 	}
 
 	Msg.Log("Prior to copying arrays...");//Temporary!!!!!!
@@ -406,10 +408,19 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 // 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
 // 	         historyLogical);
 
-	double& fiRef = *fi;
-	double& dtRef = *dt;
+// 	double& fiRef = *fi;
+// 	double& dtRef = *dt;
+// 
+// 	Simulate(fiRef, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtRef, *wdf, *dfm, *ntimes, *number,
+// 	         parts,
+// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+// 	         historyLogical);
 
-	Simulate(fiRef, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtRef, *wdf, *dfm, *ntimes, *number,
+	double fiCopy = *fi;
+	double dtCopy = *dt;
+
+	Simulate(fiCopy, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtCopy, *wdf, *dfm, *ntimes, *number,
 	         parts,
 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
