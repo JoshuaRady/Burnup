@@ -369,6 +369,8 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		parts[i] = "Fuel " + std::to_string(i);
 	}
 
+	Msg.Log("Prior to copying arrays...");//Temporary!!!!!!
+
 	//Convert input arrays to vectors:
 	std::vector<double> wdryVec(wdry, wdry + *number);
 	std::vector<double> ashVec(ash, ash + *number);
@@ -387,7 +389,7 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	std::vector<double> diamVec(diam, diam + *number);
 
 	//R logical variables come in as ints:
-	if (outputHistory == 0)
+	if (*outputHistory == 0)
 	{
 		historyLogical = false;
 	}
@@ -396,11 +398,15 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
 	}
 
+	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
+
 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
 	         parts,
 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
 	         historyLogical);
+
+	Msg.Log("Prior to converting back...");//Temporary!!!!!!
 
 	//Convert back:
 	for (int i = 0; i < *number; i++)
