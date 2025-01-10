@@ -398,13 +398,22 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
 	}
 
-// 	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
-// 
+	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
+
 // 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
 // 	         parts,
 // 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
 // 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
 // 	         historyLogical);
+
+	double& fiRef = *fi;
+	double& dtRef = *dt;
+
+	Simulate(fiRef, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtRef, *wdf, *dfm, *ntimes, *number,
+	         parts,
+	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+	         historyLogical);
 
 	Msg.Log("Prior to converting back...");//Temporary!!!!!!
 
