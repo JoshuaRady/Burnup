@@ -398,37 +398,37 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
 	}
 
-	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
-
-	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
-	         parts,
-	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
-	         historyLogical);
-
-	Msg.Log("Prior to converting back...");//Temporary!!!!!!
-
-	//Convert back:
-	for (int i = 0; i < *number; i++)
-	{
-		//(*wdry)[i] = wdryVec[i];
-		//(*ash)[i] = ashVec[i];
-		wdry[i] = wdryVec[i];
-		ash[i] = ashVec[i];
-		htval[i] = htvalVec[i];
-		fmois[i] = fmoisVec[i];
-		dendry[i] = dendryVec[i];
-		sigma[i] = sigmaVec[i];
-		cheat[i] = cheatVec[i];
-		condry[i] = condryVec[i];
-		tpig[i] = tpigVec[i];
-		tchar[i] = tcharVec[i];
-		xmat[i] = xmatVec[i];
-		tign[i] = tignVec[i];
-		tout[i] = toutVec[i];
-		wo[i] = woVec[i];
-		diam[i] = diamVec[i];
-	}
+// 	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
+// 
+// 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
+// 	         parts,
+// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+// 	         historyLogical);
+// 
+// 	Msg.Log("Prior to converting back...");//Temporary!!!!!!
+// 
+// 	//Convert back:
+// 	for (int i = 0; i < *number; i++)
+// 	{
+// 		//(*wdry)[i] = wdryVec[i];
+// 		//(*ash)[i] = ashVec[i];
+// 		wdry[i] = wdryVec[i];
+// 		ash[i] = ashVec[i];
+// 		htval[i] = htvalVec[i];
+// 		fmois[i] = fmoisVec[i];
+// 		dendry[i] = dendryVec[i];
+// 		sigma[i] = sigmaVec[i];
+// 		cheat[i] = cheatVec[i];
+// 		condry[i] = condryVec[i];
+// 		tpig[i] = tpigVec[i];
+// 		tchar[i] = tcharVec[i];
+// 		xmat[i] = xmatVec[i];
+// 		tign[i] = tignVec[i];
+// 		tout[i] = toutVec[i];
+// 		wo[i] = woVec[i];
+// 		diam[i] = diamVec[i];
+// 	}
 }
 
 //DUFBRN()
