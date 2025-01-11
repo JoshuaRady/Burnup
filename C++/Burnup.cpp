@@ -1899,7 +1899,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	double tst, aint, qqq;
 	double tav1, tav2, tav3, tavg;//Time over which to perform averaging.
 	double tbar;
-	int index;											//Is index a keyword?????
+	int index;											//Is index a keyword?????  It may be deprecated POSIX function name.
 	double qdsum;	//Sum of heat transfer (W/m^2 * s = J/m^2 ?).
 	double qdavg;	//Average heat transfer...
 	double deltim, rate, dryt, dqdt;
@@ -2068,7 +2068,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 						deltim = tavg - tspan;
 					}
 
-					qdsum = qdsum + qdot[kl][index] * deltim;
+					//qdsum = qdsum + qdot[kl][index] * deltim;
+					qdsum = qdsum + qdot[kl][index - 1] * deltim;//Convert to 0 index?????
 					tspan = tspan + deltim;
 
 					if ((tspan < tavg) && (index > 1))
