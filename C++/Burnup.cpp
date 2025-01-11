@@ -1420,11 +1420,13 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 				kl = Loc(k, l);
 				dia = diam[kl];
 				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
-				qdot[kl][now] = hb * std::max((tf - ts), 0.0);
+				//qdot[kl][now] = hb * std::max((tf - ts), 0.0);
+				qdot[kl][now - 1] = hb * std::max((tf - ts), 0.0);
 				aint = pow((c / hb), 2);
 				ddt = dt - tign[kl];
 				acum[kl] = aint * ddt;
-				ddot[kl] = qdot[kl][now] * work[k0];
+				//ddot[kl] = qdot[kl][now] * work[k0];
+				ddot[kl] = qdot[kl][now - 1] * work[k0];
 				tout[kl] = dia / ddot[kl];
 				dnext = std::max(0.0, (dia - ddt * ddot[kl]));
 				wnext = wo[kl] * pow((dnext / dia), 2);
@@ -2032,11 +2034,12 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				else//if (nspan > mxstep)
 				{
 					//do mu = 2, mxstep
-					for (int mu = 1; mu < mxstep; mu++)//Is this right?????
+					for (int mu = 1; mu < mxstep; mu++)//Is this right????? mu0?
 					{
 						qdot[kl][mu - 1] = qdot[kl][mu];
 					}
-					qdot[kl][mxstep] = qqq;
+					//qdot[kl][mxstep] = qqq;
+					qdot[kl][mxstep - 1] = qqq;
 				}
 				aint = pow((c / hb), 2);
 				acum[kl] = acum[kl] + aint * dt;
@@ -2271,7 +2274,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					{
 						ts = tchar[k0];
 						//qdot(kl, 1) = hb * max((tf - ts), 0.0)
-						qdot[kl][1] = hb * std::max((tf - ts), 0.0);
+						//qdot[kl][1] = hb * std::max((tf - ts), 0.0);
+						qdot[kl][0] = hb * std::max((tf - ts), 0.0);
 					}
 				}
 			}
