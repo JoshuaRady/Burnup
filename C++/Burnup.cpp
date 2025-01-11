@@ -297,7 +297,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 }
 
 //SimulateR()
-/**This is a wrapper for Simulate() that allows it to be called from R (using .C()):
+/** This is a wrapper for Simulate() that allows it to be called from R (using .C()):
  *
  * The parameters parallel those of Simulate() but are pointers meet the requirements of R's .C()
  * function.  There is no easy way to pass a string so the 'parts' parameter is omitted.
@@ -384,11 +384,19 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	std::vector<double> condryVec(condry, condry + *number);
 	std::vector<double> tpigVec(tpig, tpig + *number);
 	std::vector<double> tcharVec(tchar, tchar + *number);
-	std::vector<double> xmatVec(xmat, xmat + *number);
-	std::vector<double> tignVec(tign, tign + *number);
-	std::vector<double> toutVec(tout, tout + *number);
-	std::vector<double> woVec(wo, wo + *number);
-	std::vector<double> diamVec(diam, diam + *number);
+// 	std::vector<double> xmatVec(xmat, xmat + *number);
+// 	std::vector<double> tignVec(tign, tign + *number);
+// 	std::vector<double> toutVec(tout, tout + *number);
+// 	std::vector<double> woVec(wo, wo + *number);
+// 	std::vector<double> diamVec(diam, diam + *number);
+
+	int lenkl = *number * (*number + 1) / 2 + *number;//Equivalent to maxkl but determined by number passed in.
+	
+	std::vector<double> xmatVec(xmat, xmat + lenkl);
+	std::vector<double> tignVec(tign, tign + lenkl);
+	std::vector<double> toutVec(tout, tout + lenkl);
+	std::vector<double> woVec(wo, wo + lenkl);
+	std::vector<double> diamVec(diam, diam + lenkl);
 
 	//R logical variables come in as ints:
 	if (*outputHistory == 0)
@@ -448,6 +456,15 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		tout[i] = toutVec[i];
 		wo[i] = woVec[i];
 		diam[i] = diamVec[i];
+	}
+	
+	for (int j = 0; j < lenkl; j++)
+	{
+		xmat[j] = xmatVec[j];
+		tign[j] = tignVec[j];
+		tout[j] = toutVec[j];
+		wo[j] = woVec[j];
+		diam[j] = diamVec[j];
 	}
 }
 
