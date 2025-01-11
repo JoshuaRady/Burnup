@@ -989,7 +989,7 @@
       		if( mois ) goto 10
       		tied = ( fmois( i ) .EQ. fm )
       		if( .NOT. tied ) goto 05
-      		dens = ( dryden ( i ) .LE. de )
+      		dens = ( dryden( i ) .LE. de )
       		if( dens ) goto 10
 05    		sigma( i + 1 ) = sigma( i )
       		fmois( i + 1) = fmois( i )

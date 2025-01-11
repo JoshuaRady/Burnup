@@ -2366,7 +2366,7 @@ contains
 
 					tied = (fmois(i) .EQ. fm)
 					if (tied) then
-						dens = (dryden (i) .LE. de)
+						dens = (dryden(i) .LE. de)
 						if (dens) then
 							newIndexFound = .true.
 							exit
