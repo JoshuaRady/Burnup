@@ -371,7 +371,7 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		std::cout << parts[i] << std::endl;
 	}
 
-	Msg.Log("Prior to copying arrays...");//Temporary!!!!!!
+	//Msg.Log("Prior to copying arrays...");//Temporary!!!!!!
 
 	//Convert input arrays to vectors:
 	std::vector<double> wdryVec(wdry, wdry + *number);
@@ -408,13 +408,13 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
 	}
 
-	Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
+	//Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
 
-// 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
-// 	         parts,
-// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
-// 	         historyLogical);
+	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
+	         parts,
+	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+	         historyLogical);
 
 // 	double& fiRef = *fi;
 // 	double& dtRef = *dt;
@@ -425,16 +425,17 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 // 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
 // 	         historyLogical);
 
-	double fiCopy = *fi;
-	double dtCopy = *dt;
+	//This works but is probably not necessary:
+// 	double fiCopy = *fi;
+// 	double dtCopy = *dt;
+// 
+// 	Simulate(fiCopy, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtCopy, *wdf, *dfm, *ntimes, *number,
+// 	         parts,
+// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
+// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+// 	         historyLogical);
 
-	Simulate(fiCopy, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtCopy, *wdf, *dfm, *ntimes, *number,
-	         parts,
-	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
-	         historyLogical);
-
-	Msg.Log("Prior to converting back...");//Temporary!!!!!!
+	//Msg.Log("Prior to converting back...");//Temporary!!!!!!
 
 	//Convert back:
 	for (int i = 0; i < *number; i++)
