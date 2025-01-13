@@ -360,8 +360,6 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	for (int i = 0; i < *number; i++)
 	{
 		parts[i] = "Fuel " + std::to_string(i);
-		
-		std::cout << parts[i] << std::endl;
 	}
 
 	//Convert input arrays to vectors:
