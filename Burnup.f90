@@ -2758,7 +2758,7 @@ contains
 		implicit none
 
 		! Arguments:
-		real, intent(in) :: q		! Fire intensity.
+		real, intent(in) :: q		! Fire intensity (kW/m^2).
 		real, intent(in) :: r		! Dimensionless mixing parameter.
 		real, intent(in) :: tamb	! Ambient temperature (K).
 

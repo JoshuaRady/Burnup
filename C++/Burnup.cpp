@@ -1592,7 +1592,7 @@ void HEATX(const double u, const double d, const double dia, const double tf, co
 !
 ! History: Modernized original Burnup subroutine.
 
- * @param q Fire intensity (kW/m^2).				Units -> Fortran!!!!
+ * @param q Fire intensity (kW/m^2).
  * @param r Dimensionless mixing parameter.
  * @param tamb Ambient temperature (K).
  */
