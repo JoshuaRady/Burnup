@@ -2327,7 +2327,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 				//Get the name of the partner component:
 				if (l == 0)
 				{
-					compName = noCmpStr;/
+					compName = noCmpStr;
 				}
 				else
 				{
