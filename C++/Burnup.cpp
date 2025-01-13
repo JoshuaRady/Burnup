@@ -1819,21 +1819,24 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			if (tnow >= tlit)
 			{
 				ts = tchar[k0];
+				
+				//In the original code the following conditionals were in series:
 				if (l == 0)
 				{
 					r = r0 + 0.5 * dr;
 					gi = fi + fid;
 				}
-				if ((l != 0) && (l != k))
+				else if ((l != 0) && (l != k))//Or (l > 0) && (l < k).
 				{
 					r = r0 + 0.5 * (1.0 + flit[l0]) * dr;
 					gi = fi + fint[k0] + flit[l0] * fint[l0];
-				}								//JMR: Link with following if!!!!!!
-				if (l == k)
+				}
+				else if (l == k)//Or just else.
 				{
 					r = r0 + 0.5 * (1.0 + flit[k0]) * dr;
 					gi = fi + flit [k0] * fint[k0];
 				}
+
 				tf = TEMPF(gi, r, tpamb);
 				dia = diam[kl];
 				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
@@ -1924,7 +1927,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			dryt = tdry[kl];
 			if ((tnow >= dryt) && (tnow < tlit))
 			{
-				//These ifs can be linked !!!!!:
+				//In the original code the following conditionals were in series:
 				if (l == 0)
 				{
 					r = r0;
@@ -1935,11 +1938,12 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					r = r0;
 					gi = fi;
 				}
-				if ((l != 0) && (l != k))
+				if ((l != 0) && (l != k))//Or just else.
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
 				}
+
 				tf = TEMPF(gi, r, tpamb);
 				ts = tpamb;
 				dia = diam[kl];
@@ -2004,22 +2008,24 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			{
 				factor = fmois[k0] * dendry[k0];
 				conwet = condry[k0] + 4.27e-04 * factor;
-				//These ifs can be linked !!!!!:
+
+				//In the original code the following conditionals were in series:
 				if (l == 0)
 				{
 					r = r0;
 					gi = fi + fid;
 				}
-				if (l == k)
+				else if (l == k)
 				{
 					r = r0;
 					gi = fi;
 				}
-				if ((l != 0) && (l != k))
+				else if ((l != 0) && (l != k))//Or just else.
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
 				}
+
 				tf = TEMPF(gi, r, tpamb);
 				if (tf <= (tpdry + 10.0))
 				{
