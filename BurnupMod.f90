@@ -358,7 +358,7 @@ contains
 
 
 	! Perform a simulation with prescribed inputs and return fuel consumption properties.
-	! The main fire properties are returned as output arguments.  Optionally additional a detailed
+	! The main fire properties are returned as output arguments.  Optionally an additional detailed
 	! fire history can be output to file.
 	!
 	! History: Added as an programatic alternative entry point to the original interactive program.
@@ -485,10 +485,10 @@ contains
 					parts, list, area)
 
 		! Record the state before the start of the simulation.  This need to be done after ARRAYS()
-		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
+		! because parts, wo, and diam may get reordered.  now and tis are not initialized yet so we
 		! set the time explicitly.  
 		call SaveStateToFile(0, 0.0, number, parts, wo, diam, fi)
-		! The first simulated time point starts at the end of the Igniting fire residence time.  The
+		! The first simulated time point starts at the end of the igniting fire residence time.  The
 		! fire intensity is a constant value for this period.  It would make sense to make another
 		! record of fire intensity at the end of the residence time.  However, this would lead to
 		! two values at time point 1.  Likewise, this would result in two values for fuel loadings.
@@ -526,7 +526,7 @@ contains
 		! Calculate the initial fire intensity:
 		call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
-		! Record the state after START() and the first call to FIRINT(): Make optional!!!!!
+		! Record the state after START() and the first call to FIRINT(), if needed:
 		call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 
 		! If the fire intensity is above the extinguishing threshold calculate combustion until
@@ -556,7 +556,7 @@ contains
 				! Calculate the fire intensity at this time step:
 				call FIRINT(wodot, ash, htval, number, area, fint, fi)
 
-				! Save the state at each timestep: Make optional!!!!!
+				! Save the state at each timestep, if needed:
 				call SaveStateToFile(now, tis, number, parts, wo, diam, fi)
 
 				if (fi .LE. fimin) then
@@ -667,7 +667,7 @@ contains
 						xmatReal, tignReal, toutReal, woReal, diamReal, &
 						historyLogical)
 
-		! Convert back:
+		! Convert output arrays back to double precision:
 		fi = dble(fiReal)
 		dt = dble(dtReal)
 		wdry = dble(wdryReal)
@@ -2318,7 +2318,8 @@ contains
 									! may exceed the actual number. (Not present in original code.)
 		integer :: numFuelTypes		! The actual number of fuel types, explicit or implied.
 		integer :: j, i				! Counters.
-		real :: s, fm, de, keep, usi
+		real :: s, fm, de, keep, usi! Hold the values of the current search index.
+									! s and usi = inverse of SAV.
 		logical :: diam, mois, dens, tied
 		logical :: newIndexFound	! Note: Not present in original code.
 
@@ -4157,7 +4158,8 @@ contains
 	end function AskForReal
 
 
-	! Output the state of the simulation at the current timestep to file:
+	! Output the state of the simulation at the current timestep to file (if needed):
+ 	! Data is only saved when the SaveHistory setting is set to true.
 	! Sequential calls to this routine will produce a full history of the simulated fire.
 	!
 	! Successful output from this routine is treated as non-critical as it doesn't impact the
