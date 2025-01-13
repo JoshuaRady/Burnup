@@ -16,7 +16,7 @@ This is an reimplementation of the Burnup wildfire fuel consumption model in C++
 
 #include <algorithm>//For max(), min(), fill().
 #include <cerrno>
-#include <cmath>//<math.h>//For pow(), sqrt(), abs().
+#include <cmath>//For pow(), sqrt(), abs(), acos()..
 #include <cstring>//For strerror().
 #include <fstream>
 #include <iostream>//Or just <ostream>?
@@ -54,15 +54,14 @@ const char noCmpStr[] = "no companion";//The name for no companion pairs.
                                        //In the original code this was declared as a variable 'none'
                                        //in Summary().  'none' is a Fortran keyword so it was renamed.
 
-//Globals:
+//Globals:------------------------------------------------------------------------------------------
 bool SaveHistory = false;//Should fire history be output to file?
 
+//Code:---------------------------------------------------------------------------------------------
 
-//InteractiveUI()
-
-//Simulate()
+//Simulate():
 /** Perform a simulation with prescribed inputs and return fuel consumption properties.
- * The main fire properties are returned as output parameters.  Optionally additional a detailed
+ * The main fire properties are returned as output parameters.  Optionally an additional detailed
  * fire history can be output to file.
  *
  * Igniting fire and environmental data:
@@ -189,24 +188,19 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//initialization was not needed for the remaining locals.
 
 	//Set SaveHistory:
-// 	if (present(outputHistory)) then
-// 		SaveHistory = outputHistory
-// 	else
-// 		SaveHistory = .false.
-// 	end if
 	SaveHistory = outputHistory;
 
-	//Adding size checking on incoming arrays would be good here.
+	//Adding size checking on incoming arrays would be good here!!!!!
 
 	//Sort the fuel components and calculate the interaction matrix...
 	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
 	       elam, alone, xmat, wo, parts, list, area);
 
 	//Record the state before the start of the simulation.  This need to be done after ARRAYS()
-	//because parts, wo, and diam may get reordered.  now and tis are not initialized yet and we
+	//because parts, wo, and diam may get reordered.  now and tis are not initialized yet so we
 	//set the time explicitly.  
 	SaveStateToFile(0, 0.0, number, parts, wo, diam, fi);
-	//The first simulated time point starts at the end of the Igniting fire residence time.  The
+	//The first simulated time point starts at the end of the igniting fire residence time.  The
 	//fire intensity is a constant value for this period.  It would make sense to make another
 	//record of fire intensity at the end of the residence time.  However, this would lead to
 	//two values at time point 1.  Likewise, this would result in two values for fuel loadings.
@@ -223,8 +217,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	      flit, fout, tdry, tign, tout, qcum, tcum, acum, qdot, ddot, wodot, work, u, d, r0, dr,
 	      ncalls);
 
-	//if (tign(1) .lt. 0.0) then //Fuels failed to ignite.
-	if (tign[0] < 0.0)//Fuels failed to ignite.
+	if (tign[0] < 0.0)//Fuels failed to ignite. [Review: This is not completely consistent with the notes above?????]
 	{
 		//We could use dt = 0 to indicate the condition but could be confused as an actual
 		//value.  A negative value is clearly not valid and the value can be used to provide
@@ -247,7 +240,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//Calculate the initial fire intensity:
 	FIRINT(wodot, ash, htval, number, area, fint, fi);
 
-	//Record the state after START() and the first call to FIRINT(): Make optional!!!!!
+	//Record the state after START() and the first call to FIRINT(), if needed:
 	SaveStateToFile(now, tis, number, parts, wo, diam, fi);
 
 	//If the fire intensity is above the extinguishing threshold calculate combustion until
@@ -279,7 +272,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 			//Calculate the fire intensity at this time step:
 			FIRINT(wodot, ash, htval, number, area, fint, fi);
 
-			//Save the state at each timestep: Make optional!!!!!
+			//Save the state at each timestep, if needed:
 			SaveStateToFile(now, tis, number, parts, wo, diam, fi);
 
 			if (fi <= fimin)
@@ -371,8 +364,6 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		std::cout << parts[i] << std::endl;
 	}
 
-	//Msg.Log("Prior to copying arrays...");//Temporary!!!!!!
-
 	//Convert input arrays to vectors:
 	std::vector<double> wdryVec(wdry, wdry + *number);
 	std::vector<double> ashVec(ash, ash + *number);
@@ -384,13 +375,9 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	std::vector<double> condryVec(condry, condry + *number);
 	std::vector<double> tpigVec(tpig, tpig + *number);
 	std::vector<double> tcharVec(tchar, tchar + *number);
-// 	std::vector<double> xmatVec(xmat, xmat + *number);
-// 	std::vector<double> tignVec(tign, tign + *number);
-// 	std::vector<double> toutVec(tout, tout + *number);
-// 	std::vector<double> woVec(wo, wo + *number);
-// 	std::vector<double> diamVec(diam, diam + *number);
 
-	int lenkl = *number * (*number + 1) / 2 + *number;//Equivalent to maxkl but determined by number passed in.
+	//Triangular matrix size, equivalent to maxkl but determined by 'number' passed in:
+	int lenkl = *number * (*number + 1) / 2 + *number;
 	
 	std::vector<double> xmatVec(xmat, xmat + lenkl);
 	std::vector<double> tignVec(tign, tign + lenkl);
@@ -408,40 +395,15 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 		historyLogical = true;//The value should be 1.  We don't check for the NA value or others.
 	}
 
-	//Msg.Log("Prior to Simulate()...");//Temporary!!!!!!
-
 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
 	         parts,
 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
 	         historyLogical);
 
-// 	double& fiRef = *fi;
-// 	double& dtRef = *dt;
-// 
-// 	Simulate(fiRef, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtRef, *wdf, *dfm, *ntimes, *number,
-// 	         parts,
-// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
-// 	         historyLogical);
-
-	//This works but is probably not necessary:
-// 	double fiCopy = *fi;
-// 	double dtCopy = *dt;
-// 
-// 	Simulate(fiCopy, *ti, *u, *d, *tpamb, *ak, *r0, *dr, dtCopy, *wdf, *dfm, *ntimes, *number,
-// 	         parts,
-// 	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-// 	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
-// 	         historyLogical);
-
-	//Msg.Log("Prior to converting back...");//Temporary!!!!!!
-
-	//Convert back:
+	//Convert outputs back arrays:
 	for (int i = 0; i < *number; i++)
 	{
-		//(*wdry)[i] = wdryVec[i];
-		//(*ash)[i] = ashVec[i];
 		wdry[i] = wdryVec[i];
 		ash[i] = ashVec[i];
 		htval[i] = htvalVec[i];
@@ -571,12 +533,9 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
             std::vector<double>& area, const int number)
 {
 	int numFuelTypes;//The actual number of fuel types, explicit or implied.
-	//int j, k, kl, kj;Counters
-	//int j, k;//Counters
 	//The original Fortran code used counters k and j, which are 1 bases indexes.  We use k and j
 	//for 1 based triangular matrix indexes and k0 and j0 for 0 based array indexes.
 	int k0;//Counter
-	//double diak, wtk;
 
 	//Testing was done to confrim that explicit initialization of locals was not needed here. [in Fotran]
 
@@ -592,13 +551,9 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 
 	SORTER(sigma, fmois, dendry, key, number);
 
-	//do j = 1, numFuelTypes
-	//for (int j = 0; j < numFuelTypes; j++)
 	for (int j0 = 0; j0 < numFuelTypes; j0++)
 	{
-		//k = key[j];
 		k0 = key[j0];
-		//list[j] = parts[k];
 		list[j0] = parts[k0];
 	}
 	for (int j0 = 0; j0 < numFuelTypes; j0++)
@@ -678,35 +633,24 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 
 	OVLAPS(wdry, sigma, dendry, ak, fmois, xmat, elam, alone, area, number);
 
-	//do k = 1, numFuelTypes
-	//for (int k = 0; k < numFuelTypes; k++)
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
-		//int k0 = k - 1;
 		k0 = k - 1;	
 		double diak = 4.0 / sigma[k0];
 		double wtk = wdry[k0];
 
 		//Populate the alone/no companion indexes of the arrays:
-		//int kl = Loc(k + 1, 0);
 		int kl = Loc(k, 0);
 		diam[kl] = diak;
 		xmat[kl] = alone[k0];
 		wo[kl] = wtk * xmat[kl];
 
 		//Populate the interacting indexes of the arrays:
-		//do j = 1, k
-		//for (int j = 0; j < numFuelTypes; j++)
-		//for (int j = 0; j < k; j++)//?????
-		for (int j = 1; j <= k; j++)//?????
-		//for (int j = 0; j <= k; j++)//?????
+		for (int j = 1; j <= k; j++)
 		{
 			int kj = Loc(k, j);
-			//int kj = Loc(k + 1, j);
-			//int kj = Loc(k + 1, j + 1);//?????
 			diam[kj] = diak;
-			//xmat[kj] = elam[k][j - 1];//Convert j to 0 based index.
-			xmat[kj] = elam[k0][j - 1];//Convert j to 0 based index.
+			xmat[kj] = elam[k0][j - 1];//Convert j to 0 based index, j0.
 			wo[kj] = wtk * xmat[kj];
 		}
 	}
@@ -743,16 +687,14 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 	int maxNumFuelTypes;		//The maximum number of fuel classes allowed. The input arrays
 								//may exceed the actual number. (Not present in original code.)
 	int numFuelTypes;			//The actual number of fuel types, explicit or implied.
-	//int j, i;					//Counters.
 	int i;						//Counter.
-	double s, fm, de, keep, usi;			//Hold the values of the current search index. !!!!!
+	double s, fm, de, keep, usi;//Hold the values of the current search index.  s and usi = inverse of SAV.
 	bool diam, mois, dens, tied;
 	bool newIndexFound;//Note: Not present in original code.
 
 	maxNumFuelTypes = sigma.size();//Determine maximum number of fuels from input arrays.
 	
 	//Determine the actual number of fuel types:
-	//if (present(number)) then
 	if (number > 0)
 	{
 		numFuelTypes = number;
@@ -764,21 +706,14 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 
 	newIndexFound = false;
 
-	//do j = 1, maxNumFuelTypes
-	//for (int j = 0; j < maxNumFuelTypes; j++)
 	for (int j0 = 0; j0 < maxNumFuelTypes; j0++)
 	{
 		key[j0] = j0;
 	}
 
 	//!c Replacement sort: order on increasing size, moisture, density
-	//do j = 2, numFuelTypes
-	//for (int j = 1; j < numFuelTypes; j++)
-	//for (int j = 2; j <= numFuelTypes; j++) = 
 	for (int j0 = 1; j0 < numFuelTypes; j0++)
 	{
-		//int j0 = j - 1;
-
 		//Store the values for this fuel index:
 		s = 1.0 / sigma[j0];
 		fm = fmois[j0];
@@ -787,17 +722,15 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 
 		//Compare this index (j0) with every index before it:
 		//do i = (j - 1), 1, -1
-		//for (int i = (j - 1); i >= 0; i--)
-		//for (i = (j - 1); i >= 0; i--)
-		for (i = (j0 - 1); i >= 0; i--)//i is only used as a 0 based array index.
+		//for (i = (j0 - 1); i >= 0; i--)//i is only used as a 0 based array index. !!!!!
+		for (i0 = (j0 - 1); i0 >= 0; i0--)//i is only used as a 0 based array index.
 		{
-			usi = 1.0 / sigma[i];
+			usi = 1.0 / sigma[i0];
 			diam = (usi < s);
 
 			if (diam)
 			{
 				newIndexFound = true;
-				//exit
 				break;
 			}
 
@@ -805,22 +738,20 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 
 			if (tied)
 			{
-				mois = (fmois[i] < fm);
+				mois = (fmois[i0] < fm);
 				if (mois)
 				{
 					newIndexFound = true;
-					//exit
 					break;
 				}
 
-				tied = (fmois[i] == fm);
+				tied = (fmois[i0] == fm);
 				if (tied)
 				{
-					dens = (dryden[i] <= de);
+					dens = (dryden[i0] <= de);
 					if (dens)
 					{
 						newIndexFound = true;
-						//exit
 						break;
 					}
 				}
@@ -828,10 +759,10 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 
 			//i is greater than j.
 			//Move entry i (the entry we are comparing to) down one:
-			sigma[i + 1] = sigma[i];
-			fmois[i + 1] = fmois[i];
-			dryden[i + 1] = dryden[i];
-			key[i + 1] = key[i];
+			sigma[i0 + 1] = sigma[i0];
+			fmois[i0 + 1] = fmois[i0];
+			dryden[i0 + 1] = dryden[i0];
+			key[i0 + 1] = key[i0];
 		}
 
 		if (newIndexFound)
@@ -841,15 +772,14 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 		}
 		else
 		{
-			//i = 0;//Reseting i to 0 will move this entry (j) to postion 1.
-			i = -1;//Reseting i to -1 will move this entry (j) to postion 0.
+			i0 = -1;//Reseting i to -1 will move this entry (j) to postion 0.
 		}
 
 		//Record the values for fuel index j0 at the identified index:
-		sigma[i + 1] = 1.0 / s;
-		fmois[i + 1] = fm;
-		dryden[i + 1] = de;
-		key[i + 1] = keep;
+		sigma[i0 + 1] = 1.0 / s;
+		fmois[i0 + 1] = fm;
+		dryden[i0 + 1] = de;
+		key[i0 + 1] = keep;
 	}
 }
 
@@ -900,7 +830,8 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 {
 	double pi;//Convert to a constant?
 	int numFuelTypes;//The actual number of fuel types, explicit or implied.
-	int j, k, l, kj, kl;//Counters
+	//int j, k, l, kj, kl;//Counters	!!!!!
+	int kl;//Counter
 	double siga;//K_a * diameter
 	double a;
 	double bb;
@@ -921,16 +852,6 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	}
 
 	//Initialize arrays to 0:
-// 	do j = 1, numFuelTypes
-// 		alone(j) = 0.0
-// 		do k = 1, j
-// 			kj = Loc(j, k)
-// 			beta(kj) = 0.0
-// 		end do
-// 		do k = 1, numFuelTypes
-// 			elam(j, k) = 0.0
-// 		end do
-// 	end do
 	std::fill(alone.begin(), alone.end(), 0);
 	std::fill(beta.begin(), beta.end(), 0);
 	for (auto& row : elam)
@@ -939,15 +860,10 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	}
 	//We should allow the vectors of any size, including empty vectors, to be passed in!!!!!
 
-	//do k = 1, numFuelTypes
 	for (int k = 1; k <= numFuelTypes; k++)
-	//The indexing for all inputs and outputs are 0 based but we have to convert for Loc():
-	//for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
 	{
 		int k0 = k - 1;
-		
-		//do l = 1, k
-		//for (int l = 0; l <= k; l++)//Use 0 indexing.
+
 		for (int l = 1; l <= k; l++)//Use 0 indexing.
 		{
 			int l0 = l - 1;
@@ -969,8 +885,6 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 			//SAV / pi = diameter (units are carried by ak):
 			siga = K_a * sigma[k0] / pi;
 
-			//kl = Loc(k, l)
-			//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
 			kl = Loc(k, l);
 			a = siga * dryld[l0] / dryden[l0];//siga * ? units in meters
 			if (k == l)
@@ -989,52 +903,37 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	// If there is only one fuel type:
 	if (numFuelTypes == 1)
 	{
-		//elam(1, 1) = beta(2)
-		elam[0][0] = beta[1];//?????
+		elam[0][0] = beta[1];
 		alone[0] = 1.0 - elam[0][0];
 		return;
-		//break;
 	}
 
-	//do k = 1, numFuelTypes
-	//for (int k = 0; k < numFuelTypes; k++)//Use 0 indexing.
-	for (int k = 1; k <= numFuelTypes; k++)//Use 0 indexing.
+	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		//These inner loops could be combined to simplify the logic and make it more readable!!!!!
 		int k0 = k - 1;
 		
 		frac = 0.0;
-		//do l = 1, k
-		//for (int l = 0; l <= k; l++)//Use 0 indexing.
 		for (int l = 1; l <= k; l++)
 		{
 			kl = Loc(k, l);
-			//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
 			frac = frac + beta[kl];
 		}
 
 		if (frac > 1.0)
 		{
-			//do l = 1, k
-			//for (int l = 0; l <= k; l++)//Use 0 indexing.
 			for (int l = 1; l <= k; l++)
 			{
 				kl = Loc(k, l);
-				//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
-				//elam[k][l - 1] = beta[kl] / frac;//l0
 				elam[k0][l - 1] = beta[kl] / frac;//l0
 			}
-			//alone[k] = 0.0;
 			alone[k0] = 0.0;
 		}
 		else
 		{
-			//for (int l = 0; l <= k; l++)//Use 0 indexing.
 			for (int l = 1; l <= k; l++)
 			{
 				kl = Loc(k, l);
-				//kl = Loc(k + 1, l + 1);//Convert to 1 based indexing for Loc().
-				//elam[k][l - 1] = beta[kl];//l0
 				elam[k0][l - 1] = beta[kl];//l0
 			}
 			alone[k0] = 1.0 - frac;
@@ -1130,7 +1029,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
            const double r0, const double dr, int& ncalls, const int number)
 {
 	int numFuelTypes;	//The actual number of fuel types, explicit or implied.
-	//integer :: k, l, kl ! Counters.
 	int kl;				//Triangular matrix index, 0 based.
 	double delm;		//Moisture effect on burning rate (scale factor).
 	double heatk;		//Burn rate factor.
@@ -1161,7 +1059,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	double df;			//
 
 	//Determine the actual number of fuel types:
-	//if (present(number)) then
 	if (number > 0)
 	{
 		numFuelTypes = number;
@@ -1176,10 +1073,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	!c by the product of the rate of heat tranefer to it, per
 	!c unit surface area, and the quantity work(k)*/
 
-	//do k = 1, numFuelTypes
-	//for (int k = 0; k < numFuelTypes; k++)//k in 0 based
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	//for (int k = 1; k < numFuelTypes; k++)//k in 0 based
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
@@ -1197,8 +1090,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		//!c to average value of lab experiments used to find above constants
 		work[k0] = 1.0 / (255.0 * heatk);
 
-		//do l = 0, k
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 		for (int l = 0; l <= k; l++)//l in kl space, 0 based
 		{
 			kl = Loc(k, l);
@@ -1212,9 +1103,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	//The original code does not initialize acum and qdot.  Failure to do so leads to small
 	//variations between runs and changes to results.
-	//acum = 0.0;
 	std::fill(acum.begin(), acum.end(), 0);
-	//qdot = 0.0;
 	for (auto& row : qdot)
 	{
 		std::fill(row.begin(), row.end(), 0);
@@ -1230,17 +1119,13 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	ts = tpamb;
 	if (tf <= (tpdry + 10.0))
 	{
-		//if (present(number)) then ! In an interactive session, preserve the original behavior:
 		if (number > 0)//In an interactive session, preserve the original behavior:
 		{
-			//stop ' Igniting fire cannot dry fuel'
 			Stop("Igniting fire cannot dry fuel");
 		}
 		else//Otherwise signal the condition and return
 		{
-			//tign = -2.0;//Value signals fuel did not dry.
 			std::fill(tign.begin(), tign.end(), -2.0);//Value signals fuel did not dry.
-			//write(*, *) "Igniting fire cannot dry fuel."
 			Msg.Log("Igniting fire cannot dry fuel");
 			return;
 		}
@@ -1248,24 +1133,17 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	thd = (tpdry - ts) / (tf - ts);
 	tx = 0.5 * (ts + tpdry);
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
 	for (int k = 1; k <= numFuelTypes; k++)//k0 = k as base 0 index
 	{
 		int k0 = k - 1;
 
 		factor = dendry[k0] * fmois[k0];
 		conwet = condry[k0] + 4.27e-04 * factor;
-		//do l = 0, k
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 		for (int l = 0; l <= k; l++)//l in kl space, 0 based
 		{
-			//kl = Loc(k0 + 1, l);
 			kl = Loc(k, l);
 			dia = diam[kl];
 			HEATX(u, d, dia, tf, tx, hf, hb, conwet, en);
-			//DRYTIM(en, thd, dryt);
 			dryt = DRYTIM(en, thd);
 			cpwet = cheat[k0] + fmois[k0] * ch2o;
 			fac = pow((0.5 * dia), 2) / conwet;
@@ -1279,20 +1157,14 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	tsd = tpdry;
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
 		c = condry[k0];
 		tigk = tpig[k0];
-		//do l = 0, k
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
-		//for (int l = 0; l <= k + 1; l++)
 		for (int l = 0; l <= k; l++)
 		{
-			//kl = Loc(k0 + 1, l);
 			kl = Loc(k, l);
 			dryt = tdry[kl];
 			if (dryt < dt)
@@ -1304,8 +1176,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 				qcum[kl] = hb * tcum[kl];
 				if (tf > (tigk + 10.0))
 				{
-					//TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0], dendry[k0],
-					//       hb, dtign);
 					dtign = TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0],
 					               dendry[k0], hb);
 					trt = dryt + dtign;
@@ -1325,8 +1195,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	//!c Determine minimum ignition time and verify ignition exists
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;//Only used once!!!!!
@@ -1336,8 +1204,6 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 			nlit = nlit + 1;
 		}
 
-		//do l = 0, k
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 		for (int l = 0; l <= k; l++)
 		{
 			kl = Loc(k, l);
@@ -1347,17 +1213,13 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	if (nlit == 0)
 	{
-		//if (present(number)) then ! In an interactive session, preserve the original behavior:
 		if (number > 0)//In an interactive session, preserve the original behavior:
 		{
-			//stop ' START ignites no fuel'
 			Stop("START ignites no fuel");
 		}
 		else//Otherwise signal the condition and return:
 		{
-			//tign = -1.0;//Value signals fuel did not ignite.
 			std::fill(tign.begin(), tign.end(), -1.0);//Value signals fuel did not ignite.
-			//write(*, *) "Igniting fire cannot ignite fuel."
 			Msg.Log("Igniting fire cannot ignite fuel.");
 			return;
 		}
@@ -1365,15 +1227,10 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 
 	//!c Deduct trt from all time estimates, resetting time origin
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
-		//do l = 0, k
-		//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 		for (int l = 0; l <= k; l++)
 		{
-			//kl = Loc(k0 + 1, l);
 			kl = Loc(k, l);
 			if (tdry[kl] < rindef)
 			{
@@ -1389,20 +1246,14 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	//!c Now go through all component pairs and establish burning rates
 	//!c for all the components that are ignited; extrapolate to end time dt
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	//for (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
 		if (flit[k0] == 0.0)
 		{
-			//do l = 0, k
-			//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 			for (int l = 0; l <= k; l++)
 			{
-				//kl = Loc(k0 + 1, l);
 				kl = Loc(k, l);
 				ddot[kl] = 0.0;
 				tout[kl] = rindef;
@@ -1413,21 +1264,16 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		{
 			ts = tchar[k0];
 			c = condry[k0];
-			//do l = 0, k
-			//for (int l = 0; l <= k0 + 1; l++)//l in kl space, 0 based
 			for (int l = 0; l <= k; l++)
 			{
-				//kl = Loc(k0 + 1, l);
 				kl = Loc(k, l);
 				dia = diam[kl];
 				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
-				//qdot[kl][now] = hb * std::max((tf - ts), 0.0);
-				qdot[kl][now - 1] = hb * std::max((tf - ts), 0.0);
+				qdot[kl][now - 1] = hb * std::max((tf - ts), 0.0);//Convert to 0 based index.
 				aint = pow((c / hb), 2);
 				ddt = dt - tign[kl];
 				acum[kl] = aint * ddt;
-				//ddot[kl] = qdot[kl][now] * work[k0];
-				ddot[kl] = qdot[kl][now - 1] * work[k0];
+				ddot[kl] = qdot[kl][now - 1] * work[k0];//Convert to 0 based index.
 				tout[kl] = dia / ddot[kl];
 				dnext = std::max(0.0, (dia - ddt * ddot[kl]));
 				wnext = wo[kl] * pow((dnext / dia), 2);
@@ -1484,7 +1330,6 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
             std::vector<double>& fint, double& fi)
 {
 	double sum;//Running total for fi.
-	//integer :: k, l, kl;//Counters
 	double wdotk;
 	double term;
 	double ark;//Area for element k.
@@ -1492,25 +1337,19 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 	//Constants:
 	const double small = 1.0e-06;
 
-	//We could check that the inputs are the same size?
+	//We could check that the inputs are the same size?????
 
-	//Don't assume that fint is the right size!
+	//Don't assume that fint is the right size!!!!!
 
 	sum = 0.0;
-	//do k = 1, number
-	//for (int k = 1; k <= number; k++)//The k fuel types start at 1.
-	//for (int k = 0; k < number; k++)
-	//for (int k = 0; k < number; k++)
 	for (int k = 1; k <= number; k++)
 	{
 		int k0 = k - 1;
 
 		wdotk = 0.0;
-		//do l = 0, k
 		for (int l = 0; l <= k; l++)
 		{
 			int kl = Loc(k, l);
-			//int kl = Loc(k + 1, l);
 			wdotk = wdotk + wodot[kl];
 		}
 		term = (1.0 - ash[k0]) * htval[k0] * wdotk * 1.0e-03;
@@ -1566,7 +1405,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 	double dtb;				//The temperature increase required to reach the drying temperature.
 	double dti;				//The temperature increase required to reach the ignition temperature.
 	double ratio, rhoc;
-	double tmig;//Return value: Predicted time to piloted ignition, s.
+	double tmig;			//Return value: Predicted time to piloted ignition, s.
 
 	//Constants:
 	const double a03 = -1.3371565;	//ff() parameter 1
@@ -1586,7 +1425,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 
 	xlo = 0.0;
 	xhi = 1.0;
-	// Testing was done to confrim that explicit initialization of other locals was not needed.
+	// Testing was done to confrim that explicit initialization of other locals was not needed. [in Fortran]
 
 	while (true)
 	{
@@ -1605,7 +1444,6 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 
 		if (std::abs(fav) <= small)
 		{
-			//exit
 			break;
 		}
 		else if (fav < 0.0)
@@ -1624,7 +1462,6 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 	dti = tpig - tpam;
 	ratio = (hvap + cpm * dtb) / (chtd * dti);
 	rhoc = dend * chtd * (1.0 + fmof * ratio);
-	//tmig = ((beta / hbar) ** 2) * conw * rhoc;
 	tmig = (pow((beta / hbar), 2)) * conw * rhoc;
 
 	return tmig;
@@ -1651,7 +1488,6 @@ double DRYTIM(const double enu, const double theta)//, tau)
 	double xl, xh, xm;//The binary search low and high bounds, and the search center.
 	double x;
 	double approx;
-	//int n;//Counter
 	double tau;//Return value: Time required for the start of moisture loss.
 
 	//Constants:
@@ -1680,7 +1516,6 @@ double DRYTIM(const double enu, const double theta)//, tau)
 	}
 
 	x = (1.0 / xm - 1.0) / p;
-	//tau = (0.5 * x / enu) **2
 	tau = pow((0.5 * x / enu), 2);
 
 	return tau;
@@ -1742,7 +1577,6 @@ void HEATX(const double u, const double d, const double dia, const double tf, co
 	{
 		v = std::sqrt(u * u + 0.53 * g * d);
 		re = v * dia / vis;
-		//enuair = 0.344 * (re**0.56)
 		enuair = 0.344 * pow(re, 0.56);
 		conair = a + b * tf;
 		fac = std::sqrt(std::abs(tf - ts) / dia);
@@ -1781,7 +1615,6 @@ double TEMPF(const double q, const double r, const double tamb)
 	term = r / (aa * q);
 	rlast = r;
 
-	//do
 	while (true)
 	{
 		den = 1.0 + term * (rlast + 1.0) * (rlast * rlast + 1.0);
@@ -1789,7 +1622,6 @@ double TEMPF(const double q, const double r, const double tamb)
 		if (std::abs(rnext - rlast) < err)
 		{
 			tempf = rnext * tamb;
-			//return
 			break;
 		}
 		rlast = rnext;
@@ -1934,11 +1766,10 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	double tspan;
 	double dtemp;
 
-	//integer :: k, l, mu, kl; //Counters (kl is a bit different)
 	int kl;			//Triangular matrix index, 0 based.
 
 	//There are a large number of locals in this routine that are not explictly initialized.
-	//Testing was done to confrim that explicit initialization was not needed.
+	//Testing was done to confrim that explicit initialization was not needed. [in Fortran]
 
 	//Determine the actual number of fuel types:
 	if (number > 0)
@@ -1954,25 +1785,18 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	tnow = tin;
 	tnext = tnow + dt;
 	//!c tifi = time when fire ignition phase ended (at now = 1)
-	//tifi = tnow - float(now - 1) * dt;
 	tifi = tnow - static_cast<double>(now - 1) * dt;
 	next = now + 1;
 
-	//kLoop : do k = 1, numFuelTypes				//!!!!!!
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	//for (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
-	for (int k = 1; k <= numFuelTypes; k++)
+	for (int k = 1; k <= numFuelTypes; k++)//Start major k loop.
 	{
 		int k0 = k - 1;
 
 		c = condry[k0];
-		//lLoop : do l = 0, k
-		//for (int l = 0; l <= k0; l++)//Start major lLoop.
-		for (int l = 0; l <= k; l++)//Start major lLoop.
+		for (int l = 0; l <= k; l++)//Start major l loop.
 		{
 			int l0 = l - 1;
 			kl = Loc(k, l);
-			//kl = Loc(k0 + 1, l);
 			tdun = tout[kl];
 
 			//!c See if k of (k, l) pair burned out
@@ -1981,8 +1805,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			{
 				ddot[kl] = 0.0;
 				wodot[kl] = 0.0;
-				//cycle lLoop				//!!!!!!
-				continue;//Back to start of lLoop
+				continue;//Back to start of major l loop.
 			}
 			if (tnext >= tdun)
 			{
@@ -1992,8 +1815,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				wodot[kl] = wo[kl] / tgo;
 				wo[kl] = 0.0;
 				diam[kl] = 0.0;
-				//cycle lLoop				//!!!!!!
-				continue;//Back to start of lLoop
+				continue;//Back to start of major l loop.
 			}
 
 			//!c k has not yet burned out ... see if k of (k, l) pair is ignited
@@ -2008,13 +1830,11 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					gi = fi + fid;
 				}
 				if ((l != 0) && (l != k))
-				//if ((l != 0) && (l != k0 + 1))
 				{
 					r = r0 + 0.5 * (1.0 + flit[l0]) * dr;
 					gi = fi + fint[k0] + flit[l0] * fint[l0];
 				}								//JMR: Link with following if!!!!!!
 				if (l == k)
-				//if (l == k0 + 1)
 				{
 					r = r0 + 0.5 * (1.0 + flit[k0]) * dr;
 					gi = fi + flit [k0] * fint[k0];
@@ -2024,22 +1844,18 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				HEATX(u, d, dia, tf, ts, hf, hb, c, e);
 				qqq = hb * std::max((tf - ts), 0.0);
 				tst = std::max(tlit, tifi);
-				//nspan = std::max(l, nint((tnext - tst) / dt));
-				//nspan = std::max(l, std::round((tnext - tst) / dt));
+				
 				nspan = std::max(l, static_cast<int>(std::round((tnext - tst) / dt)));//Ugly!!!!!
 				if (nspan <= mxstep)
 				{
-					//qdot[kl][nspan] = qqq;//?????
 					qdot[kl][nspan - 1] = qqq;//nspan is 1 based and must be converted.
 				}
 				else//if (nspan > mxstep)
 				{
-					//do mu = 2, mxstep
-					for (int mu = 1; mu < mxstep; mu++)//Is this right????? mu0?
+					for (int mu = 1; mu < mxstep; mu++)//mu has been adjusted to a 0 based index range.
 					{
 						qdot[kl][mu - 1] = qdot[kl][mu];
 					}
-					//qdot[kl][mxstep] = qqq;
 					qdot[kl][mxstep - 1] = qqq;
 				}
 				aint = pow((c / hb), 2);
@@ -2049,7 +1865,6 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				tav1 = tnext - tlit;//Time since ignition.
 				tav2 = acum[kl] / alfa[k0];//Measure of square of distance heat has penetrated fuel.
 				tav3 = pow((dia / 4.0), 2) / alfa [k0];//Measure of time heat takes to reach center of fuel.
-				//tavg = std::min(tav1, tav2, tav3);
 				tavg = std::min({tav1, tav2, tav3});
 
 				index = 1 + std::min(nspan, mxstep);
@@ -2058,7 +1873,6 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				deltim = dt;
 
 				//Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
-				//do
 				while (true)
 				{
 					index = index - 1;
@@ -2072,18 +1886,15 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 						deltim = tavg - tspan;
 					}
 
-					//qdsum = qdsum + qdot[kl][index] * deltim;
-					qdsum = qdsum + qdot[kl][index - 1] * deltim;//Convert to 0 index?????
+					qdsum = qdsum + qdot[kl][index - 1] * deltim;//Convert to 0 index.
 					tspan = tspan + deltim;
 
 					if ((tspan < tavg) && (index > 1))
 					{
-						//cycle
 						continue;
 					}
 					else
 					{
-						//exit
 						break;
 					}
 				}
@@ -2110,8 +1921,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				wodot[kl] = (wo[kl] - wnext) / ddt;
 				diam[kl] = dnext;
 				wo[kl] = wnext;
-				//cycle lLoop						//!!!!!!
-				continue;//Back to start of lLoop
+				continue;//Back to start of major l loop.
 			}//if (tnow >= tlit)
 
 			//!c See if k of (k, l) has reached outer surface drying stage yet
@@ -2119,19 +1929,18 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			dryt = tdry[kl];
 			if ((tnow >= dryt) && (tnow < tlit))
 			{
+				//These ifs can be linked !!!!!:
 				if (l == 0)
 				{
 					r = r0;
 					gi = fi + fid;
 				}
 				if (l == k)
-				//if (l == k0 + 1)
 				{
 					r = r0;
 					gi = fi;
 				}
 				if ((l != 0) && (l != k))
-				//if ((l != 0) && (l != k0 + 1))
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
@@ -2151,8 +1960,6 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 				if (!(tfe <= (tpig[k0] + 10.0)))
 				{
-					//TIGNIT(tpamb, tpdry, tpig[k0], tfe, condry[k0], cheat[k0], fmois[k0], dendry[k0],
-					//       heff, dtlite);
 					dtlite = TIGNIT(tpamb, tpdry, tpig[k0], tfe, condry[k0], cheat[k0], fmois[k0],
 					                dendry[k0], heff);
 				}
@@ -2165,9 +1972,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					ts = tchar[k0];
 					HEATX(u, d, dia, tf, ts, hf, hb, c, e);
 
-					//qdot(kl, 1) = hb * max((tf - ts), 0.0)
 					qdot[kl][0] = hb * std::max((tf - ts), 0.0);
-					//qd = qdot(kl, 1)
 					qd = qdot[kl][0];
 					ddot[kl] = qd * work[k0];
 					delt = tnext - tign[kl];
@@ -2191,8 +1996,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					diam[kl] = dnext;
 					wo[kl] = wnext;
 				}
-				//cycle lLoop					//!!!!!
-				continue;//Back to start of lLoop
+				continue;//Back to start of major l loop.
 			}
 
 			//!c If k of (k, l) still coming up to drying temperature, accumulate
@@ -2202,19 +2006,18 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 			{
 				factor = fmois[k0] * dendry[k0];
 				conwet = condry[k0] + 4.27e-04 * factor;
+				//These ifs can be linked !!!!!:
 				if (l == 0)
 				{
 					r = r0;
 					gi = fi + fid;
 				}
 				if (l == k)
-				//if (l == k0 + 1)
 				{
 					r = r0;
 					gi = fi;
 				}
 				if ((l != 0) && (l != k))
-				//if ((l != 0) && (l != k0 + 1))
 				{
 					r = r0 + 0.5 * flit[l0] * dr;
 					gi = fi + flit[l0] * fint[l0];
@@ -2222,8 +2025,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				tf = TEMPF(gi, r, tpamb);
 				if (tf <= (tpdry + 10.0))
 				{
-					//cycle lLoop				//!!!!!!!
-					continue;//Back to start of lLoop
+					continue;//Back to start of major l loop.
 				}
 				dia = diam[kl];
 				ts = 0.5 * (tpamb + tpdry);
@@ -2236,11 +2038,9 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				thd = (tpdry - tpamb) / dtef;
 				if (thd > 0.9)
 				{
-					//cycle lLoop			//!!!!!!
-					continue;//Back to start of lLoop
+					continue;//Back to start of major l loop.
 				}
 				biot = he * dia / conwet;
-				//call DRYTIM(biot, thd, dryt)
 				dryt = DRYTIM(biot, thd);
 
 				cpwet = cheat[k0] + ch2o * fmois[k0];
@@ -2262,11 +2062,9 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 					if (tf <= (tpig[k0] + 10.0))
 					{ 
-						//cycle lLoop					//!!!!!
-						continue;//Back to start of lLoop
+						continue;//Back to start of major l loop.
 					}
-					//TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0], dendry[k0],
-					//       hb, dtlite);
+
 					dtlite = TIGNIT(tpamb, tpdry, tpig[k0], tf, condry[k0], cheat[k0], fmois[k0],
 					                dendry[k0], hb);
 					tign[kl] = 0.5 * (tdry[kl] + dtlite);
@@ -2274,31 +2072,24 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					if (tnext > tign[kl])
 					{
 						ts = tchar[k0];
-						//qdot(kl, 1) = hb * max((tf - ts), 0.0)
-						//qdot[kl][1] = hb * std::max((tf - ts), 0.0);
 						qdot[kl][0] = hb * std::max((tf - ts), 0.0);
 					}
 				}
 			}
-		}//lLoop
-	}//kLoop
+		}//Major l loop
+	}//Major k loop
 
 	//!c Update fractions ignited and burned out, to apply at next step start
 
-	//do k = 1, numFuelTypes
-	//for (int k0 = 0; k0 < numFuelTypes; k0++)//k0 = k as base 0 index
-	// (int k = 0; k <= numFuelTypes; k++)//Bad!!!!!
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
 		int k0 = k - 1;
 
 		flit[k0] = 0.0;
 		fout[k0] = 0.0;
-		//do l = 0, k
-		//for (int l = 0; l <= k0; l++)
+		
 		for (int l = 0; l <= k; l++)
 		{
-			//kl = Loc(k0 + 1, l);
 			kl = Loc(k, l);
 			flag = (tnext >= tign[kl]);
 			if (flag && (tnext <= tout[kl]))
@@ -2349,34 +2140,30 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 ! History: This function was originally implemented as a statement function defined in seven places
 ! in the original Fortran code.
  
+ 
+ * @note This assumes maxno and maxkl are correct, which they may not be in a non-interactive session!!!!!
  */
 int Loc(const int k, const int l)
 {
-	int loc;//Return value: Index in a compact array representing the triangular matrix values.
+	int loc;//Return value: Index in a compact array representing the triangular matrix values (aka kl).
 
-	//Validity checking:
+	//Input validity checking:
 	if ((k < 1) || (k > maxno))
 	{
-		//print *, "Loc(): Invalid value of k ", k
-		//std::cout << "Loc(): Invalid value of k " << k << std::endl;
 		Stop("Loc(): Invalid value of k " + std::to_string(k));
 	}
 
 	if ((l < 0) || (l > k))
 	{
-		//print *, "Loc(): Invalid value of l ", l
-		//std::cout << "Loc(): Invalid value of l " << l << std::endl;
 		Stop("Loc(): Invalid value of l " + std::to_string(l));
 	}
 
 	loc = k * (k + 1) / 2 + l;
 	loc -= 1;//Convert to 0 based index.
 
-	//if ((loc < 1) || (loc > maxkl))
+	//Check value calculated is in the valid range:
 	if ((loc < 0) || (loc > (maxkl - 1)))
 	{
-		//print *, "Loc(): Invalid index returned ", loc
-		std::cout << "Loc(): Invalid index returned " << loc << std::endl;
 		Stop("Loc(): Invalid index returned " + std::to_string(loc));
 	}
 
@@ -2414,8 +2201,12 @@ double ErrorApprox(const double h, const double theta)
 //...
 
 //SaveStateToFile
-/** Output the state of the simulation at the current timestep to file:
+/** Output the state of the simulation at the current timestep to file (if needed):
+ * Data is only saved when the SaveHistory setting is set to true.
  * Sequential calls to this routine will produce a full history of the simulated fire.
+ 
+ RELATIONSHIP to STASH!!!!!
+ 
  *
  * Successful output from this routine is treated as non-critical as it doesn't impact the
  * simulation process.  Output failures are reported but are not treated as fatal.
@@ -2466,8 +2257,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
                      const std::vector<double> diam, const double fi)//const
 {
 	//Local constants:
-	//const char histFileName[] = "BurnupHistory.txt";//histFile in Fortran!!!!!
-	const std::string histFileName("BurnupHistory.txt");//histFile in Fortran!!!!!
+	const std::string histFileName("BurnupHistory.txt");//histFile in Fortran.
 	const char delim = '\t';//Delimiter = tab character
 
 	//Locals:
@@ -2476,7 +2266,6 @@ void SaveStateToFile(const int ts, const double time, const int number,
 
 	std::string fuelName;//Name of the (larger) fuel type.
 	std::string compName;//The name of the companion/partner fuel.
-
 	std::ofstream histFile;
 
 	if (SaveHistory)
@@ -2538,7 +2327,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 				//Get the name of the partner component:
 				if (l == 0)
 				{
-					compName = noCmpStr;//NEED to make a string for this to work!!!!
+					compName = noCmpStr;/
 				}
 				else
 				{
