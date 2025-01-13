@@ -687,7 +687,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 	int maxNumFuelTypes;		//The maximum number of fuel classes allowed. The input arrays
 								//may exceed the actual number. (Not present in original code.)
 	int numFuelTypes;			//The actual number of fuel types, explicit or implied.
-	int i;						//Counter.
+	int i0;						//Counter.
 	double s, fm, de, keep, usi;//Hold the values of the current search index.  s and usi = inverse of SAV.
 	bool diam, mois, dens, tied;
 	bool newIndexFound;//Note: Not present in original code.
