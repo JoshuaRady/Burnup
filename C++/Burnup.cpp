@@ -719,8 +719,6 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 		keep = key[j0];
 
 		//Compare this index (j0) with every index before it:
-		//do i = (j - 1), 1, -1
-		//for (i = (j0 - 1); i >= 0; i--)//i is only used as a 0 based array index. !!!!!
 		for (i0 = (j0 - 1); i0 >= 0; i0--)//i is only used as a 0 based array index.
 		{
 			usi = 1.0 / sigma[i0];
@@ -828,7 +826,6 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 {
 	double pi;//Convert to a constant?
 	int numFuelTypes;//The actual number of fuel types, explicit or implied.
-	//int j, k, l, kj, kl;//Counters	!!!!!
 	int kl;//Counter
 	double siga;//K_a * diameter
 	double a;
@@ -1976,7 +1973,10 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 					delt = tnext - tign[kl];
 					dnext = std::max(0.0, dia - delt * ddot[kl]);
 					wnext = wo[kl] * pow((dnext / dia), 2);
-					if (dnext == 0.0) tout[kl] = tnow + dia / ddot[kl];//Oneliner!!!!!
+					if (dnext == 0.0)
+					{
+						tout[kl] = tnow + dia / ddot[kl];
+					}
 					if ((dnext > 0.0) && (dnext < dia))
 					{
 						rate = dia / (dia - dnext);

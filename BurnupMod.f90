@@ -3672,7 +3672,9 @@ contains
 						delt = tnext - tign(kl)
 						dnext = max(0.0, dia - delt * ddot(kl))
 						wnext = wo(kl) * ((dnext / dia) ** 2)
-						if (dnext .EQ. 0.0) tout(kl) = tnow + dia / ddot(kl)
+						if (dnext .EQ. 0.0) then
+							tout(kl) = tnow + dia / ddot(kl)
+						end if
 						if ((dnext .GT. 0.0) .AND. (dnext .LT. dia)) then
 							rate = dia / (dia - dnext)
 							tout(kl) = tnow + rate * dt
