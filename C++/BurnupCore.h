@@ -1,5 +1,5 @@
 /***************************************************************************************************
-Burnup.h
+BurnupCore.h
 Burnup Wildfire Fuel Consumption Model
 
 Original Fortan code by: Frank A. Albini
@@ -14,8 +14,8 @@ See Burnup.cpp and repository documentation for further inforation.
 	There is no licence provided for the original code.  It is though to be open by provenance, but
 that may not be correct.  The licence for this code is under consideration.
 ***************************************************************************************************/
-#ifndef BURNUP_H
-#define BURNUP_H
+#ifndef BURNUPCORE_H
+#define BURNUPCORE_H
 
 #include <string>
 

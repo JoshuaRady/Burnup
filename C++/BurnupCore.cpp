@@ -1,5 +1,5 @@
 /***************************************************************************************************
-Burnup.cpp
+BurnupCore.cpp
 Burnup Wildfire Fuel Consumption Model
 
 Original Fortan code by: Frank A. Albini
@@ -70,7 +70,7 @@ that may not be correct.
 #include <iostream>//Or just <ostream>?
 #include <vector>
 
-#include "Burnup.h"
+#include "BurnupCore.h"
 #include "FireweedMessaging.h"
 
 /* Program level dimensional constants:
