@@ -8,10 +8,11 @@ Woodwell Climate Research Center
 Started: 12/30/2024
 Reference: Proj. 11 Exp. 22
 
-This is an reimplementation of the Burnup wildfire fuel consumption model in C++.
+This is a reimplementation of the Burnup wildfire fuel consumption model in C++.
+See Burnup.cpp and repository documentation for further inforation.
 
-...
-
+	There is no licence provided for the original code.  It is though to be open by provenance, but
+that may not be correct.  The licence for this code is under consideration.
 ***************************************************************************************************/
 #ifndef BURNUP_H
 #define BURNUP_H
@@ -78,7 +79,6 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
           std::vector<double>& wodot, const std::vector<double> work, const double u, const double d,
           const double r0, const double dr, int& ncalls,
           const double tin, const std::vector<double> fint, const double fid, const int number = -1);
-
 
 //Utilities:
 int Loc(const int k, const int l);

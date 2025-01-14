@@ -10,8 +10,56 @@ Reference: Proj. 11 Exp. 22
 
 This is an reimplementation of the Burnup wildfire fuel consumption model in C++.
 
-...
+	This module is based on the Burnup model by Frank Albini and collaborators (see references).
+The original Burnup source code (Fortran IV/66/77, fixed form) was previously updated to modern
+Fortran (2003+) (Burnup.f90) and was reformulated into a form that can be compiled as a linkable
+module or shared library (BurnupMod.f90 & BurnupInteractive.f90).  Here we have ported the linkable
+functionality of the later to C++.
 
+	The goal was to provide a version of the Burnup model that could be easily embedded in other
+code or coupled with other models.  The C++ code produces identical results to the original Fortran
+code in testing and has limit dependancies.  The intent is that calling code only need to know
+Burnup's input and outputs.
+
+	A R interface function has been included for the main program entry point to allow the code to
+interface with R when compiled as a shared library (.so file).
+
+ 	The routines that run the UI of the original interactive program have not been ported.  They may
+be ported in the future in a separate file.
+
+Formating:
+	I have used tabs for code indenting and for alignment of comments.  I have used 4-space
+equivalent tabs for layout purposes here.
+
+In-code Documentation:
+	Many comments have been added to the code to increase it's readability and to document changes.
+Comments from the original code are marked with '!c' or are labeled.  Functions are documented with
+Doxygen comments.
+
+	Routines from the original propgram maintain their all caps format while new routines use
+camelcase.
+
+Dependancies:
+	This code was written with limited dependancies.  This code relies on the C++11(+?) standard
+template library (STL).  It also uses a small number of utilities from the Fireweed Wildfire Code
+Library [reference to come].
+
+References:
+	The original source code was obtained from:
+
+Program BURNUP, a simulation model of the burning of large woody natural fuels.
+Frank A. Albini
+Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
+Appendix B.
+
+The original report is held by the National Forest Service Library in Fort Collins.
+
+Caveats:
+	This code compiles, runs, and produces output identical to the original Burnup code in tests but
+the code is under active development and errors could be present that have not been identified.
+
+	There is no licence provided for the original code.  It is though to be open by provenance, but
+that may not be correct.
 ***************************************************************************************************/
 
 #include <algorithm>//For max(), min(), fill().
