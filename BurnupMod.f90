@@ -7,7 +7,7 @@
 ! Woodwell Climate Research Center
 ! 2023-2024
 !
-! This is an reimplementation of the Burnup wildfire fuel consumption model as a Fortran module.
+! This is a reimplementation of the Burnup wildfire fuel consumption model as a Fortran module.
 ! 
 ! 	This module is based on the Burnup model by Frank Albini and collaborators (see references).
 ! The original Burnup source code (Fortran IV/66/77, fixed form) was previously updated to modern
@@ -50,12 +50,9 @@
 !
 ! The original report is held by the National Forest Service Library in Fort Collins.
 !
-! ...
-!
 ! Caveats:
 ! 	This code compiles, runs, and produces output identical to the original Burnup code in tests but
-! the code is under active development and is not complete, so errors could be present that have not
-! been identified.
+! the code is under active development and errors could be present that have not been identified.
 !
 ! 	There is no licence provided for the original code.  It is though to be open by provenance, but
 ! that may not be correct.  The licence for this code is under consideration.
