@@ -113,51 +113,51 @@ bool SaveHistory = false;//Should fire history be output to file?
  * fire history can be output to file.
  *
  * Igniting fire and environmental data:
- * @param fi	Current fire intensity (site avg), kW / sq m
+ * @param[in,out] fi	Current fire intensity (site avg), kW / sq m
  * The value passed in for fi is the fire front intensity.  [Actually this is probably not quite right!!!!!  It is probably not the FRONT intensity...]
  * The variable is later reused and
  * updated by FIRINT().  It is passed on to other routines that use but do not change it.
  * These two uses could be separated.  The value returned is the final intensity, which might
  * be of use.  A history would be more valuable.
  *
- * @param ti		Igniting fire residence time (s).
- * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d			Fuelbed depth (m).
- * @param tpamb		Ambient temperature (K).
+ * @param[in] ti		Igniting fire residence time (s).
+ * @param[in] u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param[in] d			Fuelbed depth (m).
+ * @param[in] tpamb		Ambient temperature (K).
  * 
  * Internal and control variables:
- * @param ak		Area influence factor (ak / K_a parameter).
- * @param r0		Minimum value of mixing parameter.
- * @param dr		Max - min value of mixing parameter.
- * @param dt		Time step for integration of burning rates (s).
- *          		On completion contains the time the fire went out.
- *          		A value of -1 indicates the fuel did not ignite.  A value
- *          		of -2 indicates the fuel did not complete drying.  In such
- *          		cases most of remaining return variables will not be
- *          		meaningful.
+ * @param[in] ak		Area influence factor (ak / K_a parameter).
+ * @param[in] r0		Minimum value of mixing parameter.
+ * @param[in] dr		Max - min value of mixing parameter.
+ * @param[in,out] dt	Time step for integration of burning rates (s).
+ *                  	On completion contains the time the fire went out.
+ *                  	A value of -1 indicates the fuel did not ignite.  A value
+ *                  	of -2 indicates the fuel did not complete drying.  In such
+ *                  	cases most of remaining return variables will not be
+ *                  	meaningful.
  * 
  * Considering removing these two.  See below:
- * @param wdf		Duff loading (kg/m^2, aka W sub d).
- * @param dfm		Ratio of moisture mass to dry organic mass /
- *           		duff fractional moisture (aka R sub M).
- * @param ntimes	Number of time steps to run.  Move down?
- * @param number	The number of fuel classes.
+ * @param[in] wdf		Duff loading (kg/m^2, aka W sub d).
+ * @param[in] dfm		Ratio of moisture mass to dry organic mass /
+ *               		duff fractional moisture (aka R sub M).
+ * @param[in] ntimes	Number of time steps to run.  Move down?
+ * @param[in] number	The number of fuel classes.
  *
  * Fuel component property arrays:  The values will not change but they may be reordered.
  * Returning the reordered arrays may be overkill.  The revised order might be sufficient.
  * However, setting these to inout allows the values to be reordered internally by SORTER(),
  * which eliminates the need for parallel local variables.
- * @param parts		Fuel component names / labels. [maxno]
- * @param wdry		Ovendry mass loading, kg/sq m. [maxno]
- * @param ash		Mineral content, fraction dry mass. [maxno]
- * @param htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
- * @param fmois		Moisture fraction of component. [maxno]
- * @param dendry	Ovendry mass density, kg / cu m. [maxno]
- * @param sigma		Surface to volume ratio, 1 / m. [maxno]
- * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
- * @param condry	Thermal conductivity, W / m K, ovendry. [maxno]
- * @param tpig		Ignition temperature, K. [maxno]
- * @param tchar		Char temperature, K. [maxno]
+ * @param[in,out] parts		Fuel component names / labels. [maxno]
+ * @param[in,out] wdry		Ovendry mass loading, kg/sq m. [maxno]
+ * @param[in,out] ash		Mineral content, fraction dry mass. [maxno]
+ * @param[in,out] htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
+ * @param[in,out] fmois		Moisture fraction of component. [maxno]
+ * @param[in,out] dendry	Ovendry mass density, kg / cu m. [maxno]
+ * @param[in,out] sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param[in,out] cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param[in,out] condry	Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param[in,out] tpig		Ignition temperature, K. [maxno]
+ * @param[in,out] tchar		Char temperature, K. [maxno]
  *
  * Calculated outputs:
  * The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
@@ -168,11 +168,11 @@ bool SaveHistory = false;//Should fire history be output to file?
  * wo should be moved to the front in any case because it is the most valuable output.  This
  * would have the advantage of making the size() shorthand shorter.
  * JMR_Note: No longer in argument order!!!!!
- * @param wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
- * @param xmat		Table of influence fractions between components. [maxkl]
- * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param tout		Burnout time of larger component of pairs. [maxkl]
- * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
+ * @param[out] wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
+ * @param[out] xmat		Table of influence fractions between components. [maxkl]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * Settings:
  * @param outputHistory	Should fire history be saved?  Defaults to false.
@@ -341,50 +341,50 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
  * function.  There is no easy way to pass a string so the 'parts' parameter is omitted.
  *
  * Igniting fire and environmental data:
- * @param fi		Current fire intensity (site avg), kW / sq m
- * @param ti		Igniting fire residence time (s).
- * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d			Fuelbed depth (m).
- * @param tpamb		Ambient temperature (K).
+ * @param[in, out] fi	Current fire intensity (site avg), kW / sq m
+ * @param[in] ti		Igniting fire residence time (s).
+ * @param[in] u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param[in] d			Fuelbed depth (m).
+ * @param[in] tpamb		Ambient temperature (K).
  * 
  * Internal and control variables:
- * @param ak		Area influence factor (ak / K_a parameter).
- * @param r0		Minimum value of mixing parameter.
- * @param dr		Max - min value of mixing parameter.
- * @param dt		Time step for integration of burning rates (s).
- *          		On completion contains the time the fire went out.
- *          		A value of -1 indicates the fuel did not ignite.  A value
- *          		of -2 indicates the fuel did not complete drying.  In such
- *          		cases most of remaining return variables will not be
- *          		meaningful.
+ * @param[in] ak		Area influence factor (ak / K_a parameter).
+ * @param[in] r0		Minimum value of mixing parameter.
+ * @param[in] dr		Max - min value of mixing parameter.
+ * @param[in] dt		Time step for integration of burning rates (s).
+ *              		On completion contains the time the fire went out.
+ *              		A value of -1 indicates the fuel did not ignite.  A value
+ *              		of -2 indicates the fuel did not complete drying.  In such
+ *              		cases most of remaining return variables will not be
+ *              		meaningful.
  * 
- * @param wdf		Duff loading (kg/m^2, aka W sub d).
- * @param dfm		Ratio of moisture mass to dry organic mass /
- *           		duff fractional moisture (aka R sub M).
- * @param ntimes	Number of time steps to run.  Move down?
- * @param number	The number of fuel classes.
+ * @param[in] wdf		Duff loading (kg/m^2, aka W sub d).
+ * @param[in] dfm		Ratio of moisture mass to dry organic mass /
+ *               		duff fractional moisture (aka R sub M).
+ * @param[in] ntimes	Number of time steps to run.  Move down?
+ * @param[in] number	The number of fuel classes.
  *
  * Fuel component property arrays:
- * @param wdry		Ovendry mass loading, kg/sq m. [maxno]
- * @param ash		Mineral content, fraction dry mass. [maxno]
- * @param htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
- * @param fmois		Moisture fraction of component. [maxno]
- * @param dendry	Ovendry mass density, kg / cu m. [maxno]
- * @param sigma		Surface to volume ratio, 1 / m. [maxno]
- * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
- * @param condry	Thermal conductivity, W / m K, ovendry. [maxno]
- * @param tpig		Ignition temperature, K. [maxno]
- * @param tchar		Char temperature, K. [maxno]
+ * @param[in,out] wdry		Ovendry mass loading, kg/sq m. [maxno]
+ * @param[in,out] ash		Mineral content, fraction dry mass. [maxno]
+ * @param[in,out] htval		Low heat of combustion (AKA heat content), J / kg. [maxno]
+ * @param[in,out] fmois		Moisture fraction of component. [maxno]
+ * @param[in,out] dendry	Ovendry mass density, kg / cu m. [maxno]
+ * @param[in,out] sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param[in,out] cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param[in,out] condry	Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param[in,out] tpig		Ignition temperature, K. [maxno]
+ * @param[in,out] tchar		Char temperature, K. [maxno]
  *
  * Calculated outputs:
  * JMR_Note: No longer in argument order!!!!!
- * @param wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
- * @param xmat		Table of influence fractions between components. [maxkl]
- * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param tout		Burnout time of larger component of pairs. [maxkl]
- * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
+ * @param[out] wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
+ * @param[out] xmat		Table of influence fractions between components. [maxkl]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
- * @param outputHistory	Should fire history be saved? (0 = no, 1 = yes)
+ * @param[in] outputHistory	Should fire history be saved? (0 = no, 1 = yes)
  *
  * @par History:
  * Added for module.
@@ -481,10 +481,10 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
  * @par Original Burnup Description:
  * !c Duff burning rate (ergo, intensity) and duration
  *
- * @param wdf	Duff loading (kg/m^2, aka W sub d)
- * @param dfm	Ratio of moisture mass to dry organic mass / duff fractional moisture (aka R sub M)
- * @param dfi	Duff fire intensity (aka I sub d)		Units?????
- * @param tdf	Burning duration (aka t sub d)			Units?????
+ * @param[in] wdf	Duff loading (kg/m^2, aka W sub d)
+ * @param[in] dfm	Ratio of moisture mass to dry organic mass / duff fractional moisture (aka R sub M)
+ * @param[out] dfi	Duff fire intensity (aka I sub d)		Units?????
+ * @param[out] tdf	Burning duration (aka t sub d)			Units?????
  *
  * @returns On return dfi and tdf are returned in parameters.
  *
@@ -518,42 +518,35 @@ void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf)
  *
  * The large number of parameters are hard to handle...
 
- * The following may be updated on return, in/out: [Refine notes!!!!!!]
- * @param wdry		Ovendry mass loading, kg / sq m. [maxno]
- * @param ash		Mineral content, fraction dry mass. [maxno]
- * @param dendry		Ovendry mass density, kg / cu m. [maxno]
- * @param fmois		Moisture content, fraction dry mass. [maxno]
- * @param sigma		Surface to volume ratio, 1 / m. [maxno]
- * @param htval		Low heat of combustion, J / kg. [maxno]
- * @param cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
- * @param condry		Thermal conductivity, W / m K, ovendry. [maxno]
- * @param tpig		Ignition temperature, K. [maxno]
- * @param tchar		Char temperature, K. [maxno]
- * Out:
- * @param diam		Initial diameter, m [by interaction pairs]. [maxkl]
- * @param key 		Ordered index list. [maxno]
- * @param work		Workspace array. [maxno]
- * In:
- * @param  ak		Area influence factor [ak parameter].
- * Out:
- * @param elam		Interaction matrix from OVLAPS. [maxno, maxno]
- * @param alone		Noninteraction fraction list from OVLAPS. [maxno]
- * @param xmat		Consolidated interaction matrix. [maxkl]
- * @param wo		Initial dry loading by interaction pairs. [maxkl]
- * In/out:
- * @param parts		Fuel component names / labels. [maxno]
- * Out?
- * @param list		Intermediary for reordering parts name array. [maxno]
- *            		This is passed in but is not initialized prior
- *            		to that.  It doesn't appear that it is used
- *            		after it is returned.  It appears to only be
- *            		used internal to this routine.
- *            		The same seems to be true for elam and alone?
- * In/out:
- * @param  area		Fraction of site area expected to be covered at
- *             							least once by initial planform area of ea size. [maxno]
- * @param  number	The actual number of fuel classes.  If omitted
- *               	this will be determined from the other inputs.
+ * @param[in,out] wdry		Ovendry mass loading, kg / sq m. [maxno]
+ * @param[in,out] ash		Mineral content, fraction dry mass. [maxno]
+ * @param[in,out] dendry	Ovendry mass density, kg / cu m. [maxno]
+ * @param[in,out] fmois		Moisture content, fraction dry mass. [maxno]
+ * @param[in,out] sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param[in,out] htval		Low heat of combustion, J / kg. [maxno]
+ * @param[in,out] cheat		Specific heat capacity, (J / K) / kg dry mass. [maxno]
+ * @param[in,out] condry	Thermal conductivity, W / m K, ovendry. [maxno]
+ * @param[in,out] tpig		Ignition temperature, K. [maxno]
+ * @param[in,out] tchar		Char temperature, K. [maxno]
+ * @param[out] diam			Initial diameter, m [by interaction pairs]. [maxkl]
+ * @param[out] key 			Ordered index list. [maxno]
+ * @param[out] work			Workspace array. [maxno]
+ * @param[in]  ak			Area influence factor [ak parameter].
+ * @param[out] elam			Interaction matrix from OVLAPS. [maxno, maxno]
+ * @param[out] alone		Noninteraction fraction list from OVLAPS. [maxno]
+ * @param[out] xmat			Consolidated interaction matrix. [maxkl]
+ * @param[out] wo			Initial dry loading by interaction pairs. [maxkl]
+ * @param[in,out] parts		Fuel component names / labels. [maxno]
+ * @param[out] list			Intermediary for reordering parts name array. [maxno]
+ *                 			This is passed in but is not initialized prior
+ *                 			to that.  It doesn't appear that it is used
+ *                 			after it is returned.  It appears to only be
+ *                 			used internal to this routine.
+ *                 			The same seems to be true for elam and alone?
+ * @param[in,out] area		Fraction of site area expected to be covered at
+ *                    		least once by initial planform area of ea size. [maxno]
+ * @param[in] number		The actual number of fuel classes.  If omitted
+ *                  		this will be determined from the other inputs.
  *
  * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
  *
@@ -707,12 +700,12 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
  * !c list: key(j), j = 1, number holds the indices in order, so other
  * !c fuel parameters can be ordered and associated as necessary.
  *
- * @param sigma(:)		Surface to volume ratio, 1 / m. [maxno]
- * @param fmois(:)		Moisture content, fraction dry mass. [maxno]
- * @param dryden(:)		Ovendry mass density, kg / cu m. [maxno]
- * @param key(:) 		Ordered index list. [maxno]					//out rather than inout?????
- * @param number		The actual number of fuel classes.  If omitted
- *              		this will be determined from the other inputs.
+ * @param[in,out] sigma(:)		Surface to volume ratio, 1 / m. [maxno]
+ * @param[in,out] fmois(:)		Moisture content, fraction dry mass. [maxno]
+ * @param[in,out] dryden(:)		Ovendry mass density, kg / cu m. [maxno]
+ * @param[in,out] key(:)		Ordered index list. [maxno]					//out rather than inout?????
+ * @param[in] number			The actual number of fuel classes.  If omitted
+ *                  			this will be determined from the other inputs.
  * Since SORTER() is only downstream of ARRAYS() making number optional doesn't gain us much.
  *
  * @returns On return sigma, fmois, dryden are reordered and key is set.
@@ -838,18 +831,18 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
  * !c surface/ volume ratio). List "alone" gives the fraction of each loading
  * !c that is not influenced by any other category.
  *
- * @param dryld		Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
- * @param sigma		Surface to volume ratio, 1 / m. [maxno]
- * @param dryden	Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
- * @param ak		Area influence factor (ak / K_a parameter).
- * @param fmois		Moisture fraction of component. [maxno]
- * @param beta		Consolidated interaction matrix (returned). (elsewhere = xmat). [maxkl]
- * @param elam(:,:)	Interaction matrix (returned). [maxno, maxno]
- * @param alone		Non-interacting fraction for each fuel class (returned). [maxno]
- * @param area		Fraction of site area expected to be covered at
- *            		least once by initial planform area of ea size (returned). [maxno]
- * @param number	The actual number of fuel classes.  If omitted
- *              	this will be determined from the other inputs.
+ * @param[in] dryld		Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
+ * @param[in] sigma		Surface to volume ratio, 1 / m. [maxno]
+ * @param[in] dryden	Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
+ * @param[in] ak		Area influence factor (ak / K_a parameter).
+ * @param[in] fmois		Moisture fraction of component. [maxno]
+ * @param[out] beta		Consolidated interaction matrix. (elsewhere = xmat). [maxkl]
+ * @param[out] elam		Interaction matrix. [maxno, maxno]
+ * @param[out] alone	Non-interacting fraction for each fuel class. [maxno]
+ * @param[out] area		Fraction of site area expected to be covered at
+ *                 		least once by initial planform area of ea size. [maxno]
+ * @param[in] number	The actual number of fuel classes.  If omitted
+ *                  	this will be determined from the other inputs.
  * Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
  *
  * @returns On return beta, elam, alone, and area are returned in parameters.
@@ -994,58 +987,58 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 ! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 ! However the code is not consistant with that.
 
- * @param dt		Spreading fire residence time (s) (= ti, tis, or time elsewhere).
- * @param now		Index marks end of time step.
- * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m.
- *          		Updated on return. [maxkl]
- * @param alfa		Dry thermal diffusivity of component, sq m / s. [maxno]
- * @param dendry	Ovendry density of component, kg / cu m. [maxno]
- * @param fmois		Moisture fraction of component. [maxno]
- * @param cheat		Specific heat capacity of component, J / kg K. [maxno]
- * @param condry	Ovendry thermal conductivity, W / sq m K. [maxno]
- * @param diam		Current diameter of the larger of each
- *            		fuel component pair, m.  Updated on return. [maxkl]
- * @param tpig		Ignition temperature (K), by component. [maxno]
- * @param tchar		tchar = end - pyrolysis temperature (K), by component. [maxno]
- * @param xmat		Table of influence fractions between components. [maxkl]
- * @param tpamb		Ambient temperature (K).
- * @param fi		Current fire intensity (site avg), kW / sq m.
+ * @param[in] dt		Spreading fire residence time (s) (= ti, tis, or time elsewhere).
+ * @param[in] now		Index marks end of time step.
+ * @param[in,out] wo	Current ovendry loading for the larger of each component pair, kg / sq m.
+ *                  	Updated on return. [maxkl]
+ * @param[out] alfa		Dry thermal diffusivity of component, sq m / s. [maxno]
+ * @param[in] dendry	Ovendry density of component, kg / cu m. [maxno]
+ * @param[in] fmois		Moisture fraction of component. [maxno]
+ * @param[in] cheat		Specific heat capacity of component, J / kg K. [maxno]
+ * @param[in] condry	Ovendry thermal conductivity, W / sq m K. [maxno]
+ * @param[in,out] diam	Current diameter of the larger of each
+ *                    	fuel component pair, m.  Updated on return. [maxkl]
+ * @param[in] tpig		Ignition temperature (K), by component. [maxno]
+ * @param[in] tchar		tchar = end - pyrolysis temperature (K), by component. [maxno]
+ * @param[in] xmat		Table of influence fractions between components. [maxkl]
+ * @param[in] tpamb		Ambient temperature (K).
+ * @param[in] fi		Current fire intensity (site avg), kW / sq m.
  *
  * Parameters updated (input and output):
- * @param ncalls	Counter of calls to this routine:
- *              	= 0 on first call or reset,
- *              	cumulates after first call.
- *              	JMR_NOTE: This is a strange argument as it is only
- *              	initialized to zero here and is not used.  It is
- *              	returned and passed on to STEP().  It is probably
- *              	initialized here to prevent isses related to
- *              	persistance should more than one simulation be run in
- *              	an interactive session.
- * @param flit		Fraction of each component currently alight. [maxno]
- * @param fout		Fraction of each component currently gone out. [maxno]
- * @param tdry		Time of drying start of the larger of each fuel component pair. [maxkl]	[Units = s?????]
- * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]		[Units = s?????]
- * @param tout		Burnout time of larger component of pairs. [maxkl]
- * @param qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
- * @param tcum		Cumulative temp integral for qcum (drying). [maxkl]
- * @param acum		Heat pulse area for historical rate averaging. [maxkl]
- * @param qdot		History (post ignite) of heat transfer rate
- *            		to the larger of each component pair, W / sq m. [maxkl, mxstep]
- * @param ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
- * @param wodot		Dry loading loss rate for larger of pair. [maxkl]
- * @param work		Workspace array. [maxno]		[Or alternative description in STEP()?????]
+ * @param[in,out] ncalls	Counter of calls to this routine:
+ *                      	= 0 on first call or reset,
+ *                      	cumulates after first call.
+ *                      	JMR_NOTE: This is a strange argument as it is only
+ *                      	initialized to zero here and is not used.  It is
+ *                      	returned and passed on to STEP().  It is probably
+ *                      	initialized here to prevent isses related to
+ *                      	persistance should more than one simulation be run in
+ *                      	an interactive session.
+ * @param[out] flit		Fraction of each component currently alight. [maxno]
+ * @param[out] fout		Fraction of each component currently gone out. [maxno]
+ * @param[out] tdry		Time of drying start of the larger of each fuel component pair. [maxkl]	[Units = s?????]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]		[Units = s?????]
+ * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
+ * @param[out] tcum		Cumulative temp integral for qcum (drying). [maxkl]
+ * @param[out] acum		Heat pulse area for historical rate averaging. [maxkl]
+ * @param[out] qdot		History (post ignite) of heat transfer rate
+ *                 		to the larger of each component pair, W / sq m. [maxkl, mxstep]
+ * @param[out] ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
+ * @param[out] wodot	Dry loading loss rate for larger of pair. [maxkl]
+ * @param[in,out] work	Workspace array. [maxno]		[Or alternative description in STEP()?????]
  *
  * Constant parameters:
- * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d			Fuelbed depth (m).
- * @param r0		Minimum value of mixing parameter.
- * @param dr		Max - min value of mixing parameter.
+ * @param[in] u			Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param[in] d			Fuelbed depth (m).
+ * @param[in] r0		Minimum value of mixing parameter.
+ * @param[in] dr		Max - min value of mixing parameter.
  *
  * Interactive context:
- * @param number	The actual number of fuel classes.  If omitted
- *              	this will be determined from the other inputs.
- *              	Here the presence of number is used to determine
- *              	if we are in an interactive session as well.
+ * @param[in] number	The actual number of fuel classes.  If omitted
+ *                  	this will be determined from the other inputs.
+ *                  	Here the presence of number is used to determine
+ *                  	if we are in an interactive session as well.
  *
  * @returns Nothing. ...
  
@@ -1353,14 +1346,14 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
  * !c fint(k) is the correction to fi to adjust
  * !c the intensity level to be the local value where size k is burning.
  *
- * @param wodot		Burning rates of interacting pairs of fuel components. [maxkl]
- * @param ash		Mineral content, fraction dry mass. [maxno]
- * @param htval		Low heat of combustion, J / kg. [maxno]
- * @param number	The actual number of fuel classes.
- * @param area		Fraction of site area expected to be covered at
- *            		least once by initial planform area of ea size. [maxno]
- * @param fint		A vector to hold the corrected local fire intensity for each fuel type (returned). [maxno]
- * @param fi		Site avg fire intensity (kW / sq m) (returned).
+ * @param[in] wodot		Burning rates of interacting pairs of fuel components. [maxkl]
+ * @param[in] ash		Mineral content, fraction dry mass. [maxno]
+ * @param[in] htval		Low heat of combustion, J / kg. [maxno]
+ * @param[in] number	The actual number of fuel classes.
+ * @param[in] area		Fraction of site area expected to be covered at
+ *                		least once by initial planform area of ea size. [maxno]
+ * @param[out] fint		A vector to hold the corrected local fire intensity for each fuel type. [maxno]
+ * @param[out] fi		Site avg fire intensity (kW / sq m).
  *
  * @returns fint[] and fi are returned it the parameters.
  *
@@ -1415,16 +1408,16 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 /** This routine computes the halfspace surface ignition time under steady radiant heating with
  * surface film cooling.
  *
- * @param tpam	Ambient temperature, K.
- * @param tpdr	Fuel temperature at start of drying, K.
- *            	Currently this is always tpdry, so this argument could be cut.
- * @param tpig	Fuel surface temperature at ignition, K.
- * @param tpfi	Fire enviroriment temperature, K.
- * @param cond	Fuel ovendry thermal conductivity, W / m K.
- * @param chtd	Fuel ovendry specific heat capacity, J / kg K.
- * @param fmof	Fuel moisture content, fraction dry weight.
- * @param dend	Fuel ovendry density, kg / cu m.
- * @param hbar	Effective film heat transfer coefficient [< HEATX] W / sq m K.
+ * @param[in] tpam	Ambient temperature, K.
+ * @param[in] tpdr	Fuel temperature at start of drying, K.
+ *                	Currently this is always tpdry, so this argument could be cut.
+ * @param[in] tpig	Fuel surface temperature at ignition, K.
+ * @param[in] tpfi	Fire enviroriment temperature, K.
+ * @param[in] cond	Fuel ovendry thermal conductivity, W / m K.
+ * @param[in] chtd	Fuel ovendry specific heat capacity, J / kg K.
+ * @param[in] fmof	Fuel moisture content, fraction dry weight.
+ * @param[in] dend	Fuel ovendry density, kg / cu m.
+ * @param[in] hbar	Effective film heat transfer coefficient [< HEATX] W / sq m K.
  *
  * @returns tmig Predicted time to piloted ignition, s.
  * 
@@ -1435,7 +1428,7 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
  */
 double TIGNIT(const double tpam, const double tpdr, const double tpig, const double tpfi,
               const double cond, const double chtd, const double fmof, const double dend,
-              const double hbar)//, tmig)
+              const double hbar)
 {
 	double b03;
 	double xlo, xhi, xav;	//Binary search bounds and middle (average).
@@ -1516,8 +1509,8 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
  * !c needed to achieve it. The time is given multiplied by thermal
  * !c diffusivity and divided by radius squared. Solution by binary search.
  *
- * @param enu Biot number.
- * @param theta Temperature rise required for the start of moisture loss.
+ * @param[in] enu	Biot number.
+ * @param[in] theta	Temperature rise required for the start of moisture loss.
  *
  * @returns tau The time required for the start of moisture loss.
  *
@@ -1577,15 +1570,15 @@ double DRYTIM(const double enu, const double theta)
  * !c modified Nusselt number [ en ] used to estimate onset of surface drying
  * !c is returned as well.
  *
- * @param u		Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d		Fuelbed depth (m).
- * @param dia	Fuel diameter.									Units?????
- * @param tf	Fire environment temperature.					Units?????
- * @param ts	Mean surface temperature.						Units?????
- * @param hfm	Film heat transfer coefficient (returned).
- * @param hbar	"Effective" film heat transfer coefficient (returned).
- * @param cond	Wood thermal conductivity.						Units?????
- * @param  en	Modified Nusselt number (returned).
+ * @param[in] u		Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param[in] d		Fuelbed depth (m).
+ * @param[in] dia	Fuel diameter.									Units?????
+ * @param[in] tf	Fire environment temperature.					Units?????
+ * @param[in] ts	Mean surface temperature.						Units?????
+ * @param[out] hfm	Film heat transfer coefficient.
+ * @param[out] hbar	"Effective" film heat transfer coefficient.
+ * @param[in] cond	Wood thermal conductivity.						Units?????
+ * @param[out] en	Modified Nusselt number.
  *
  * @returns hfm, hbar, and en are returned via parameters.
  *
@@ -1640,9 +1633,9 @@ void HEATX(const double u, const double d, const double dia, const double tf, co
  * !c q in kW / square meter, the ambient temperature tamb in Kelvins, and the
  * !c dimensionless mixing parameter r.
  *
- * @param q Fire intensity (kW/m^2).
- * @param r Dimensionless mixing parameter.
- * @param tamb Ambient temperature (K).
+ * @param[in] q Fire intensity (kW/m^2).
+ * @param[in] r Dimensionless mixing parameter.
+ * @param[in] tamb Ambient temperature (K).
  *
  * @returns Fire environment temperature Units????? (K)?????
  *
@@ -1685,57 +1678,57 @@ double TEMPF(const double q, const double r, const double tamb)
  * !c Updates status of all fuel component pairs and returns a snapshot
  *
  * Arguments: (by category, not argument order)
- * @param dt		Time step, sec.		[Or: Spreading fire residence time????? Confirm!!!!!]
- * @param now		Index marks end of time step.
- * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
- * @param alfa		Dry thermal diffusivity of component, sq m / s. [maxno]
- * @param dendry	Ovendry density of component, kg / cu m. [maxno]
- * @param fmois		Moisture fraction of component. [maxno]
- * @param cheat		Specific heat capacity of component, J / kg K. [maxno]
- * @param condry	Ovendry thermal conductivity, W / sq m K. [maxno]
- * @param diam		Current diameter of the larger of each
- *            		fuel component pair, m.  Updated on return. [maxkl]
- * @param tpig		Ignition temperature (K), by component. [maxno]
- * @param tchar		tchar = end - pyrolysis temperature (K), by component. [maxno]
- * @param xmat		Table of influence fractions between components. [maxkl]
- * @param tpamb		Ambient temperature (K).
- * @param fi		Current fire intensity (site avg), kW / sq m.
- * @param work		Factor of heat transfer rate hbar * (Tfire - Tebar)
- *            		that yields ddot (k). [maxno]
+ * @param[in] dt			Time step, sec.		[Or: Spreading fire residence time????? Confirm!!!!!]
+ * @param[in] now			Index marks end of time step.
+ * @param[in,out] wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
+ * @param[in] alfa			Dry thermal diffusivity of component, sq m / s. [maxno]
+ * @param[in] dendry		Ovendry density of component, kg / cu m. [maxno]
+ * @param[in] fmois			Moisture fraction of component. [maxno]
+ * @param[in] cheat			Specific heat capacity of component, J / kg K. [maxno]
+ * @param[in] condry		Ovendry thermal conductivity, W / sq m K. [maxno]
+ * @param[in,out] diam		Current diameter of the larger of each
+ *                    		fuel component pair, m.  Updated on return. [maxkl]
+ * @param[in] tpig			Ignition temperature (K), by component. [maxno]
+ * @param[in] tchar			tchar = end - pyrolysis temperature (K), by component. [maxno]
+ * @param[in] xmat			Table of influence fractions between components. [maxkl]
+ * @param[in] tpamb			Ambient temperature (K).
+ * @param[in] fi			Current fire intensity (site avg), kW / sq m.
+ * @param[in] work			Factor of heat transfer rate hbar * (Tfire - Tebar)
+ *                			that yields ddot (k). [maxno]
  *
  * Parameters updated (input and output):
- * @param ncalls	Counter of calls to this routine:
- *              	= 0 on first call or reset,
- *              	cumulates after first call.
- * @param flit		Fraction of each component currently alight. [maxno]
- * @param fout		Fraction of each component currently gone out. [maxno]
- * @param tdry		Time of drying start of the larger of each fuel component pair. [maxkl]
- * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param tout		Burnout time of larger component of pairs. [maxkl]
- * @param qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
- * @param tcum		Cumulative temp integral for qcum (drying). [maxkl]
- * @param acum		Heat pulse area for historical rate averaging. [maxkl]
- * @param qdot		History (post ignite) of heat transfer rate
- *            		to the larger of each component pair, W / sq m. [maxkl, mxstep]
- * @param ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
- * @param wodot		Dry loading loss rate for larger of pair. [maxkl]
+ * @param[in,out] ncalls	Counter of calls to this routine:
+ *                      	= 0 on first call or reset,
+ *                      	cumulates after first call.
+ * @param[in,out] flit		Fraction of each component currently alight. [maxno]
+ * @param[in,out] fout		Fraction of each component currently gone out. [maxno]
+ * @param[in,out] tdry		Time of drying start of the larger of each fuel component pair. [maxkl]
+ * @param[in,out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
+ * @param[in,out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[in,out] qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
+ * @param[in,out] tcum		Cumulative temp integral for qcum (drying). [maxkl]
+ * @param[in,out] acum		Heat pulse area for historical rate averaging. [maxkl]
+ * @param[in,out] qdot		History (post ignite) of heat transfer rate
+ *                    		to the larger of each component pair, W / sq m. [maxkl, mxstep]
+ * @param[in,out] ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
+ * @param[in,out] wodot		Dry loading loss rate for larger of pair. [maxkl]
  *
  * Constant parameters:
- * @param u			Mean horizontal windspeed at top of fuelbed (m/s).
- * @param d			Fuelbed depth (m).
- * @param r0		Minimum value of mixing parameter.
- * @param dr		Max - min value of mixing parameter.
+ * @param[in] u				Mean horizontal windspeed at top of fuelbed (m/s).
+ * @param[in] d				Fuelbed depth (m).
+ * @param[in] r0			Minimum value of mixing parameter.
+ * @param[in] dr			Max - min value of mixing parameter.
  *
- * @param tin		Start of current time step.
- * @param fint		Correction to fi to compute local intensity
- *            		that may be different due to k burning. [maxno]
- * @param fid		Fire intensity due to duff burning ... this is
- *           		used to up the fire intensity for fuel pieces
- *           		that are burning without interacting with others.
+ * @param[in] tin			Start of current time step.
+ * @param[in] fint			Correction to fi to compute local intensity
+ *                			that may be different due to k burning. [maxno]
+ * @param[in] fid			Fire intensity due to duff burning ... this is
+ *               			used to up the fire intensity for fuel pieces
+ *               			that are burning without interacting with others.
  *
  * Interactive context:
- * @param number	The actual number of fuel classes.  If omitted
- *              	this will be determined from the other inputs.
+ * @param[in] number		The actual number of fuel classes.  If omitted
+ *                  		this will be determined from the other inputs.
 
 * Differences from the interface of START:
 - alfa is input rather than output
@@ -2164,9 +2157,9 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 /** This function converts the indexes of the pairwise fuel interaction triangular matrix space
  * to indexes of the arrays used to represent it for several computed variables.
  *
- * @param k Triangular matrix column (row) index, (1 - number of fuel types).
- * @param l Triangular matrix row (column) index, (0 - k), = partner.
- *          This index starts at 0, which represent the "no companion" pairs.
+ * @param[in] k Triangular matrix column (row) index, (1 - number of fuel types).
+ * @param[in] l Triangular matrix row (column) index, (0 - k), = partner.
+ *              This index starts at 0, which represent the "no companion" pairs.
  *
  * @returns The compact array index representing triangular matrix position [k, l], notated as kl. 
  * 
@@ -2232,8 +2225,8 @@ int Loc(const int k, const int l)
  * described in Albini 1995 and Albini & Reinhardt 1995.  It was obtained from Hastings (et
  * al.) 1955, but I cann't identify the equation in that reference.
  *
- * @param h
- * @param theta Temperature rise required for the start of moisture loss.
+ * @param[in] h
+ * @param[in] theta Temperature rise required for the start of moisture loss.
  *
  * @par History:
  * This function was originally implemented as a statement function in DRYTIM(), as f().
@@ -2265,15 +2258,15 @@ double ErrorApprox(const double h, const double theta)
  * Allowing the file name to be specified would only work in some contexts.  For example, we
  * currently have no way to pass in a file name via the R interface.
  *
- * @param ts		Current timestep count.
- * @param time		Current time (s).
- * @param number	Actual number of fuel components.
- * @param parts		Fuel component names / labels. [maxno]
+ * @param[in] ts		Current timestep count.
+ * @param[in] time		Current time (s).
+ * @param[in] number	Actual number of fuel components.
+ * @param[in] parts		Fuel component names / labels. [maxno]
  *
  * All the outputs from START() and STEP():
  * Currently only some of these are passed in to be saved. In the future others may be added.
- * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
- * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]	!!!!!
+ * @param[in] wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
+ * @param[in] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]	!!!!!
 	!real*4, intent(in) :: flit(maxno)		Fraction of each component currently alight.
 	!real*4, intent(in) :: fout(maxno)		Fraction of each component currently gone out.
  * The following are recomputed at each time point but only the final values would be needed:
@@ -2289,7 +2282,7 @@ double ErrorApprox(const double h, const double theta)
 	!real*4, intent(in) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
 	!real*4, intent(in) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
 	!real*4, intent(in) :: work(maxno)	! Workspace array.
- * @param fi		Current fire intensity (site avg), kW / sq m.
+ * @param[in] fi		Current fire intensity (site avg), kW / sq m.
  *
  * @returns Nothing.
  *
