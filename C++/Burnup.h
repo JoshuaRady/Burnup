@@ -83,9 +83,6 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 //Utilities:
 int Loc(const int k, const int l);
 double ErrorApprox(const double h, const double theta);
-//AskForReal1
-//AskForReal2
-//AskForReal
 
 //File IO:
 void SaveStateToFile(const int ts, const double time, const int number,

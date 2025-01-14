@@ -120,13 +120,13 @@ bool SaveHistory = false;//Should fire history be output to file?
  * wo should be moved to the front in any case because it is the most valuable output.  This
  * would have the advantage of making the size() shorthand shorter.
  * JMR_Note: No longer in argument order!!!!!
-	! real*4, intent(out) :: wo(number * (number + 1) / 2 + number)
  * @param wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
  * @param xmat		Table of influence fractions between components. [maxkl]
  * @param tign		Ignition time for the larger of each fuel component pair. [maxkl]
  * @param tout		Burnout time of larger component of pairs. [maxkl]
  * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
+ * Settings:
  * @param outputHistory	Should fire history be saved?  Defaults to false.
  *
  * @note Currently it is expected that the calculated output vectors be supplied in the correct size.
@@ -134,11 +134,8 @@ bool SaveHistory = false;//Should fire history be output to file?
  *
  * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
  *
- * Settings:
- * @param outputHistory	Should fire history be saved?  Defaults to false.
- *
-
-! History: Added as an programatic alternative entry point to the original interactive program.
+ * @par History:
+ * Added as an programatic alternative entry point to the original interactive program.
  */
 void Simulate(double& fi, const double ti, const double u, const double d, const double tpamb,
               const double ak, const double r0, const double dr, double& dt, const double wdf,
@@ -289,7 +286,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//We could also return the number of timesteps completed in ntimes but that doesn't add much.
 }
 
-//SimulateR()
+//SimulateR():
 /** This is a wrapper for Simulate() that allows it to be called from R (using .C()):
  *
  * The parameters parallel those of Simulate() but are pointers meet the requirements of R's .C()
@@ -340,8 +337,9 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
  * @param diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * @param outputHistory	Should fire history be saved? (0 = no, 1 = yes)
-
-! History: Added for module.
+ *
+ * @par History:
+ * Added for module.
  */
 extern "C" void SimulateR(double* fi, const double* ti, const double* u, const double* d,
                           const double* tpamb, const double* ak, const double* r0, const double* dr,
@@ -429,12 +427,12 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	}
 }
 
-//DUFBRN()
+//DUFBRN():
 /** Calculate duff fire properties.
  *
  * @par Original Burnup Description:
-!c Duff burning rate (ergo, intensity) and duration
-
+ * !c Duff burning rate (ergo, intensity) and duration
+ *
  * @param wdf	Duff loading (kg/m^2, aka W sub d)
  * @param dfm	Ratio of moisture mass to dry organic mass / duff fractional moisture (aka R sub M)
  * @param dfi	Duff fire intensity (aka I sub d)		Units?????
@@ -442,8 +440,8 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
  *
  * @returns On return dfi and tdf are returned in parameters.
  *
-
-! History: Modernized original Burnup subroutine.
+ * @par History:
+ * Modernized original Burnup subroutine.
  */
 void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf)
 {
@@ -460,21 +458,15 @@ void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf)
 	tdf = 1.e+04 * ff * wdf / (7.5 - 2.7 * dfm);
 }
 
-//DufBrnR()
+//DufBrnR() probably does not need to be ported.
 
-//GETDAT()
-
-//...
-
-//RETRY()
-
-//ARRAYS
-/**
+//ARRAYS():
+/** Prepare arrays.  ...
  *
  * @par Original Burnup Description:
-!c Orders the fuel description arrays according to the paradigm described in
-!c subroutine SORTER and computes the interaction matrix xmat from the array
-!c elam and the list alone returned from subroutine OVLAPS.
+ * !c Orders the fuel description arrays according to the paradigm described in
+ * !c subroutine SORTER and computes the interaction matrix xmat from the array
+ * !c elam and the list alone returned from subroutine OVLAPS.
  *
  * The large number of parameters are hard to handle...
 
@@ -516,11 +508,12 @@ void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf)
  *               	this will be determined from the other inputs.
  *
  * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
-
-! History: Modernized original Burnup subroutine.
-! Several arguments have been removed that were present in the original routine.  The number
-! argument has been moved and is now optional and is only used in the interactive context.
-*/
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * Several arguments have been removed that were present in the original routine.  The number
+ * argument has been moved and is now optional and is only used in the interactive context.
+ */
 void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<double>& dendry,
             std::vector<double>& fmois, std::vector<double>& sigma, std::vector<double>& htval,
             std::vector<double>& cheat, std::vector<double>& condry, std::vector<double>& tpig,
@@ -654,17 +647,17 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 	}
 }
 
-//SORTER
-/**
+//SORTER():
+/** Sort the fuels.
  *
  * @par Original Burnup Description:
-!c Sorts fuel element list in order of increasing size (decreasing sigma)
-!c For elements with same size order determined on increasing moisture
-!c content (fmois). If items have same size and moisture content, order
-!c on the basis of increasing mass density (dryden). "number" elements are
-!c included in the list, which has a maximum length of "maxno". The integer
-!c list: key(j), j = 1, number holds the indices in order, so other
-!c fuel parameters can be ordered and associated as necessary.
+ * !c Sorts fuel element list in order of increasing size (decreasing sigma)
+ * !c For elements with same size order determined on increasing moisture
+ * !c content (fmois). If items have same size and moisture content, order
+ * !c on the basis of increasing mass density (dryden). "number" elements are
+ * !c included in the list, which has a maximum length of "maxno". The integer
+ * !c list: key(j), j = 1, number holds the indices in order, so other
+ * !c fuel parameters can be ordered and associated as necessary.
  *
  * @param sigma(:)		Surface to volume ratio, 1 / m. [maxno]
  * @param fmois(:)		Moisture content, fraction dry mass. [maxno]
@@ -675,10 +668,11 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
  * Since SORTER() is only downstream of ARRAYS() making number optional doesn't gain us much.
  *
  * @returns On return sigma, fmois, dryden are reordered and key is set.
-
-! History: Modernized original Burnup subroutine.
-! The maxno argument has been removed.  The number argument has been moved and is now optional.
-*/
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * The maxno argument has been removed.  The number argument has been moved and is now optional.
+ */
 void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<double>& dryden,
             std::vector<int>& key, const int number)
 {
@@ -779,30 +773,23 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
 	}
 }
 
-//OVLAPS
-/**
+//OVLAPS():
+/** Compute the fuel interaction matrix.
  *
  * @par Original Burnup Description:
-!c Computes the interaction matrix elam(j, k) which apportions the
-!c influence of smaller and equal size pieces on eaqh size class for the
-!c purpose of establishing the rates at which the elemnts burn out.
-!c Input quantities are dryld, the ovendry mass per unit area of each
-!c element available for burning after the passage of the igniting surface
-!c fire; sigma, the particle's surface/ volume ratio, and dryden, the
-!c ovendry mass density of the particle; ak a dimensionless parameter that
-!c scales the planform area of a particle to its area of influence. There
-!c are "number" separate particle classes, of a maximum number = maxno.
-!c It is assumed that the 1ist are ordered on size class (nonincreasing
-!c surface/ volume ratio). List "alone" gives the fraction of each loading
-!c that is not influenced by any other category.
-!
-! History: Modernized original Burnup subroutine.
-! We modify the original behavior such that a negative value for ak indicates the the value of
-! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
-! original arguments.
-! Several arguments have been removed that were present in the original routine.  The number
-! argument has been moved and is now optional.
-
+ * !c Computes the interaction matrix elam(j, k) which apportions the
+ * !c influence of smaller and equal size pieces on eaqh size class for the
+ * !c purpose of establishing the rates at which the elemnts burn out.
+ * !c Input quantities are dryld, the ovendry mass per unit area of each
+ * !c element available for burning after the passage of the igniting surface
+ * !c fire; sigma, the particle's surface/ volume ratio, and dryden, the
+ * !c ovendry mass density of the particle; ak a dimensionless parameter that
+ * !c scales the planform area of a particle to its area of influence. There
+ * !c are "number" separate particle classes, of a maximum number = maxno.
+ * !c It is assumed that the 1ist are ordered on size class (nonincreasing
+ * !c surface/ volume ratio). List "alone" gives the fraction of each loading
+ * !c that is not influenced by any other category.
+ *
  * @param dryld		Ovendry mass per unit area of each element (kg/sq m) (= wdry, ...). [maxno]
  * @param sigma		Surface to volume ratio, 1 / m. [maxno]
  * @param dryden	Ovendry mass density, kg / cu m (elsewhere dendry). [maxno]
@@ -818,6 +805,14 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
  * Since OVLAPS() is only downstream of ARRAYS() making number optional doesn't gain us much.
  *
  * @returns On return beta, elam, alone, and area are returned in parameters.
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * We modify the original behavior such that a negative value for ak indicates the the value of
+ * ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
+ * original arguments.
+ * Several arguments have been removed that were present in the original routine.  The number
+ * argument has been moved and is now optional. 
  */
 void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
             const std::vector<double> dryden, const double ak, const std::vector<double> fmois,
@@ -936,19 +931,21 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
 	}
 }
 
-//START
-/**
+//START():
+/** Start the fuel consumption simulation.
  *
  * @par Original Burnup Description:
-!c This routine initializes variables prior to starting sequence of calls
-!c to subroutine STEP.  On input here, fi is area intensity of spreading
-!c fire, dt is the residence time for the spreading fire.  Only physical
-!c parameters specified are the fuel array descriptors. To call STEP,
-!c one must initialize the following variables.
+ * !c This routine initializes variables prior to starting sequence of calls
+ * !c to subroutine STEP.  On input here, fi is area intensity of spreading
+ * !c fire, dt is the residence time for the spreading fire.  Only physical
+ * !c parameters specified are the fuel array descriptors. To call STEP,
+ * !c one must initialize the following variables.
+ *
+ * Arguments: (by category, not argument order)
 
-! Arguments: (by category, not argument order)
 ! JMR_NOTE: The original comments imply that alfa, diam, and wo should all be intent(in).
 ! However the code is not consistant with that.
+
  * @param dt		Spreading fire residence time (s) (= ti, tis, or time elsewhere).
  * @param now		Index marks end of time step.
  * @param wo		Current ovendry loading for the larger of each component pair, kg / sq m.
@@ -1001,15 +998,18 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
  *              	this will be determined from the other inputs.
  *              	Here the presence of number is used to determine
  *              	if we are in an interactive session as well.
-
-! The constants ch2o and tpdry were included as arguments in the original code.  They have
-! chnaged to globals.
-! The original comments include hvap as a constant, but is not actually used:
-! hvap = heat of vaporization of water J / kg
-
-! History: Modernized original Burnup subroutine.
-! Several arguments have been removed that were present in the original routine.  The number
-! argument has been moved and is now optional and is only used in the interactive context.
+ *
+ * @returns Nothing. ...
+ 
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * Several arguments have been removed that were present in the original routine.  The number
+ * argument has been moved and is now optional and is only used in the interactive context.
+ *
+ * @note The constants ch2o and tpdry were included as arguments in the original code.  They have
+ * chnaged to globals.
+ * @note The original comments include hvap as a constant, but is not actually used:
+ * hvap = heat of vaporization of water J / kg
  */
 void START(const double dt, const int now, std::vector<double>& wo, std::vector<double>& alfa,
            const std::vector<double> dendry, const std::vector<double> fmois,
@@ -1292,23 +1292,19 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 	ncalls = 0;
 }
 
-
-//FIRINT
-/**
+//FIRINT():
+/** Compute fire intensity.
  *
  * @par Original Burnup Description:
-!c Computes fi = site avg fire intensity given the burning rates of all
-!c interacting pairs of fuel components [ wodot ], the mineral ash content
-!c of each component [ ash ], the heat of combustion value [ htval ] for
-!c each, and the number of fuel components [ number ], where max - maxno.
-!c fi is in kW / sq m, while htval is in J / kg.
-!
-!c fint(k) is the correction to fi to adjust
-!c the intensity level to be the local value where size k is burning.
-
-! History: Modernized original Burnup subroutine.
-! Several arguments have been removed that were present in the original routine.
-
+ * !c Computes fi = site avg fire intensity given the burning rates of all
+ * !c interacting pairs of fuel components [ wodot ], the mineral ash content
+ * !c of each component [ ash ], the heat of combustion value [ htval ] for
+ * !c each, and the number of fuel components [ number ], where max - maxno.
+ * !c fi is in kW / sq m, while htval is in J / kg.
+ *
+ * !c fint(k) is the correction to fi to adjust
+ * !c the intensity level to be the local value where size k is burning.
+ *
  * @param wodot		Burning rates of interacting pairs of fuel components. [maxkl]
  * @param ash		Mineral content, fraction dry mass. [maxno]
  * @param htval		Low heat of combustion, J / kg. [maxno]
@@ -1319,6 +1315,10 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
  * @param fi		Site avg fire intensity (kW / sq m) (returned).
  *
  * @returns fint[] and fi are returned it the parameters.
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * Several arguments have been removed that were present in the original routine.
  */
 void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
             const std::vector<double> htval, const int number, const std::vector<double> area,
@@ -1363,14 +1363,9 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
 	fi = sum;
 }
 
-//STASH
-
-//TIGNIT
+//TIGNIT():
 /** This routine computes the halfspace surface ignition time under steady radiant heating with
-* surface film cooling.
-*
-! History: Modernized original Burnup subroutine.
-!
+ * surface film cooling.
  *
  * @param tpam	Ambient temperature, K.
  * @param tpdr	Fuel temperature at start of drying, K.
@@ -1382,11 +1377,12 @@ void FIRINT(const std::vector<double> wodot, const std::vector<double> ash,
  * @param fmof	Fuel moisture content, fraction dry weight.
  * @param dend	Fuel ovendry density, kg / cu m.
  * @param hbar	Effective film heat transfer coefficient [< HEATX] W / sq m K.
-	real*4, intent(out) :: tmig	! Predicted time to piloted ignition, s.
  *
  * @returns tmig Predicted time to piloted ignition, s.
  * 
-! JMR_NOTE: Since this only has one return value it could be turned into a function.
+ * @par History:
+ * Modernized original Burnup subroutine.
+ *
  * @note The orignal Fortran routine returns tmig as an argument.  !!!!!
  */
 double TIGNIT(const double tpam, const double tpdr, const double tpig, const double tpfi,
@@ -1445,7 +1441,7 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 		{
 			xlo = xav;
 		}
-		else if (fav > 0.0)//Note: What about fav == 0.0!!!!!
+		else if (fav > 0.0)
 		{
 			xhi = xav;
 		}
@@ -1462,23 +1458,27 @@ double TIGNIT(const double tpam, const double tpdr, const double tpig, const dou
 	return tmig;
 }
 
-//DRYTIM
-/**
-!c Given a Nusselt number (enu, actually Biot number = h D / k)
-!c and the dimensionless temperature rise required for the start
-!c of surface drying (theta), returns the dimerisionless time (tau)
-!c needed to achieve it. The time is given multiplied by thermal
-!c diffusivity and divided by radius squared. Solution by binary search.
-!
-! History: Modernized original Burnup subroutine.
-
+//DRYTIM():
+/** Compute the (dimensionless) drying time.
+ *
+ * @par Original Burnup Description:
+ * !c Given a Nusselt number (enu, actually Biot number = h D / k)
+ * !c and the dimensionless temperature rise required for the start
+ * !c of surface drying (theta), returns the dimerisionless time (tau)
+ * !c needed to achieve it. The time is given multiplied by thermal
+ * !c diffusivity and divided by radius squared. Solution by binary search.
+ *
  * @param enu Biot number.
  * @param theta Temperature rise required for the start of moisture loss.
-			real, intent(out) :: tau	! Time required for the start of moisture loss.
-
- @note The original Fortran routine returned tau via an argument.
+ *
+ * @returns tau The time required for the start of moisture loss.
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
+ *
+ * @note The original Fortran routine returned tau via an argument.
  */
-double DRYTIM(const double enu, const double theta)//, tau)
+double DRYTIM(const double enu, const double theta)
 {
 	double xl, xh, xm;//The binary search low and high bounds, and the search center.
 	double x;
@@ -1517,19 +1517,17 @@ double DRYTIM(const double enu, const double theta)//, tau)
 }
 
 
-//HEATX
+//HEATX():
 /** This routine calculates how heat is transfered from the fire environment to a given fuel type.
  *
  * @par Original Burnup Description:
- !c Given horizontal windspeed u at height d [top of fuelbed], cylindrical
-!c fuel particle diameter dia, fire environment temperature tf, and mean
-!c surface temperature, ts, subroutine returns film heat transfer coefficient
-!c hfm and an "effective" film heat transfer coefficient including radiation
-!c heat transfer, hbar.  Using the wood's thermal conductivity, cond, the
-!c modified Nusselt number [ en ] used to estimate onset of surface drying
-!c is returned as well.
-!
-! History: Modernized original Burnup subroutine.
+ * !c Given horizontal windspeed u at height d [top of fuelbed], cylindrical
+ * !c fuel particle diameter dia, fire environment temperature tf, and mean
+ * !c surface temperature, ts, subroutine returns film heat transfer coefficient
+ * !c hfm and an "effective" film heat transfer coefficient including radiation
+ * !c heat transfer, hbar.  Using the wood's thermal conductivity, cond, the
+ * !c modified Nusselt number [ en ] used to estimate onset of surface drying
+ * !c is returned as well.
  *
  * @param u		Mean horizontal windspeed at top of fuelbed (m/s).
  * @param d		Fuelbed depth (m).
@@ -1543,7 +1541,10 @@ double DRYTIM(const double enu, const double theta)//, tau)
  *
  * @returns hfm, hbar, and en are returned via parameters.
  *
- * The arguments are in the original order but it might be good to reorder so the return values are together!!!!!
+ * @par History:
+ * Modernized original Burnup subroutine.
+ *
+ * @note The arguments are in the original order but it might be good to reorder so the return values are together!!!!!
  */
 void HEATX(const double u, const double d, const double dia, const double tf, const double ts,
            double& hfm, double& hbar, const double cond, double& en)
@@ -1584,17 +1585,21 @@ void HEATX(const double u, const double d, const double dia, const double tf, co
 	en = hbar * dia / cond;
 }
 
-//TEMPF
-/**
-!c Returns a fire environment temperature, TEMPF, given the fire intensity
-!c q in kW / square meter, the ambient temperature tamb in Kelvins, and the
-!c dimensionless mixing parameter r.
-!
-! History: Modernized original Burnup subroutine.
-
+//TEMPF():
+/** Compute the fire environment temperature.
+ *
+ * !c Returns a fire environment temperature, TEMPF, given the fire intensity
+ * !c q in kW / square meter, the ambient temperature tamb in Kelvins, and the
+ * !c dimensionless mixing parameter r.
+ *
  * @param q Fire intensity (kW/m^2).
  * @param r Dimensionless mixing parameter.
  * @param tamb Ambient temperature (K).
+ *
+ * @returns Fire environment temperature Units????? (K)?????
+ *
+ * @par History:
+ * Modernized original Burnup subroutine.
  */
 double TEMPF(const double q, const double r, const double tamb)
 {
@@ -1625,14 +1630,12 @@ double TEMPF(const double q, const double r, const double tamb)
 	return tempf;
 }
 
-//STEP
-
+//STEP():
 /** This routine calculates one timestep of the fuel consumption process.
  *
  * @par Original Burnup Description:
-!c Updates status of all fuel component pairs and returns a snapshot
-
-
+ * !c Updates status of all fuel component pairs and returns a snapshot
+ *
  * Arguments: (by category, not argument order)
  * @param dt		Time step, sec.		[Or: Spreading fire residence time????? Confirm!!!!!]
  * @param now		Index marks end of time step.
@@ -1691,12 +1694,13 @@ double TEMPF(const double q, const double r, const double tamb)
 - work is nput rather than output
 - tin, fint, fid are added.
 
-! History: Modernized original Burnup subroutine.
-! Several arguments have been removed that were present in the original routine.  The number
-! argument has been moved and is now optional and is only used in the interactive context.
-!
-! JMR_NOTE: This routine takes a large number of arguments and the order is a bit confusing
-! with input and output parameters mixed in the order.
+ * @par History:
+ * Modernized original Burnup subroutine.
+ * Several arguments have been removed that were present in the original routine.  The number
+ * argument has been moved and is now optional and is only used in the interactive context.
+ *
+ * @note This routine takes a large number of arguments and the order is a bit confusing
+ * with input and output parameters mixed in the order.
  */
 void STEP(const double dt, const int now, std::vector<double>& wo, const std::vector<double> alfa,
           const std::vector<double> dendry, const std::vector<double> fmois,
@@ -2108,9 +2112,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	}
 }
 
-//SUMMARY
-
-//Loc
+//Loc():
 /** This function converts the indexes of the pairwise fuel interaction triangular matrix space
  * to indexes of the arrays used to represent it for several computed variables.
  *
@@ -2140,11 +2142,12 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
  * @note: This will only return valid (occupied) coordinates of the triangular matrix.
  * The code assumes maxno and maxkl are the maximum dimensions.
  * Further error checking would require that the number of fuel classes be know. ?????
- 
-! History: This function was originally implemented as a statement function defined in seven places
-! in the original Fortran code.
- 
- 
+ *
+ * @par History:
+ * This function was originally implemented as a statement function defined in seven places in the
+ * original Fortran code.
+ *
+
  * @note This assumes maxno and maxkl are correct, which they may not be in a non-interactive session!!!!!
  */
 int Loc(const int k, const int l)
@@ -2174,17 +2177,18 @@ int Loc(const int k, const int l)
 	return loc;
 }
 
-//ErrorApprox
-/**
-I believe this function is the approximation of the complementary error function as
-described in Albini 1995 and Albini & Reinhardt 1995.  It was obtained from Hastings (et
-al.) 1955, but I cann't identify the equation in that reference.
-
-History: This function was originally implemented as a statement function in DRYTIM(), as f().
-
-* @param h
-& @param theta Temperature rise required for the start of moisture loss.
-
+//ErrorApprox()
+/** Approximate the error function.
+ *
+ * I believe this function is the approximation of the complementary error function as
+ * described in Albini 1995 and Albini & Reinhardt 1995.  It was obtained from Hastings (et
+ * al.) 1955, but I cann't identify the equation in that reference.
+ *
+ * @param h
+ * @param theta Temperature rise required for the start of moisture loss.
+ *
+ * @par History:
+ * This function was originally implemented as a statement function in DRYTIM(), as f().
  */
 double ErrorApprox(const double h, const double theta)
 {
@@ -2200,17 +2204,10 @@ double ErrorApprox(const double h, const double theta)
 	return approx;
 }
 
-//AskForReal1
-
-//...
-
-//SaveStateToFile
+//SaveStateToFile():
 /** Output the state of the simulation at the current timestep to file (if needed):
- * Data is only saved when the SaveHistory setting is set to true.
  * Sequential calls to this routine will produce a full history of the simulated fire.
- 
- RELATIONSHIP to STASH!!!!!
- 
+ * Data is only saved when the SaveHistory setting is set to true.
  *
  * Successful output from this routine is treated as non-critical as it doesn't impact the
  * simulation process.  Output failures are reported but are not treated as fatal.
@@ -2254,7 +2251,8 @@ double ErrorApprox(const double h, const double theta)
  * The IDs are currently only used to identify the fuel pairs.  If that is the only use they
  * should be renamed.
  *
- ! History: Added for module.
+ * @par History:
+ * Added for module.  This routine provides an alternative to the original STASH() function. [More...]
  */
 void SaveStateToFile(const int ts, const double time, const int number,
                      const std::vector<std::string> parts, const std::vector<double> wo,
