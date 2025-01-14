@@ -3531,18 +3531,19 @@ contains
 				tlit = tign(kl)
 				if (tnow .GE. tlit) then
 					ts = tchar(k)
+
+					! In the original code the following conditionals were in series:
 					if (l .EQ. 0) then
 						r = r0 + 0.5 * dr
 						gi = fi + fid
-					end if
-					if ((l .NE. 0) .AND. (l .NE. k)) then
+					else if ((l .NE. 0) .AND. (l .NE. k)) then ! Or (l > 0) && (l < k).
 						r = r0 + 0.5 * (1.0 + flit(l)) * dr
 						gi = fi + fint(k) + flit(l) * fint(l)
-					end if								! JMR: Link with following if!!!!!!
-					if (l .EQ. k) then
+					else if (l .EQ. k) then ! Or just else.
 						r = r0 + 0.5 * (1.0 + flit(k)) * dr
 						gi = fi + flit (k) * fint(k)
 					end if
+
 					tf = tempf(gi, r, tpamb)
 					dia = diam(kl)
 					call heatx(u, d, dia, tf, ts, hf, hb, c, e)
@@ -3623,18 +3624,18 @@ contains
 
 				dryt = tdry(kl)
 				if ((tnow .GE. dryt) .AND. (tnow .LT. tlit)) then
+					! In the original code the following conditionals were in series:
 					if (l .EQ. 0) then
 						r = r0
 						gi = fi + fid
-					end if
-					if (l .EQ. k) then
+					else if (l .EQ. k) then
 						r = r0
 						gi = fi
-					end if
-					if ((l .NE. 0) .AND. (l .NE. k)) then
+					else if ((l .NE. 0) .AND. (l .NE. k)) then ! Or just else.
 						r = r0 + 0.5 * flit(l) * dr
 						gi = fi + flit(l) * fint(l)
 					end if
+
 					tf = tempf(gi, r, tpamb)
 					ts = tpamb
 					dia = diam(kl)
@@ -3697,18 +3698,19 @@ contains
 				if (tnow .LT. dryt) then
 					factor = fmois(k) * dendry(k)
 					conwet = condry(k) + 4.27e-04 * factor
+
+					! In the original code the following conditionals were in series:
 					if (l .EQ. 0) then
 						r = r0
 						gi = fi + fid
-					end if
-					if (l .EQ. k) then
+					else if (l .EQ. k) then
 						r = r0
 						gi = fi
-					end if
-					if ((l .NE. 0) .AND. (l .NE. k)) then
+					else if ((l .NE. 0) .AND. (l .NE. k)) then ! Or just else.
 						r = r0 + 0.5 * flit(l) * dr
 						gi = fi + flit(l) * fint(l)
 					end if
+
 					tf = tempf(gi, r, tpamb)
 					if (tf .LE. (tpdry + 10.0)) then
 						cycle lLoop
