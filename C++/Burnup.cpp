@@ -1781,7 +1781,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 	double tst, aint, qqq;
 	double tav1, tav2, tav3, tavg;//Time over which to perform averaging.
 	double tbar;
-	int index;											//Is index a keyword?????  It may be deprecated POSIX function name.
+	int tIndex;		//Time index. = index in the Fortran code.  Renamed to avoid potential conflict with a POSIX function name.
 	double qdsum;	//Sum of heat transfer (W/m^2 * s = J/m^2 ?).
 	double qdavg;	//Average heat transfer...
 	double deltim, rate, dryt, dqdt;
@@ -1917,7 +1917,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				tav3 = pow((dia / 4.0), 2) / alfa [k0];//Measure of time heat takes to reach center of fuel.
 				tavg = std::min({tav1, tav2, tav3});
 
-				index = 1 + std::min(nspan, mxstep);
+				tIndex = 1 + std::min(nspan, mxstep);
 				qdsum = 0.0;
 				tspan = 0.0;
 				deltim = dt;
@@ -1925,8 +1925,8 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 				//Calculate qdsum (sum of heat transfer (W/m^2 * s = J/m^2)):
 				while (true)
 				{
-					index = index - 1;
-					if (index == 1)
+					tIndex = tIndex - 1;
+					if (tIndex == 1)
 					{
 						deltim = tnext - tspan - tlit;
 					}
@@ -1936,10 +1936,10 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 						deltim = tavg - tspan;
 					}
 
-					qdsum = qdsum + qdot[kl][index - 1] * deltim;//Convert to 0 index.
+					qdsum = qdsum + qdot[kl][tIndex - 1] * deltim;//Convert to 0 index.
 					tspan = tspan + deltim;
 
-					if ((tspan < tavg) && (index > 1))
+					if ((tspan < tavg) && (tIndex > 1))
 					{
 						continue;
 					}
