@@ -86,8 +86,8 @@ The original program fixes this maximum arbitrarily at 10 fuel components.*/
 
 /*The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs is
 calculated from maxno to size arrays that hold data is this form.*/
-//Add one to one dimension for the  'no companion' interaction element:
-const int maxkl = maxno * (maxno + 1) / 2 + maxno;
+//Add one to one dimension for the 'no companion' interaction element:
+//const int maxkl = maxno * (maxno + 1) / 2 + maxno;
 
 /*We have removed these fixed size assumptions from our programatic interface to the model, though
 they remain in the intactive UI Fortran version.  The number of fuel types is passed in at the start
@@ -441,7 +441,7 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 	std::vector<double> tcharVec(tchar, tchar + *number);
 
 	//Triangular matrix size, equivalent to maxkl but determined by 'number' passed in:
-	int lenkl = *number * (*number + 1) / 2 + *number;
+	int lenkl = Length_kl(*number);
 	
 	std::vector<double> xmatVec(xmat, xmat + lenkl);
 	std::vector<double> tignVec(tign, tign + lenkl);
@@ -2228,12 +2228,28 @@ int Loc(const int k, const int l)
 	loc -= 1;//Convert to 0 based index.
 
 	//Check value calculated is in the valid range:
-	if ((loc < 0) || (loc > (maxkl - 1)))
+	if ((loc < 0) || (loc > (Length_kl(NumFuelTypes) - 1)))
 	{
 		Stop("Loc(): Invalid index returned " + std::to_string(loc));
 	}
 
 	return loc;
+}
+
+//Lenkl():
+/**Compute the triangular matrix size for a given number of fuel types.
+ *
+ * The original code set this as a fixed value notated maxkl.
+ *
+ * @param numFuels The number of fuel type elements.
+ *
+ * @returns The triangular matrix size.
+ */
+int double Length_kl(numFuels)
+{
+	//Add one to one dimension for the 'no companion' interaction element:
+	int lenkl = numFuels * (numFuels + 1) / 2 + numFuels;
+	return lenkl;
 }
 
 //ErrorApprox()

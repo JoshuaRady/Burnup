@@ -82,6 +82,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 
 //Utilities:
 int Loc(const int k, const int l);
+int double Length_kl(numFuels);
 double ErrorApprox(const double h, const double theta);
 
 //File IO:
