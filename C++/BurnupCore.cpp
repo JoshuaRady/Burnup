@@ -2251,7 +2251,7 @@ int Loc(const int k, const int l)
 }
 
 //Lenkl():
-/**Compute the triangular matrix size for a given number of fuel types.
+/** Compute the triangular matrix size for a given number of fuel types.
  *
  * The original code set this as a fixed value notated maxkl.
  *
@@ -2259,7 +2259,7 @@ int Loc(const int k, const int l)
  *
  * @returns The triangular matrix size.
  */
-int double Length_kl(numFuels)
+int Length_kl(int numFuels)
 {
 	//Add one to one dimension for the 'no companion' interaction element:
 	int lenkl = numFuels * (numFuels + 1) / 2 + numFuels;
