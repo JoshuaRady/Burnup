@@ -72,6 +72,7 @@ that may not be correct.
 
 #include "BurnupCore.h"
 #include "FireweedMessaging.h"
+#include "FireweedUtils.h"//Just for SameLengths().
 
 /* Program level dimensional constants:
 In the original code the parameters maxno and maxkl were passed into all routines that need them.
@@ -253,9 +254,22 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//Set SaveHistory:
 	SaveHistory = outputHistory;
 
-	//Adding size checking on incoming arrays would be good here!!!!!
-	
+	//Validate the size of incoming vectors:
+	if (parts.size() != number || wdry.size() != number ||
+	    !SameLengths(wdry, ash, htval, fmois, dendry, sigma, cheat) ||
+	    !SameLengths(wdry, condry, tpig, tchar))
+	{
+		Stop("Fuel properties must be of equal length.");
+	}
 	NumFuelTypes = number;
+	
+	int lenkl = Length_kl(number);
+	if (wo.size() != lenkl || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
+	//if (wo.size() != Length_kl(number) || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
+	{
+		Stop("Calculated output vectors must be of equal length.");
+	}
+	//Allowing the incoming output vectors to be empty would simplify things for the calling code.
 
 	//Sort the fuel components and calculate the interaction matrix...
 	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
