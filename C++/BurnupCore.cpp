@@ -74,18 +74,32 @@ that may not be correct.
 #include "FireweedMessaging.h"
 
 /* Program level dimensional constants:
-In the original code these parameters were passed into all routines that need them.  Here we
-change to module level scope.  This allows us to reduce the number of arguments to routines.
-While currently fixed, these can probably be made dynamic to be set a initialization.*/
-//Update!!!!!
+In the original code the parameters maxno and maxkl were passed into all routines that need them.
+In our Fortran module we changed them to module level scope.  This allowed us to reduce the number
+of arguments to routines.  Without the interactive UI they are not yet needed here.
 
-/*The maximum number of fuel components or types.  This is used to build fixed size data
-structures.  The number of elements may be less than this so some indexes may be empty.
-The original program fixes this arbitrarily at 10 fuel components.*/
-const int maxno = 12;
-//The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs:
-//Add one to one dimension for the  'no companion' interaction element.
+The original interactive program has a fixed maximum number of fuel components or types = maxno.
+This is used to build fixed size data structures.  The actual number of fuel elements for a
+simulation may be less than this maximum so some array indexes may be empty during computations.
+The original program fixes this maximum arbitrarily at 10 fuel components.*/
+//const int maxno = 12;
+
+/*The maximum number of non-zero entries in the triangular matrix of fuel interaction pairs is
+calculated from maxno to size arrays that hold data is this form.*/
+//Add one to one dimension for the  'no companion' interaction element:
 const int maxkl = maxno * (maxno + 1) / 2 + maxno;
+
+/*We have removed these fixed size assumptions from our programatic interface to the model, though
+they remain in the intactive UI Fortran version.  The number of fuel types is passed in at the start
+of the simulation and other functions can infer it from inputs.  However, we still need to maintain
+a global record of the number of fuel types for Loc() to be able to validate its inputs.  See
+NumFuelTypes below. This is actual number of fuel types in use, unlike maxno.  When Simulate() is
+called all vectors will always be full.
+
+In the code that follows vector parameter descriptions contain their sizes in square brackets.
+Currently those marked [maxno] will always equal the actual number of fuel types and those marked
+[maxkl] the triangular matrix length for that number of fuels.  The labeling might be improved.*/
+
 //The maximum dimension of historical sequences (primarily for qdot):
 const int mxstep = 20;
 
@@ -104,6 +118,7 @@ const char noCmpStr[] = "no companion";//The name for no companion pairs.
 
 //Globals:------------------------------------------------------------------------------------------
 bool SaveHistory = false;//Should fire history be output to file?
+int NumFuelTypes = 0;
 
 //Code:---------------------------------------------------------------------------------------------
 
@@ -182,6 +197,9 @@ bool SaveHistory = false;//Should fire history be output to file?
  *
  * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
  *
+ * @note The number of fuel types could be inferred from the input data eliminating the need for the
+ *       number parameter.  The 
+ *
  * @par History:
  * Added as an programatic alternative entry point to the original interactive program.
  */
@@ -236,6 +254,8 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	SaveHistory = outputHistory;
 
 	//Adding size checking on incoming arrays would be good here!!!!!
+	
+	NumFuelTypes = number;
 
 	//Sort the fuel components and calculate the interaction matrix...
 	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
@@ -2188,15 +2208,13 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
  * This function was originally implemented as a statement function defined in seven places in the
  * original Fortran code.
  *
-
- * @note This assumes maxno and maxkl are correct, which they may not be in a non-interactive session!!!!!
  */
 int Loc(const int k, const int l)
 {
 	int loc;//Return value: Index in a compact array representing the triangular matrix values (aka kl).
 
 	//Input validity checking:
-	if ((k < 1) || (k > maxno))
+	if ((k < 1) || (k > NumFuelTypes))
 	{
 		Stop("Loc(): Invalid value of k " + std::to_string(k));
 	}
