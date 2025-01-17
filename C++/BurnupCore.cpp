@@ -2258,6 +2258,9 @@ int Loc(const int k, const int l)
  * @param numFuels The number of fuel type elements.
  *
  * @returns The triangular matrix size.
+ *
+ * @par History:
+ * Added for C++.  This calculation was performed several places in the original model.
  */
 int Length_kl(int numFuels)
 {
