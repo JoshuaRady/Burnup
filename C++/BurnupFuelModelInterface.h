@@ -22,9 +22,16 @@ Licence?????
  * @brief A data structure that holds the output of a Burnup simulation (and a selection of inputs maybe?).
  *
  */
-struct BUSim {
+struct BurnupSim {
+	double burnoutTime;//The time the fire went out (s?).
+                       //A value of -1 indicates the fuel did not ignite.  A value
+                       //of -2 indicates the fuel did not complete drying.  In such
+                       //cases most of remaining return variables will not be
+                       //meaningful.
 
-	//Calculated outputs
+
+
+	//Calculated outputs by interaction pairs:
 	std::vector<double> w_o_kl;// = wo, Current (final?) ovendry loading for the larger of each component pair, kg/sq m.
 	//std::vector<double> w_o_out;//The remaining ovendry loading after the fire (kg/sq m).
 	std::vector<double> xmat;
@@ -32,6 +39,5 @@ struct BUSim {
 	std::vector<double> tout;
 	std::vector<double> diam;
 }
-
 
 #endif
