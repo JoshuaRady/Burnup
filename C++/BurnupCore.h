@@ -84,7 +84,7 @@ void STEP(const double dt, const int now, std::vector<double>& wo, const std::ve
 int Loc(const int k, const int l);
 int Length_kl(int numFuels);
 double ErrorApprox(const double h, const double theta);
-void ValidateOutputVector(std::vector<double>& output, const std:string outputName);
+void ValidateOutputVector(std::vector<double>& output, const std::string outputName);
 
 //File IO:
 void SaveStateToFile(const int ts, const double time, const int number,

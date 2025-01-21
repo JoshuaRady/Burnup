@@ -2308,7 +2308,7 @@ double ErrorApprox(const double h, const double theta)
  * @par History:
  * Added for C++ to reduce code repetition in Simulate().
  */
-void ValidateOutputVector(std::vector<double>& output, const std:string outputName)
+void ValidateOutputVector(std::vector<double>& output, const std::string outputName)
 {
 	int lenkl = Length_kl(NumFuelTypes);
 
@@ -2317,7 +2317,7 @@ void ValidateOutputVector(std::vector<double>& output, const std:string outputNa
 		if (!output.empty())
 		{
 			Warning(outputName + " has unexpected size " + std::to_string(output.size()) +
-			        ". Erasing and resizing.";
+			        ". Erasing and resizing.");
 		}
 
 		output.assign(lenkl, 0.0);//The incoming values are ignored so resize() would be fine too.
