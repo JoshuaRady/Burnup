@@ -180,9 +180,9 @@ contains
 										! least once by initial planform area of ea size
 		real*4 :: fint(maxno)			! Corrected local fire intensity for each fuel type.
 		real*4 :: xmat(maxkl)			! Consolidated interaction matrix.
-		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each fuel component pair.
-		real*4 :: tign(maxkl)			! Ignition time for the larger of each fuel component pair.
-		real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs.
+		real*4 :: tdry(maxkl)			! Time of drying start of the larger of each fuel component pair, s.
+		real*4 :: tign(maxkl)			! Ignition time for the larger of each fuel component pair, s.
+		real*4 :: tout(maxkl) 			! Burnout time of larger component of pairs, s.
 		real*4 :: wo(maxkl)				! Initial dry loading by interaction pairs.
 		real*4 :: wodot(maxkl)			! Dry loading loss rate for larger of pair.
 		real*4 :: diam(maxkl)			! initial diameter, m [by interaction pairs].
@@ -422,8 +422,8 @@ contains
 		real*4, intent(out) :: wo(number * (number + 1) / 2 + number)! Current ovendry loading for
 												! the larger of each component pair, kg/sq m. [maxkl]
 		real*4, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
-		real*4, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs, s. [maxkl]
 		real*4, intent(out) :: diam(size(wo))	! Current diameter of the larger of each
 												! fuel component pair, m. [maxkl]
 
@@ -441,7 +441,7 @@ contains
 		real*4 :: area(number)				! Fraction of site area expected to be covered at
 											! least once by initial planform area of ea size. [maxno]
 		real*4 :: fint(number)				! Corrected local fire intensity for each fuel type. [maxno]
-		real*4 :: tdry(size(wo))			! Time of drying start of the larger of each fuel component pair. [maxkl]
+		real*4 :: tdry(size(wo))			! Time of drying start of the larger of each fuel component pair, s. [maxkl]
 		real*4 :: wodot(size(wo))			! Dry loading loss rate for larger of pair. [maxkl]
 		real*4 :: ddot(size(wo))			! Diameter reduction rate, larger of pair, m / s. [maxkl]
 		real*4 :: qcum(size(wo))			! Cumulative heat input to larger of pair, J / sq m. [maxkl]
@@ -611,8 +611,8 @@ contains
 		double precision, intent(out) :: wo(number * (number + 1) / 2 + number) ! Current ovendry loading for
 														! the larger of each component pair, kg/sq m. [maxkl]
 		double precision, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
-		double precision, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair. [maxkl]
-		double precision, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs. [maxkl]
+		double precision, intent(out) :: tign(size(wo))	! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		double precision, intent(out) :: tout(size(wo))	! Burnout time of larger component of pairs, s. [maxkl]
 		double precision, intent(out) :: diam(size(wo))	! Current diameter of the larger of each
 														! fuel component pair, m. [maxkl]
 
@@ -2584,9 +2584,9 @@ contains
 											! on interactive session.
 		real*4, intent(out) :: flit(:)		! Fraction of each component currently alight. [maxno]
 		real*4, intent(out) :: fout(:)		! Fraction of each component currently gone out. [maxno]
-		real*4, intent(out) :: tdry(:)		! Time of drying start of the larger of each fuel component pair. [maxkl]
-		real*4, intent(out) :: tign(:)		! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(out) :: tout(:)		! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(out) :: tdry(:)		! Time of drying start of the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(out) :: tign(:)		! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(out) :: tout(:)		! Burnout time of larger component of pairs, s. [maxkl]
 		real*4, intent(out) :: qcum(:)		! Cumulative heat input to larger of pair, J / sq m. [maxkl]
 		real*4, intent(out) :: tcum(:)		! Cumulative temp integral for qcum (drying). [maxkl]
 		real*4, intent(out) :: acum(:)		! Heat pulse area for historical rate averaging. [maxkl]
@@ -2953,9 +2953,9 @@ contains
 		real*4, intent(in) :: wodot(:)			! Burning rates of interacting pairs of fuel components. [maxkl]
 		real*4, intent(in) :: diam(:)			! Current diameter of the larger of each fuel component pair. (m) [maxkl]
 		real*4, intent(in) :: ddot(:)			! Diameter reduction rate, larger of pair, m / s. [maxkl]
-		real*4, intent(in) :: tdry(:)			! Time of drying start of the larger of each fuel component pair. [maxkl]
-		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(in) :: tdry(:)			! Time of drying start of the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs, s. [maxkl]
 		real*4, intent(in) :: fmois(:)			! Moisture fraction of component. [maxno]
 		integer, intent(inout) :: nun			! Stash file unit identifier, returned on first call,
 												! passed in for subsequent.
@@ -3392,9 +3392,9 @@ contains
 											! cumulates after first call.
 		real*4, intent(inout) :: flit(:)	! Fraction of each component currently alight. [maxno]
 		real*4, intent(inout) :: fout(:)	! Fraction of each component currently gone out. [maxno]
-		real*4, intent(inout) :: tdry(:)	! Time of drying start of the larger of each fuel component pair. [maxkl]
-		real*4, intent(inout) :: tign(:)	! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(inout) :: tout(:)	! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(inout) :: tdry(:)	! Time of drying start of the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(inout) :: tign(:)	! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(inout) :: tout(:)	! Burnout time of larger component of pairs, s. [maxkl]
 		real*4, intent(inout) :: qcum(:)	! Cumulative heat input to larger of pair, J / sq m. [maxkl]
 
 
@@ -3813,8 +3813,8 @@ contains
 		real*4, intent(in) :: wdry(:)			! Ovendry mass loading, kg/sq m. [maxno]
 		real*4, intent(in) :: fmois(:)			! Moisture content, fraction dry mass. [maxno]
 		real*4, intent(in) :: sigma(:)			! Surface to volume ratio, 1 / m. [maxno]
-		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair. [maxkl]
-		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs. [maxkl]
+		real*4, intent(in) :: tign(:)			! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		real*4, intent(in) :: tout(:)			! Burnout time of larger component of pairs, s. [maxkl]
 		real*4, intent(in) :: xmat(:)			! Table of influence fractions between components. [maxkl]
 		real*4, intent(in) :: wo(:)				! Current ovendry loading for the larger of
 												! each component pair, kg/sq m. [maxkl]
@@ -4190,9 +4190,9 @@ contains
 		!real*4, intent(in) :: flit(maxno)		! Fraction of each component currently alight.
 		!real*4, intent(in) :: fout(maxno)		! Fraction of each component currently gone out.
 		! The following are recomputed at each time point but only the final values would be needed:
-		!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair.
-		!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair. [maxkl]
-		!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs.
+		!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair, s.
+		!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair, s. [maxkl]
+		!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs, s.
 		!real*4, intent(in) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
 		!real*4, intent(in) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
 		!real*4, intent(in) :: acum(maxkl)		! Heat pulse area for historical rate averaging.

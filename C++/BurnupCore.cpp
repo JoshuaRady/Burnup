@@ -182,8 +182,8 @@ int NumFuelTypes = 0;
  * JMR_Note: No longer in argument order!!!!!
  * @param[out] wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
  * @param[out] xmat		Table of influence fractions between components. [maxkl]
- * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair, s. [maxkl]
+ * @param[out] tout		Burnout time of larger component of pairs, s. [maxkl]
  * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * Settings:
@@ -222,7 +222,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	std::vector<double> area(number);		//Fraction of site area expected to be covered at
 	                                 		//least once by initial planform area of ea size. [maxno]
 	std::vector<double> fint(number);		//Corrected local fire intensity for each fuel type. [maxno]
-	std::vector<double> tdry(wo.size());	//Time of drying start of the larger of each fuel component pair. [maxkl]
+	std::vector<double> tdry(wo.size());	//Time of drying start of the larger of each fuel component pair, s. [maxkl]
 	std::vector<double> wodot(wo.size());	//Dry loading loss rate for larger of pair. [maxkl]
 	std::vector<double> ddot(wo.size());	//Diameter reduction rate, larger of pair, m / s. [maxkl]
 	std::vector<double> qcum(wo.size());	//Cumulative heat input to larger of pair, J / sq m. [maxkl]
@@ -410,8 +410,8 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
  * JMR_Note: No longer in argument order!!!!!
  * @param[out] wo		Current ovendry loading for the larger of each component pair, kg/sq m. [maxkl]
  * @param[out] xmat		Table of influence fractions between components. [maxkl]
- * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair, s. [maxkl]
+ * @param[out] tout		Burnout time of larger component of pairs, s. [maxkl]
  * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * @param[in] outputHistory	Should fire history be saved? (0 = no, 1 = yes)
@@ -1046,9 +1046,9 @@ void OVLAPS(const std::vector<double> dryld, const std::vector<double> sigma,
  *                      	an interactive session.
  * @param[out] flit		Fraction of each component currently alight. [maxno]
  * @param[out] fout		Fraction of each component currently gone out. [maxno]
- * @param[out] tdry		Time of drying start of the larger of each fuel component pair. [maxkl]	[Units = s?????]
- * @param[out] tign		Ignition time for the larger of each fuel component pair. [maxkl]		[Units = s?????]
- * @param[out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[out] tdry		Time of drying start of the larger of each fuel component pair, s. [maxkl]	[Units = s?????]
+ * @param[out] tign		Ignition time for the larger of each fuel component pair, s. [maxkl]
+ * @param[out] tout		Burnout time of larger component of pairs, s. [maxkl]
  * @param[out] qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
  * @param[out] tcum		Cumulative temp integral for qcum (drying). [maxkl]
  * @param[out] acum		Heat pulse area for historical rate averaging. [maxkl]
@@ -1732,9 +1732,9 @@ double TEMPF(const double q, const double r, const double tamb)
  *                      	cumulates after first call.
  * @param[in,out] flit		Fraction of each component currently alight. [maxno]
  * @param[in,out] fout		Fraction of each component currently gone out. [maxno]
- * @param[in,out] tdry		Time of drying start of the larger of each fuel component pair. [maxkl]
- * @param[in,out] tign		Ignition time for the larger of each fuel component pair. [maxkl]
- * @param[in,out] tout		Burnout time of larger component of pairs. [maxkl]
+ * @param[in,out] tdry		Time of drying start of the larger of each fuel component pair, s. [maxkl]
+ * @param[in,out] tign		Ignition time for the larger of each fuel component pair, s. [maxkl]
+ * @param[in,out] tout		Burnout time of larger component of pairs, s. [maxkl]
  * @param[in,out] qcum		Cumulative heat input to larger of pair, J / sq m. [maxkl]
  * @param[in,out] tcum		Cumulative temp integral for qcum (drying). [maxkl]
  * @param[in,out] acum		Heat pulse area for historical rate averaging. [maxkl]
@@ -2348,9 +2348,9 @@ void ValidateOutputVector(std::vector<double>& output, const std::string outputN
 	!real*4, intent(in) :: flit(maxno)		Fraction of each component currently alight.
 	!real*4, intent(in) :: fout(maxno)		Fraction of each component currently gone out.
  * The following are recomputed at each time point but only the final values would be needed:
-	!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair.
-	!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair. [maxkl]
-	!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs.
+	!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair, s.
+	!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair, s. [maxkl]
+	!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs, s.
 	!real*4, intent(in) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
 	!real*4, intent(in) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
 	!real*4, intent(in) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
