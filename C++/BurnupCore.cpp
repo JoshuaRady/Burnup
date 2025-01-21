@@ -130,8 +130,7 @@ int NumFuelTypes = 0;
  *
  * Igniting fire and environmental data:
  * @param[in,out] fi	Current fire intensity (site avg), kW / sq m
- * The value passed in for fi is the fire front intensity.  [Actually this is probably not quite right!!!!!  It is probably not the FRONT intensity...]
- * The variable is later reused and
+ * The value passed in for fi is the igniting fire intensity.  The variable is later reused and
  * updated by FIRINT().  It is passed on to other routines that use but do not change it.
  * These two uses could be separated.  The value returned is the final intensity, which might
  * be of use.  A history would be more valuable.
@@ -698,7 +697,7 @@ void ARRAYS(std::vector<double>& wdry, std::vector<double>& ash, std::vector<dou
 
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
-		k0 = k - 1;	
+		k0 = k - 1;
 		double diak = 4.0 / sigma[k0];
 		double wtk = wdry[k0];
 

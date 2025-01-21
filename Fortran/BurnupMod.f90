@@ -367,8 +367,8 @@ contains
 		! Arguments:
 		! Igniting fire and environmental data:
 		real*4, intent(inout) :: fi		! Current fire intensity (site avg), kW / sq m
-		! The value passed in for fi is the fire front intensity.  The variable is later reused and
-		! updated by FIRINT().  It is passed on to other routines that use but do not change it.
+		! The value passed in for fi is the igniting fire intensity.  The variable is later reused
+		! and updated by FIRINT().  It is passed on to other routines that use but do not change it.
 		! These two uses could be separated.  The value returned is the final intensity, which might
 		! be of use.  A history would be more valuable.
 
