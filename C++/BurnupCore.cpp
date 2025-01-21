@@ -178,9 +178,6 @@ int NumFuelTypes = 0;
  * Calculated outputs:
  * The following are the main variables output by SUMMARY(): [name], fr, ti, to, wd, di
  *
- * Use the first argument with maxkl length to calculate its value.  This can then be used
- * by subsequent variables.  I don't like this approach much but a better alternative has
- * not be determined.
  * wo should be moved to the front in any case because it is the most valuable output.  This
  * would have the advantage of making the size() shorthand shorter.
  * JMR_Note: No longer in argument order!!!!!
@@ -193,13 +190,15 @@ int NumFuelTypes = 0;
  * Settings:
  * @param outputHistory	Should fire history be saved?  Defaults to false.
  *
- * @note Currently it is expected that the calculated output vectors be supplied in the correct size.
- * We could move the sizing into the function allowing empty vectors to be passed in.
+ * @note The calculated output vectors do not need to be sized on input (though they can be).  Empty
+ * vectors can be passed in, which simplifies the calling code.  The vectors will be resized on
+ * return.
  *
  * @returns On return many arguments may be sorted, updated, or returned. [MORE!!!!!]
  *
  * @note The number of fuel types could be inferred from the input data eliminating the need for the
- *       number parameter.  The 
+ *       number parameter.  The number parameter is currently used to confirm the other inputs are
+ *       consistent.
  *
  * @par History:
  * Added as an programatic alternative entry point to the original interactive program.
@@ -237,12 +236,12 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	                                 		//Probably not needed here.  See notes in ARRAYS().
 
 	//Scalars in order of appearance:
-	double dfi; 			//Duff fire intensity (aka I sub d) for DUFBRN().
-	double tdf; 			//Burning duration (aka t sub d) for DUFBRN().
-	int now;			//Index marking the current time step.
-	double tis;				//Current time (ti + number of time steps * dt).
+	double dfi; 	//Duff fire intensity (aka I sub d) for DUFBRN().
+	double tdf; 	//Burning duration (aka t sub d) for DUFBRN().
+	int now;		//Index marking the current time step.
+	double tis;		//Current time (ti + number of time steps * dt).
 	int ncalls;		//Counter of calls to START().
-	double fid;				//Fire intensity due to duff burning.
+	double fid;		//Fire intensity due to duff burning.
 
 	//In the original code fmin was a local treated as a constant.  Passing it in might be good:
 	const double fimin = 0.1;//Fire intensity (kW / sq m) at which fire goes out.
@@ -263,31 +262,12 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	}
 	NumFuelTypes = number;
 	
-	int lenkl = Length_kl(number);
-// 	if (wo.size() != lenkl || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
-// 	//if (wo.size() != Length_kl(number) || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
-// 	{
-// 		Stop("Calculated output vectors must be of equal length.");
-// 	}
-	//Allowing the incoming output vectors to be empty would simplify things for the calling code.
-
-	//Allow output vectors to be empty and resize them if needed.  If the correct size do nothing.
-	//Treat other sizes a potential problem and warn about them:
-// 	if (wo.empty())
-// 	{
-// 		
-// 	}
-// 	else if (wo.size() != lenkl)
-	
-	if (wo.size() != lenkl)
-	{
-		if (!wo.empty())
-		{
-			Warning("wo has unexpected size " + std::to_string(wo.size()) + ". Erasing and resizing.";
-		}
-
-		wo.assign(lenkl, 0.0);//The incoming values are ignored so resize() would be fine too.
-	}
+	//Validate and correct the size of output vectors:
+	ValidateOutputVector(wo, "wo");
+	ValidateOutputVector(xmat, "xmat");
+	ValidateOutputVector(tign, "tign");
+	ValidateOutputVector(tout, "tout");
+	ValidateOutputVector(diam, "diam");
 
 	//Sort the fuel components and calculate the interaction matrix...
 	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
@@ -374,7 +354,6 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 
 			if (fi <= fimin)
 			{
-				//exit
 				break;
 			}
 		}
@@ -2312,6 +2291,37 @@ double ErrorApprox(const double h, const double theta)
 	approx = h * (b - h * (c - h)) - (1.0 - theta) / a;
 
 	return approx;
+}
+
+//ValidateOutputVector():
+/** This utility function checks that the output vector passed in is the correct size and resizes it
+ * if necessary.
+ *
+ * Allow output vectors to be empty and resize them if needed.  If the correct size do nothing.
+ * Treat other sizes a potential problem and warn about them.
+ *
+ * @param[in,out]	output		The output vector 
+ * @param[in]		outputName	
+ *
+ * @returns Nothing.
+ * 
+ * @par History:
+ * Added for C++ to reduce code repetition in Simulate().
+ */
+void ValidateOutputVector(std::vector<double>& output, const std:string outputName)
+{
+	int lenkl = Length_kl(NumFuelTypes);
+
+	if (output.size() != lenkl)
+	{
+		if (!output.empty())
+		{
+			Warning(outputName + " has unexpected size " + std::to_string(output.size()) +
+			        ". Erasing and resizing.";
+		}
+
+		output.assign(lenkl, 0.0);//The incoming values are ignored so resize() would be fine too.
+	}
 }
 
 //SaveStateToFile():
