@@ -14,12 +14,17 @@ Licence?????
 #include <vector>
 
 #include "BurnupFuelModelInterface.h"
+#include "BurnupCore.h"
 #include "FireweedUnits.h"
 
 /** Perform a fuel consumption simulation using a fuel model and prescribed inputs and return fuel
  * consumption properties.
  *
- * This alternate interface simplifies the inputs and output of Burnup.  ...
+ * This alternate interface allows a fuel model to be used as input to Burnup.  This reduces the
+ * number f inputs and simplifies outputs by returning all of them in a single object rather than
+ * using multiple return arguments which need to be initialized by the calling code.  The parameter
+ * names have been made more descriptive than the standard interface.  The code handles conversion
+ * of variables that differ in units between the standard fuel models and Burnup.
  *
  * Fuel models do not contain all the fuel properties that Burnup needs.  For now the heat capacity
  * (cheat), thermal conductivity (condry), ignition temperature (tpig), and char temperature (tchar)
@@ -58,22 +63,19 @@ Licence?????
 BurnupSim SimulateFM(FuelModel fuelModel,
                      const double duffLoading,// = 0,
                      const double duffMoisture,// = 0,
-
                      const double tempAirC,
                      const double U,
-                 
                      const double fireIntensity,
                      const double t_r,
-                 
                      const double ak, const double r0, const double dr, double dT,
                      const int nTimeSteps)
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
 {
-	const double CtoK = 273;
+	const double CtoK = 273;//Burnup's value for 0C in K.
 	
 	BurnupSim simData;
-	//sim.w_o_ij_Preburn = fm.w_o_ij;//Store initial loading?
+	sim.w_o_ij_Initial = fm.w_o_ij;//Store initial fuel loadings.
 	
 	//Check that units of the fuel model are correct.  To change it it can be const!
 	if (fm.Units != Metric)
@@ -124,14 +126,6 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	std::vector <double> tpig_ij(fuelModel.numClasses, 327 + CtoK);//C -> K for intact fuels.
 	std::vector <double> tchar_ij(fuelModel.numClasses, 377 + CtoK);//C -> K for all fuel types.
 	
-	//Outputs...
-	//These don't need to be initialized but currently need to be sized.
-// 	BUSim.wo = fm.XXXXX;
-// 	BUSim.xmat = fm.XXXXX;
-// 	BUSim.tign = fm.XXXXX;
-// 	BUSim.tout = fm.XXXXX;
-// 	BUSim.diam = fm.XXXXX;
-	
 	//Perform the simulation:
 	Simulate(fireIntensity,//fi,
 	         t_r,//ti,
@@ -143,10 +137,9 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         duffMoisture,//dfm,
 	         nTimeSteps,//ntimes,//Move up next to dT?????
 	         fm.numClasses;//number
-	         
+	         //Fuel properties:
 	         fuelNames.//parts
 	         wdry, ash, htval, fmois, dendry, sigma,
-	         
 	         cheat_ij,//cheat
 	         condry_ij,//condry,
 	         tpig_ij,//tpig
@@ -154,23 +147,86 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         //Outputs by interaction pairs:
 	         simData.xmat,//xmat
 	         simData.tign,//tign
-	         simData.tout,//tout
+	         simData.tout_kl,//tout
 	         simData.w_o_kl,//w_o_out,//wo Note: wo should be moved to the top of the outputs across all interfaces?
 	         simData.diam)//diam
 	         //outputHistory = false);
 	
 	//Copy remaining variables to the output object:
-	sim.burnoutTime = dtInOut;
+	simData.burnoutTime = dtInOut;
 	//We could convert negative values to flags.
 	
 	//sim.finalFireIntensity = fireIntensity;//Return the final fire intensity?
+	
+	//The output by interaction pairs contains useful information but the values by fuel type are
+	//most likely to be of primary interest.  Summarize variables by fuel type:
+	
 	//sim.w_o_ij_Postburn = //final loadings by fuel type.
+	//std::vector <double> w_o_ij_Final(fuelModel.numClasses);
+	int numFuelTypes = fuelModel.numClasses;//Move to top?????
+
+	simData.w_o_ij_Final.assign(numFuelTypes, 0);
 	
+	//Ignition time:
+	//Burnup SUMMARY() uses the time the first element in the class ignites.
+	//simData.tign_ij.assign(numFuelTypes, 1000000);//Make very large so first min() with work.
+	simData.tign_ij.assign(numFuelTypes, 0);
 	
+	//Burnout time:
+	//For some pairs the burnout time may not have been computed and the value will be rindef.  In
+	//the original code SUMMARY() just takes the max including these values.  That doesen't make a
+	//lot of sense.  We calculate the minimum and maximum for each fuel type:
+	simData.tout_ij_Min.assign(numFuelTypes, 0);
+	simData.tout_ij_Max.assign(numFuelTypes, 0);
+	
+	for (int k = 1; k <= numFuelTypes; k++)
+	{
+		k0 = k - 1;
+		
+		for (int l = 0; l <= k; l++)//l in kl space, 0 based
+		{
+			kl = Loc(k, l);
+			simData.w_o_ij_Final[k0] += simData.w_o_kl[kl];
+			
+			if (l == 0)
+			{
+				simData.tign_ij[k0] = simData.tign_kl[kl];
+				simData.tout_ij_Min[k0] = simData.tout_kl[kl];
+			}
+			else
+			{
+				simData.tign_ij[k0] = std::min(simData.tign_ij[k0], simData.tign_kl[kl]);
+				
+				//This should ignore rindef:
+				simData.tout_ij_Min[k0] = std::min(simData.tout_ij_Min[k0], simData.tout_kl[kl]);
+			}
+			
+			simData.tout_ij_Max[k0] = std::max(simData.tout_ij_Max[k0], simData.tout_kl[kl]);
+		}
+
+		//Make sure no burnout time exceeds that of the actual fire:
+		//Estimates or rindef values may lead to this.
+		simData.tout_ij_Min[k0] = std::min(simData.tout_ij_Min[k0], simData.burnoutTime);
+		simData.tout_ij_Max[k0] = std::min(simData.tout_ij_Max[k0], simData.burnoutTime);
+	}
+
+	//This needs to be tested for cases where some fuels don't ignite!!!!
+
 	//Resort the fuels to their original fuel model order:
 	//Since the main outputs are in kl space this may be a bit tricky.
+
+
+
+	//Calculate the amount combusted:
+	for (int i = 0; i < numFuelTypes; i++)
+	{
+		simData.combustion_ij = wdry - w_o_ij_Initial;
+		//simData.combustion_ij = w_o_ij_Final - w_o_ij_Initial;//Make sure vectors are in the same order to use this!
+	}
+
 	
 	
 	return sim;
 }
 
+//SummarizeOutputByFuelType()

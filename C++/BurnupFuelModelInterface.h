@@ -23,7 +23,7 @@ Licence?????
  *
  */
 struct BurnupSim {
-	double burnoutTime;//The time the fire went out (s?).
+	double burnoutTime;//The time the fire went out = length of the fire (s?).
                        //A value of -1 indicates the fuel did not ignite.  A value
                        //of -2 indicates the fuel did not complete drying.  In such
                        //cases most of remaining return variables will not be
@@ -35,9 +35,20 @@ struct BurnupSim {
 	std::vector<double> w_o_kl;// = wo, Current (final?) ovendry loading for the larger of each component pair, kg/sq m.
 	//std::vector<double> w_o_out;//The remaining ovendry loading after the fire (kg/sq m).
 	std::vector<double> xmat;
-	std::vector<double> tign;
-	std::vector<double> tout;
+	std::vector<double> tign_kl;
+	std::vector<double> tout_kl;
 	std::vector<double> diam;
+	
+	//Output by fuel type:
+	std::vector<double> w_o_ij_Initial;//The amount of fuels pre-burn by fuel type (kg/m^2).
+	std::vector<double> w_o_ij_Final;//The amount of fuels remaining post-burn by fuel type (kg/m^2).
+	std::vector<double> combustion_ij;//The amount of fuels combusted by fuel type (kg/m^2).
+	
+	std::vector<double> tign_ij;//(Minimum) ignition time by fuel type (s).
+	tout_ij_Min;//The minimum burnout time among all pairs within a fuel type (s).
+	tout_ij_Max;//The maximum burnout time among all pairs within a fuel type (s).
+	
+	//Fire history to be added...
 }
 
 #endif
