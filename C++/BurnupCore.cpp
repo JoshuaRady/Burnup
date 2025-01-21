@@ -233,7 +233,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	std::vector<std::vector<double>> qdot(wo.size(), std::vector<double>(mxstep));//History (post ignite) of heat transfer rate
 	                                    	//to the larger of each component pair, W / sq m. [maxkl, mxstep]
 	std::vector<int> key(number);			//Ordered index list. [maxno]
-	std::vector<std::string> list(number);		//Intermediary for reordering parts name array. [maxno]
+	std::vector<std::string> list(number);	//Intermediary for reordering parts name array. [maxno]
 	                                 		//Probably not needed here.  See notes in ARRAYS().
 
 	//Scalars in order of appearance:
@@ -254,7 +254,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//Set SaveHistory:
 	SaveHistory = outputHistory;
 
-	//Validate the size of incoming vectors:
+	//Validate the size of incoming input vectors:
 	if (parts.size() != number || wdry.size() != number ||
 	    !SameLengths(wdry, ash, htval, fmois, dendry, sigma, cheat) ||
 	    !SameLengths(wdry, condry, tpig, tchar))
@@ -264,12 +264,30 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	NumFuelTypes = number;
 	
 	int lenkl = Length_kl(number);
-	if (wo.size() != lenkl || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
-	//if (wo.size() != Length_kl(number) || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
-	{
-		Stop("Calculated output vectors must be of equal length.");
-	}
+// 	if (wo.size() != lenkl || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
+// 	//if (wo.size() != Length_kl(number) || !SameLengths(wo, xmat, tign) || !SameLengths(wo, tout, diam))
+// 	{
+// 		Stop("Calculated output vectors must be of equal length.");
+// 	}
 	//Allowing the incoming output vectors to be empty would simplify things for the calling code.
+
+	//Allow output vectors to be empty and resize them if needed.  If the correct size do nothing.
+	//Treat other sizes a potential problem and warn about them:
+// 	if (wo.empty())
+// 	{
+// 		
+// 	}
+// 	else if (wo.size() != lenkl)
+	
+	if (wo.size() != lenkl)
+	{
+		if (!wo.empty())
+		{
+			Warning("wo has unexpected size " + std::to_string(wo.size()) + ". Erasing and resizing.";
+		}
+
+		wo.assign(lenkl, 0.0);//The incoming values are ignored so resize() would be fine too.
+	}
 
 	//Sort the fuel components and calculate the interaction matrix...
 	ARRAYS(wdry, ash, dendry, fmois, sigma, htval, cheat, condry, tpig, tchar, diam, key, work, ak,
