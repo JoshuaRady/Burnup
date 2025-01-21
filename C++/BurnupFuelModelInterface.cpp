@@ -41,14 +41,14 @@ Licence?????
  * Duff conditions:
  * @param[in] duffLoading	Duff loading (kg/m^2, aka W sub d). [wdf in original Burnup]
  * @param[in] duffMoisture	Ratio of moisture mass to dry organic mass / duff fractional moisture
- *                          (aka R sub M). [dfm in original Burnup]
+ *                        	aka R sub M). [dfm in original Burnup]
  *
  * Environmental conditions:
  * @param[in] tempAirC	Ambient air temperature (C).
- * @param[in] U		Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
+ * @param[in] U			Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
  *
  * Igniting fire conditions:
- * @param[in] fireIntensity	...
+ * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW / m^2).
  * @param[in] t_r			Igniting fire residence time (s). [ti in original Burnup]
  *
  * Simulation conditions and settings:
@@ -72,12 +72,12 @@ BurnupSim SimulateFM(FuelModel fuelModel,
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
 {
-	const double CtoK = 273;//Burnup's value for 0C in K.
+	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
 	BurnupSim simData;
-	sim.w_o_ij_Initial = fm.w_o_ij;//Store initial fuel loadings.
+	simData.w_o_ij_Initial = fm.w_o_ij;//Store initial fuel loadings.
 	
-	//Check that units of the fuel model are correct.  To change it it can be const!
+	//Check that units of the fuel model are correct:
 	if (fm.Units != Metric)
 	{
 		fm.ConvertUnits(Metric);
@@ -91,45 +91,43 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		fuelNames[i] = "Fuel " + std::to_string(i);
 	}
 	
-	//Since Burnup may sort the order of fuels we need have to pass in modifiable copies of fuel the
-	//properties stored in the fuel model, which is annoying at the least...
+	//Since Burnup may sort the order of fuels we need to pass in modifiable copies of fuel
+	//properties stored in the fuel model:
 
 	//Fuel model physical properties translated to Burnup terms and units:
 	std::vector<double> wdry = fm.w_o_ij;
 	std::vector<double> ash = fm.S_T_ij;
-	//std::vector<double> htval = fm.h_ij * 1000;//kJ/kg -> J/kg			Need vector math!!!!!
 	std::vector<double> htval = fm.h_ij;
 	for (double& element : htval)
 	{
 		element *= 1000;//kJ/kg -> J/kg
 	}
-	
+
 	std::vector<double> fmois = fm.GetM_f_ij();
 	std::vector<double> dendry = fm.rho_p_ij;
-	//std::vector<double> sigma = fm.SAV_ij * 100;//cm^2/cm^3 / 1/cm -> m^2/m^3 / 1/m  (1/(m/cm) = cm/m)
 	std::vector<double> sigma = fm.SAV_ij;
 	for (double& theSAV : sigma)
 	{
 		theSAV *= 100;//cm^2/cm^3 = 1/cm -> m^2/m^3 = 1/m  (1/(m/cm) = cm/m = 100)
 	}
-	
+
 	//Other variables that are input only that will be modified...
 	double fi = fireIntensity;//Need a copy that can be modified.
 	double dtInOut = dT;
-	
-	
+
 	//Set the fuel property inputs missing in the fuel model to default values:
 	//In the future these parameters may be added to the FuelModel class or a child thereof.
 	//These are default(ish?) values from FOFEM.
 	std::vector <double> cheat_ij(fuelModel.numClasses, 2750);//Heat capacity: J/kg K for all fuel types.
 	std::vector <double> condry_ij(fuelModel.numClasses, 0.133);//W/m K for all fuel types.
 	std::vector <double> tpig_ij(fuelModel.numClasses, 327 + CtoK);//C -> K for intact fuels.
+	//FOFEM uses 302 C for punky fuels.
 	std::vector <double> tchar_ij(fuelModel.numClasses, 377 + CtoK);//C -> K for all fuel types.
-	
+
 	//Perform the simulation:
 	Simulate(fireIntensity,//fi,
 	         t_r,//ti,
-	         U / 60 ,//u: m/s -> m/min
+	         U / 60 ,//u: m/min -> m/s
 	         fm.delta,//d
 	         tempAirC + CtoK,//tpamb C -> K
 	         ak, r0, dr, dtInOut,//dt,
@@ -145,23 +143,23 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         tpig_ij,//tpig
 	         tchar_ij,//tchar,
 	         //Outputs by interaction pairs:
-	         simData.xmat,//xmat
-	         simData.tign,//tign
+	         simData.xmat_kl,//xmat
+	         simData.tign_kl,//tign
 	         simData.tout_kl,//tout
 	         simData.w_o_kl,//w_o_out,//wo Note: wo should be moved to the top of the outputs across all interfaces?
-	         simData.diam)//diam
+	         simData.diam_kl)//diam
 	         //outputHistory = false);
 	
 	//Copy remaining variables to the output object:
 	simData.burnoutTime = dtInOut;
 	//We could convert negative values to flags.
 	
-	//sim.finalFireIntensity = fireIntensity;//Return the final fire intensity?
+	simData.finalFireIntensity = fireIntensity;//Return the final fire intensity.
 	
 	//The output by interaction pairs contains useful information but the values by fuel type are
 	//most likely to be of primary interest.  Summarize variables by fuel type:
 	
-	//sim.w_o_ij_Postburn = //final loadings by fuel type.
+	//simData.w_o_ij_Postburn = //final loadings by fuel type.
 	//std::vector <double> w_o_ij_Final(fuelModel.numClasses);
 	int numFuelTypes = fuelModel.numClasses;//Move to top?????
 
@@ -196,7 +194,6 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 			else
 			{
 				simData.tign_ij[k0] = std::min(simData.tign_ij[k0], simData.tign_kl[kl]);
-				
 				//This should ignore rindef:
 				simData.tout_ij_Min[k0] = std::min(simData.tout_ij_Min[k0], simData.tout_kl[kl]);
 			}
@@ -212,10 +209,9 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 
 	//This needs to be tested for cases where some fuels don't ignite!!!!
 
+	//Add!!!!!
 	//Resort the fuels to their original fuel model order:
 	//Since the main outputs are in kl space this may be a bit tricky.
-
-
 
 	//Calculate the amount combusted:
 	for (int i = 0; i < numFuelTypes; i++)
@@ -224,9 +220,5 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		//simData.combustion_ij = w_o_ij_Final - w_o_ij_Initial;//Make sure vectors are in the same order to use this!
 	}
 
-	
-	
 	return sim;
 }
-
-//SummarizeOutputByFuelType()
