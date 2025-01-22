@@ -39,12 +39,12 @@ struct BurnupSim {
 	std::vector<double> tign_kl;//Ignition time for the larger of each fuel component pair.
 	std::vector<double> tout_kl;//Burnout time of larger component of pairs.
 	std::vector<double> diam_kl;//Final diameter of the larger of each fuel component pair (m).//!!!!!!
-	
+
 	//Output by fuel type:
 	//The ij suffix indicates these variables are in same vector representation used in fuel models.
-	
+
 	//Fuel type names...
-	
+
 	std::vector<double> w_o_ij_Initial;//The amount of fuel pre-burn by fuel type (kg/m^2).
 	std::vector<double> w_o_ij_Final;//The amount of fuel remaining post-burn by fuel type (kg/m^2).
 	std::vector<double> combustion_ij;//The amount of fuel combusted by fuel type (kg/m^2).
@@ -52,9 +52,15 @@ struct BurnupSim {
 	std::vector<double> tign_ij;//(Minimum) ignition time by fuel type (s).
 	std::vector<double> tout_ij_Min;//The minimum burnout time for all pairs within a fuel type (s).
 	std::vector<double> tout_ij_Max;//The maximum burnout time for all pairs within a fuel type (s).
+
+	//Final diameters...
 	
 	//Fire history to be added...
+
+	std::ostream& Print(std::ostream& output) const;
 };
+
+std::ostream& operator<<(std::ostream& output, const BurnupSim& fm);
 
 BurnupSim SimulateFM(FuelModel fuelModel, const double duffLoading, const double duffMoisture,
                      const double tempAirC, const double U, const double fireIntensity,

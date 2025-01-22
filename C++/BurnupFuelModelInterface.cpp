@@ -22,6 +22,7 @@ Licence?????
 
 #include "BurnupFuelModelInterface.h"
 #include "BurnupCore.h"
+#include "FireweedStringUtils.h"//For PrintVector().
 #include "FireweedUnits.h"
 
 /** Perform a fuel consumption simulation using a fuel model and prescribed inputs and return fuel
@@ -235,4 +236,52 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//Need to add handling for history data!!!!!
 
 	return simData;
+}
+
+/** Print the Burnup simulation data to an output stream.
+ *
+ * @param output The output stream to print to.
+ *
+ * @returns The ostream so it can be conatinated to.
+ *
+ * @note This is a draft and only some of the top level data members are currently printed.
+ */
+std::ostream& BurnupSim::Print(std::ostream& output) const
+{
+	output << "Burnup simulation:" << std::endl;
+
+	if (burnoutTime == -1.0)
+	{
+		output << "Igniting fire cannot ignite fuel."
+	}
+	else if (burnoutTime == -2.0)
+	{
+		output << "Igniting fire cannot dry fuel."
+	}
+	else
+	{
+		output << "The fire burnt out after " << burnoutTime << " seconds."
+		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)."
+
+		output << "w_o_ij_Initial: ";
+		PrintVector(output, w_o_ij_Initial);
+
+		output << "w_o_ij_Final: ";
+		PrintVector(output, w_o_ij_Final);
+
+		output << "combustion_ij: ";
+		//output << "Fuel combusted: ";
+		PrintVector(output, combustion_ij);
+	}
+
+	return output;
+}
+
+/* Overloaded stream print operator for BurnupSim.
+ *
+ */
+std::ostream& operator<<(std::ostream& output, const BurnupSim& buSim)
+{
+	buSim.Print(output);
+	return output;
 }
