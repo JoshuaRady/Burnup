@@ -74,9 +74,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 {
 	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
-	BurnupSim simData;
+	BurnupSim simData;//Container for simulation data.
 	simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
-	
+	int numFuelTypes = fuelModel.numClasses;
+
 	//Check that units of the fuel model are correct:
 	if (fuelModel.units != Metric)
 	{
@@ -84,9 +85,9 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	}
 	
 	//Fuel models do not provide names for fuel types so we make some:  Add leading 0s to improve sorting?????
-	std::vector<std::string> fuelNames(fuelModel.numClasses);
+	std::vector<std::string> fuelNames(numFuelTypes);
 	
-	for (int i = 0; i < fuelModel.numClasses; i++)
+	for (int i = 0; i < numFuelTypes; i++)
 	{
 		fuelNames[i] = "Fuel " + std::to_string(i);
 	}
@@ -118,11 +119,11 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//Set the fuel property inputs missing in the fuel model to default values:
 	//In the future these parameters may be added to the FuelModel class or a child thereof.
 	//These are default(ish?) values from FOFEM.
-	std::vector <double> cheat_ij(fuelModel.numClasses, 2750);//Heat capacity: J/kg K for all fuel types.
-	std::vector <double> condry_ij(fuelModel.numClasses, 0.133);//W/m K for all fuel types.
-	std::vector <double> tpig_ij(fuelModel.numClasses, 327 + CtoK);//C -> K for intact fuels.
+	std::vector <double> cheat_ij(numFuelTypes, 2750);//Heat capacity: J/kg K for all fuel types.
+	std::vector <double> condry_ij(numFuelTypes, 0.133);//W/m K for all fuel types.
+	std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//C -> K for intact fuels.
 	//FOFEM uses 302 C for punky fuels.
-	std::vector <double> tchar_ij(fuelModel.numClasses, 377 + CtoK);//C -> K for all fuel types.
+	std::vector <double> tchar_ij(numFuelTypes, 377 + CtoK);//C -> K for all fuel types.
 
 	//Perform the simulation:
 	Simulate(fi,//fi,
@@ -134,7 +135,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         duffLoading,//df,
 	         duffMoisture,//dfm,
 	         nTimeSteps,//ntimes,//Move up next to dT?????
-	         fuelModel.numClasses,//number
+	         numFuelTypes,//number
 	         //Fuel properties:
 	         fuelNames,//parts
 	         wdry, ash, htval, fmois, dendry, sigma,
@@ -159,15 +160,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//The output by interaction pairs contains useful information but the values by fuel type are
 	//most likely to be of primary interest.  Summarize variables by fuel type:
 	
-	//simData.w_o_ij_Postburn = //final loadings by fuel type.
-	//std::vector <double> w_o_ij_Final(fuelModel.numClasses);
-	int numFuelTypes = fuelModel.numClasses;//Move to top?????
-
 	simData.w_o_ij_Final.assign(numFuelTypes, 0);
 	
 	//Ignition time:
 	//Burnup SUMMARY() uses the time the first element in the class ignites.
-	//simData.tign_ij.assign(numFuelTypes, 1000000);//Make very large so first min() with work.
 	simData.tign_ij.assign(numFuelTypes, 0);
 	
 	//Burnout time:
