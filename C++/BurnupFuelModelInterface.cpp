@@ -8,6 +8,13 @@ Reference: Proj. 11 Exp. 22
 	This provides an alternate interface to the Burnup wildfire fuel consumption model that uses
 fire behavior fuel models, as implemented in the Fireweed Wildfire Code Library.
 
+References:
+Albini, F.A., Brown, J.K., Reinhardt, E.D. and Ottmar, R.D.
+Calibration of a large fuel burnout model.
+International Journal of Wildland Fire 5(3): 173-192, 1995.
+
+	This paper provides insight into setting parameters for Burnup.
+
 Licence?????
 ***************************************************************************************************/
 
@@ -52,26 +59,32 @@ Licence?????
  * @param[in] t_r			Igniting fire residence time (s). [ti in original Burnup]
  *
  * Simulation conditions and settings:
+ * @param[in] dT			Time step for integration of burning rates (s). [dT in original Burnup]
+ * @param[in] nTimeSteps	Number of time steps to run.
  * @param[in] ak			Area influence factor (ak / K_a parameter).
  *              			We modify the original behavior such that a negative value indicates
  *              			that the value of ak / K_a should be calculated according to Albini &
- *              			Reinhardt 1997.
+ *              			Reinhardt 1997.  By default calculate the value.
  * @param[in] r0			Minimum value of mixing parameter.
+ *              			Default value of 1.83 from Albini, Brown, Reinhardt, and Ottmar 1995.
  * @param[in] dr			Max - min value of mixing parameter.
- * @param[in] dT			Time step for integration of burning rates (s). [dT in original Burnup]
- * @param[in] nTimeSteps	Number of time steps to run.
+ *              			Default value of 0.40 from Albini, Brown, Reinhardt, and Ottmar 1995.
  *
  * @returns A BurnupSim object holding the resulting output from the simulation (and maybe some of the inputs?).
+ *
+ * @note The setting values can be hard to determine.  We provide default values for these based on
+ * on some papers but more could be done to inform value selection.
+ * @note Setting duffLoading = 0 should eliminate the effect of duff on the simulation.  Duff
+ * moisture should not matter with no loading.  1.0 seems like a good placeholder value in this
+ * case.
  */
 BurnupSim SimulateFM(FuelModel fuelModel,
-                     const double duffLoading,// = 0,
-                     const double duffMoisture,// = 0,
-                     const double tempAirC,
-                     const double U,
-                     const double fireIntensity,
-                     const double t_r,
-                     const double ak, const double r0, const double dr, double dT,
-                     const int nTimeSteps)
+                     const double duffLoading,//Default to 0?
+                     const double duffMoisture,//Default to 1.0?
+                     const double tempAirC, const double U,
+                     const double fireIntensity, const double t_r,
+                     const double dT, const int nTimeSteps,
+                     const double ak, const double r0, const double dr)
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
 {
@@ -218,6 +231,8 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		simData.combustion_ij[i] = wdry[i] - simData.w_o_ij_Initial[i];
 		//simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];//Make sure vectors are in the same order to use this!
 	}
+
+	//Need to add handling for history data!!!!!
 
 	return simData;
 }

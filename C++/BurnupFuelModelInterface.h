@@ -56,4 +56,9 @@ struct BurnupSim {
 	//Fire history to be added...
 };
 
+BurnupSim SimulateFM(FuelModel fuelModel, const double duffLoading, const double duffMoisture,
+                     const double tempAirC, const double U, const double fireIntensity,
+                     const double t_r, const double dT, const int nTimeSteps,
+                     const double ak = -1.0, const double r0 = 1.83, const double dr = 0.40);
+
 #endif
