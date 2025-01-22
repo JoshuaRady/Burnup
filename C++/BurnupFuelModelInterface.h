@@ -50,10 +50,10 @@ struct BurnupSim {
 	std::vector<double> combustion_ij;//The amount of fuel combusted by fuel type (kg/m^2).
 	
 	std::vector<double> tign_ij;//(Minimum) ignition time by fuel type (s).
-	tout_ij_Min;//The minimum burnout time among all pairs within a fuel type (s).
-	tout_ij_Max;//The maximum burnout time among all pairs within a fuel type (s).
+	std::vector<double> tout_ij_Min;//The minimum burnout time for all pairs within a fuel type (s).
+	std::vector<double> tout_ij_Max;//The maximum burnout time for all pairs within a fuel type (s).
 	
 	//Fire history to be added...
-}
+};
 
 #endif

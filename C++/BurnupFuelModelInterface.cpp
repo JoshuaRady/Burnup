@@ -75,12 +75,12 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
 	BurnupSim simData;
-	simData.w_o_ij_Initial = fm.w_o_ij;//Store initial fuel loadings.
+	simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
 	
 	//Check that units of the fuel model are correct:
-	if (fm.Units != Metric)
+	if (fuelModel.units != Metric)
 	{
-		fm.ConvertUnits(Metric);
+		fuelModel.ConvertUnits(Metric);
 	}
 	
 	//Fuel models do not provide names for fuel types so we make some:  Add leading 0s to improve sorting?????
@@ -95,17 +95,17 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//properties stored in the fuel model:
 
 	//Fuel model physical properties translated to Burnup terms and units:
-	std::vector<double> wdry = fm.w_o_ij;
-	std::vector<double> ash = fm.S_T_ij;
-	std::vector<double> htval = fm.h_ij;
+	std::vector<double> wdry = fuelModel.w_o_ij;
+	std::vector<double> ash = fuelModel.S_T_ij;
+	std::vector<double> htval = fuelModel.h_ij;
 	for (double& element : htval)
 	{
 		element *= 1000;//kJ/kg -> J/kg
 	}
 
-	std::vector<double> fmois = fm.GetM_f_ij();
-	std::vector<double> dendry = fm.rho_p_ij;
-	std::vector<double> sigma = fm.SAV_ij;
+	std::vector<double> fmois = fuelModel.GetM_f_ij();
+	std::vector<double> dendry = fuelModel.rho_p_ij;
+	std::vector<double> sigma = fuelModel.SAV_ij;
 	for (double& theSAV : sigma)
 	{
 		theSAV *= 100;//cm^2/cm^3 = 1/cm -> m^2/m^3 = 1/m  (1/(m/cm) = cm/m = 100)
@@ -125,18 +125,18 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	std::vector <double> tchar_ij(fuelModel.numClasses, 377 + CtoK);//C -> K for all fuel types.
 
 	//Perform the simulation:
-	Simulate(fireIntensity,//fi,
+	Simulate(fi,//fi,
 	         t_r,//ti,
 	         U / 60 ,//u: m/min -> m/s
-	         fm.delta,//d
+	         fuelModel.delta,//d
 	         tempAirC + CtoK,//tpamb C -> K
 	         ak, r0, dr, dtInOut,//dt,
 	         duffLoading,//df,
 	         duffMoisture,//dfm,
 	         nTimeSteps,//ntimes,//Move up next to dT?????
-	         fm.numClasses;//number
+	         fuelModel.numClasses,//number
 	         //Fuel properties:
-	         fuelNames.//parts
+	         fuelNames,//parts
 	         wdry, ash, htval, fmois, dendry, sigma,
 	         cheat_ij,//cheat
 	         condry_ij,//condry,
@@ -147,7 +147,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         simData.tign_kl,//tign
 	         simData.tout_kl,//tout
 	         simData.w_o_kl,//w_o_out,//wo Note: wo should be moved to the top of the outputs across all interfaces?
-	         simData.diam_kl)//diam
+	         simData.diam_kl);//diam
 	         //outputHistory = false);
 	
 	//Copy remaining variables to the output object:
@@ -179,11 +179,11 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	
 	for (int k = 1; k <= numFuelTypes; k++)
 	{
-		k0 = k - 1;
+		int k0 = k - 1;
 		
 		for (int l = 0; l <= k; l++)//l in kl space, 0 based
 		{
-			kl = Loc(k, l);
+			int kl = Loc(k, l);
 			simData.w_o_ij_Final[k0] += simData.w_o_kl[kl];
 			
 			if (l == 0)
@@ -216,9 +216,9 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//Calculate the amount combusted:
 	for (int i = 0; i < numFuelTypes; i++)
 	{
-		simData.combustion_ij = wdry - w_o_ij_Initial;
-		//simData.combustion_ij = w_o_ij_Final - w_o_ij_Initial;//Make sure vectors are in the same order to use this!
+		simData.combustion_ij[i] = wdry[i] - simData.w_o_ij_Initial[i];
+		//simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];//Make sure vectors are in the same order to use this!
 	}
 
-	return sim;
+	return simData;
 }
