@@ -26,7 +26,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
               std::vector<std::string>& parts, std::vector<double>& wdry, std::vector<double>& ash,
               std::vector<double>& htval, std::vector<double>& fmois, std::vector<double>& dendry,
               std::vector<double>& sigma, std::vector<double>& cheat, std::vector<double>& condry,
-              std::vector<double>& tpig, std::vector<double>& tchar, , std::vector<double>& wo,
+              std::vector<double>& tpig, std::vector<double>& tchar, std::vector<double>& wo,
               std::vector<double>& xmat, std::vector<double>& tign, std::vector<double>& tout,
               std::vector<double>& diam, const bool outputHistory = false);
 
