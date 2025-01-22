@@ -212,6 +212,8 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
               std::vector<double>& xmat, std::vector<double>& tign, std::vector<double>& tout,
               std::vector<double>& diam, const bool outputHistory)
 {
+	int lenkl = Length_kl(number);//Triangular matrix size.
+
 	//Arrays:
 	std::vector<double> alfa(number);		//Dry thermal diffusivity of component, sq m / s. [maxno]
 	std::vector<double> flit(number);		//Fraction of each component currently alight. [maxno]
@@ -222,13 +224,13 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	std::vector<double> area(number);		//Fraction of site area expected to be covered at
 	                                 		//least once by initial planform area of ea size. [maxno]
 	std::vector<double> fint(number);		//Corrected local fire intensity for each fuel type. [maxno]
-	std::vector<double> tdry(wo.size());	//Time of drying start of the larger of each fuel component pair, s. [maxkl]
-	std::vector<double> wodot(wo.size());	//Dry loading loss rate for larger of pair. [maxkl]
-	std::vector<double> ddot(wo.size());	//Diameter reduction rate, larger of pair, m / s. [maxkl]
-	std::vector<double> qcum(wo.size());	//Cumulative heat input to larger of pair, J / sq m. [maxkl]
-	std::vector<double> tcum(wo.size());	//Cumulative temp integral for qcum (drying). [maxkl]
-	std::vector<double> acum(wo.size());	//Heat pulse area for historical rate averaging. [maxkl]
-	std::vector<std::vector<double>> qdot(wo.size(), std::vector<double>(mxstep));//History (post ignite) of heat transfer rate
+	std::vector<double> tdry(lenkl);		//Time of drying start of the larger of each fuel component pair, s. [maxkl]
+	std::vector<double> wodot(lenkl);		//Dry loading loss rate for larger of pair. [maxkl]
+	std::vector<double> ddot(lenkl);		//Diameter reduction rate, larger of pair, m / s. [maxkl]
+	std::vector<double> qcum(lenkl);		//Cumulative heat input to larger of pair, J / sq m. [maxkl]
+	std::vector<double> tcum(lenkl);		//Cumulative temp integral for qcum (drying). [maxkl]
+	std::vector<double> acum(lenkl);		//Heat pulse area for historical rate averaging. [maxkl]
+	std::vector<std::vector<double>> qdot(lenkl, std::vector<double>(mxstep));//History (post ignite) of heat transfer rate
 	                                    	//to the larger of each component pair, W / sq m. [maxkl, mxstep]
 	std::vector<int> key(number);			//Ordered index list. [maxno]
 	std::vector<std::string> list(number);	//Intermediary for reordering parts name array. [maxno]
