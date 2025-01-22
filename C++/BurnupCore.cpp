@@ -47,12 +47,18 @@ Library [reference to come].
 References:
 	The original source code was obtained from:
 
+Frank A. Albini.
 Program BURNUP, a simulation model of the burning of large woody natural fuels.
-Frank A. Albini
 Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
 Appendix B.
 
-The original report is held by the National Forest Service Library in Fort Collins.
+	The original report is held by the National Forest Service Library in Fort Collins.
+
+Albini, F.A. and Reinhardt, E.D.
+Improved calibration of a large fuel burnout model.
+International Journal of Wildland Fire, 7(1): 21-28, 1997.
+
+	This paper documents an alternate way to calculate the ak / K_a parameter.
 
 Caveats:
 	This code compiles, runs, and produces output identical to the original Burnup code in tests but
@@ -142,6 +148,9 @@ int NumFuelTypes = 0;
  * 
  * Internal and control variables:
  * @param[in] ak		Area influence factor (ak / K_a parameter).
+ *              		We modify the original behavior such that a negative value indicates that
+ *              		the value of ak / K_a should be calculated according to Albini & Reinhardt
+ *              		1997.
  * @param[in] r0		Minimum value of mixing parameter.
  * @param[in] dr		Max - min value of mixing parameter.
  * @param[in,out] dt	Time step for integration of burning rates (s).
@@ -381,6 +390,9 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
  * 
  * Internal and control variables:
  * @param[in] ak		Area influence factor (ak / K_a parameter).
+ *              		We modify the original behavior such that a negative value indicates that
+ *              		the value of ak / K_a should be calculated according to Albini & Reinhardt
+ *              		1997.
  * @param[in] r0		Minimum value of mixing parameter.
  * @param[in] dr		Max - min value of mixing parameter.
  * @param[in] dt		Time step for integration of burning rates (s).
@@ -881,7 +893,7 @@ void SORTER(std::vector<double>& sigma, std::vector<double>& fmois, std::vector<
  *
  * @par History:
  * Modernized original Burnup subroutine.
- * We modify the original behavior such that a negative value for ak indicates the the value of
+ * We modify the original behavior such that a negative value for ak indicates that the value of
  * ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
  * original arguments.
  * Several arguments have been removed that were present in the original routine.  The number

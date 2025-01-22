@@ -43,12 +43,18 @@
 ! References:
 ! 	The original source code was obtained from:
 !
+! Frank A. Albini.
 ! Program BURNUP, a simulation model of the burning of large woody natural fuels.
-! Frank A. Albini
 ! Missoula, MT: USDA Forest Service. Unpublished report. Research Grant INT-92754-GR. 1994.
 ! Appendix B.
 !
-! The original report is held by the National Forest Service Library in Fort Collins.
+! 	The original report is held by the National Forest Service Library in Fort Collins.
+!
+! Albini, F.A. and Reinhardt, E.D.
+! Improved calibration of a large fuel burnout model.
+! International Journal of Wildland Fire, 7(1): 21-28, 1997.
+!
+! 	This paper documents an alternate way to calculate the ak / K_a parameter.
 !
 ! Caveats:
 ! 	This code compiles, runs, and produces output identical to the original Burnup code in tests but
@@ -378,6 +384,9 @@ contains
 		real*4, intent(in) :: tpamb		! Ambient temperature (K).
 		! Internal and control variables:
 		real*4, intent(in) :: ak		! Area influence factor (ak / K_a parameter).
+										! We modify the original behavior such that a negative value
+										! indicates that the value of ak / K_a should be calculated
+										! according to Albini & Reinhardt 1997.
 		real*4, intent(in) :: r0		! Minimum value of mixing parameter.
 		real*4, intent(in) :: dr		! Max - min value of mixing parameter.
 		real*4, intent(inout) :: dt		! Time step for integration of burning rates (s).
@@ -582,6 +591,10 @@ contains
 		double precision, intent(in) :: d			! Fuelbed depth (m).
 		double precision, intent(in) :: tpamb		! Ambient temperature (K).
 		double precision, intent(in) :: ak			! Area influence factor (ak / K_a parameter).
+													! We modify the original behavior such that a
+													! negative value indicates that the value of ak
+													! / K_a should be calculated according to Albini
+													! & Reinhardt 1997.
 		double precision, intent(in) :: r0			! Minimum value of mixing parameter.
 		double precision, intent(in) :: dr			! Max - min value of mixing parameter.
 		double precision, intent(inout) :: dt		! Time step for integration of burning rates (s).
@@ -2410,7 +2423,7 @@ contains
 	!c that is not influenced by any other category.
 	!
 	! History: Modernized original Burnup subroutine.
-	! We modify the original behavior such that a negative value for ak indicates the the value of
+	! We modify the original behavior such that a negative value for ak indicates that the value of
 	! ak / K_a should be calculated.  This requires fmois to be passed in, which was not one of the
 	! original arguments.
 	! Several arguments have been removed that were present in the original routine.  The number
@@ -2466,7 +2479,7 @@ contains
 
 		do k = 1, numFuelTypes
 			do l = 1, k
-				if (ak .gt. 0.0) then! or .ge. ?
+				if (ak .gt. 0.0) then ! or .ge. ?
 					! If a valid value has been supplied use a fixed K_a as in the original Burnup:
 					K_a = ak
 				else

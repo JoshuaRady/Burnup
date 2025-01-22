@@ -53,6 +53,9 @@ Licence?????
  *
  * Simulation conditions and settings:
  * @param[in] ak			Area influence factor (ak / K_a parameter).
+ *              			We modify the original behavior such that a negative value indicates
+ *              			that the value of ak / K_a should be calculated according to Albini &
+ *              			Reinhardt 1997.
  * @param[in] r0			Minimum value of mixing parameter.
  * @param[in] dr			Max - min value of mixing parameter.
  * @param[in] dT			Time step for integration of burning rates (s). [dT in original Burnup]
