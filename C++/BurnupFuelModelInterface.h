@@ -43,6 +43,8 @@ struct BurnupSim {
 	//Output by fuel type:
 	//The ij suffix indicates these variables are in same vector representation used in fuel models.
 
+	std::vector <double> SAV_ij;//Characteristic surface-area-to-volume ratios for each fuel type (cm^2/cm^3).
+
 	//Fuel type names...
 
 	std::vector<double> w_o_ij_Initial;//The amount of fuel pre-burn by fuel type (kg/m^2).

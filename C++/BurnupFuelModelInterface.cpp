@@ -92,6 +92,8 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
 	BurnupSim simData;//Container for simulation data.
+	
+	simData.SAV_ij = FuelModel.SAV_ij;//Store SAVs.
 	simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
 	int numFuelTypes = fuelModel.numClasses;
 
@@ -252,16 +254,19 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 
 	if (burnoutTime == -1.0)
 	{
-		output << "Igniting fire cannot ignite fuel."
+		output << "Igniting fire cannot ignite fuel." << std::endl;
 	}
 	else if (burnoutTime == -2.0)
 	{
-		output << "Igniting fire cannot dry fuel."
+		output << "Igniting fire cannot dry fuel." << std::endl;
 	}
 	else
 	{
-		output << "The fire burnt out after " << burnoutTime << " seconds."
-		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)."
+		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
+		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
+
+		output << "SAV_ij: ";
+		PrintVector(output, SAV_ij);
 
 		output << "w_o_ij_Initial: ";
 		PrintVector(output, w_o_ij_Initial);
