@@ -144,10 +144,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         tpig_ij,//tpig
 	         tchar_ij,//tchar,
 	         //Outputs by interaction pairs:
+	         simData.w_o_kl,//wo
 	         simData.xmat_kl,//xmat
 	         simData.tign_kl,//tign
 	         simData.tout_kl,//tout
-	         simData.w_o_kl,//w_o_out,//wo Note: wo should be moved to the top of the outputs across all interfaces?
 	         simData.diam_kl);//diam
 	         //outputHistory = false);
 	

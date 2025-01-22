@@ -361,7 +361,7 @@ contains
 	! History: Added as an programatic alternative entry point to the original interactive program.
 	subroutine Simulate(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 						parts, wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-						xmat, tign, tout, wo, diam, outputHistory)
+						wo, xmat, tign, tout, diam, outputHistory)
 		implicit none
 
 		! Arguments:
@@ -416,9 +416,6 @@ contains
 		! Use the first argument with maxkl length to calculate its value.  This can then be used
 		! by subsequent variables.  I don't like this approach much but a better alternative has
 		! not be determined.
-		! wo should be moved to the front in any case because it is the most valuable output.  This
-		! would have the advantage of making the size() shorthand shorter.
-		! JMR_Note: No longer in argument order!!!!!
 		real*4, intent(out) :: wo(number * (number + 1) / 2 + number)! Current ovendry loading for
 												! the larger of each component pair, kg/sq m. [maxkl]
 		real*4, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
@@ -575,7 +572,7 @@ contains
 	! History: Added for module.
 	subroutine SimulateR(fi, ti, u, d, tpamb, ak, r0, dr, dt, wdf, dfm, ntimes, number, &
 							wdry, ash, htval, fmois, dendry, sigma, cheat, condry, tpig, tchar, &
-							xmat, tign, tout, wo, diam, outputHistory) bind(C, name = "simulater")
+							wo, xmat, tign, tout, diam, outputHistory) bind(C, name = "simulater")
 		implicit none
 
 		! Arguments:
@@ -607,7 +604,6 @@ contains
 		double precision, intent(inout) :: tchar(number)	! Char temperature, K. [maxno]
 
 		! Calculated outputs:
-		! JMR_Note: No longer in argument order!!!!!
 		double precision, intent(out) :: wo(number * (number + 1) / 2 + number) ! Current ovendry loading for
 														! the larger of each component pair, kg/sq m. [maxkl]
 		double precision, intent(out) :: xmat(size(wo))	! Table of influence fractions between components. [maxkl]
