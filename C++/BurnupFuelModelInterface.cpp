@@ -94,8 +94,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	
 	BurnupSim simData;//Container for simulation data.
 	
-	simData.SAV_ij = fuelModel.SAV_ij;//Store SAVs.
-	simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
+	//If we save inputs here they may not match order of the other inputs.  Will work after we resort:
+	//simData.SAV_ij = fuelModel.SAV_ij;//Store SAVs.
+	//simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
+
 	int numFuelTypes = fuelModel.numClasses;
 
 	//Check that units of the fuel model are correct:
@@ -229,14 +231,29 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//Resort the fuels to their original fuel model order:
 	//Since the main outputs are in kl space this may be a bit tricky.
 
+	//Store these now until resorting is added.  The units will change as a result:
+	simData.SAV_ij = sigma;//Store (reordered) SAVs.
+	simData.w_o_ij_Initial = wdry;//Store (reordered and re-united) initial fuel loadings.
+
 	//Calculate the amount combusted:
+	simData.combustion_ij.assign(numFuelTypes, 0);
 	for (int i = 0; i < numFuelTypes; i++)
 	{
-		simData.combustion_ij[i] = wdry[i] - simData.w_o_ij_Initial[i];
+		//simData.combustion_ij[i] = wdry[i] - simData.w_o_ij_Initial[i];
+
 		//simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];//Make sure vectors are in the same order to use this!
+
+		//Outputs will be in the fuel order that comes out of Simulate(), which may not match that
+		//when we started.  Therefore we need to be sure that the 'initial' is in the same order as
+		//the final.  Once resorting of data is implemented we won't need to be as careful.
+		simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];
+
+		//Add checking for values that are below 0?
 	}
 
 	//Need to add handling for history data!!!!!
+
+	//Need to convert unit back?????
 
 	return simData;
 }
