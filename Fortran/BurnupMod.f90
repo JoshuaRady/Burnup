@@ -670,7 +670,7 @@ contains
 						parts, &
 						wdryReal, ashReal, htvalReal, fmoisReal, dendryReal, &
 						sigmaReal, cheatReal, condryReal, tpigReal, tcharReal, &
-						xmatReal, tignReal, toutReal, woReal, diamReal, &
+						woReal, xmatReal, tignReal, toutReal, diamReal, &
 						historyLogical)
 
 		! Convert output arrays back to double precision:

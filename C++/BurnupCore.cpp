@@ -485,8 +485,9 @@ extern "C" void SimulateR(double* fi, const double* ti, const double* u, const d
 
 	Simulate(*fi, *ti, *u, *d, *tpamb, *ak, *r0, *dr, *dt, *wdf, *dfm, *ntimes, *number,
 	         parts,
-	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec, sigmaVec, cheatVec, condryVec, tpigVec,
-	         tcharVec, xmatVec, tignVec, toutVec, woVec, diamVec,
+	         wdryVec, ashVec, htvalVec, fmoisVec, dendryVec,
+	         sigmaVec, cheatVec, condryVec, tpigVec, tcharVec,
+	         woVec, xmatVec, tignVec, toutVec, diamVec,
 	         historyLogical);
 
 	//Convert outputs back arrays:
@@ -1206,7 +1207,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		else//Otherwise signal the condition and return
 		{
 			std::fill(tign.begin(), tign.end(), -2.0);//Value signals fuel did not dry.
-			Msg.Log("Igniting fire cannot dry fuel");
+			Msg.Log("Igniting fire cannot dry fuel.");
 			return;
 		}
 	}
