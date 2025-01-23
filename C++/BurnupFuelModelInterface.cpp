@@ -239,14 +239,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	simData.combustion_ij.assign(numFuelTypes, 0);
 	for (int i = 0; i < numFuelTypes; i++)
 	{
-		//simData.combustion_ij[i] = wdry[i] - simData.w_o_ij_Initial[i];
-
-		//simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];//Make sure vectors are in the same order to use this!
-
 		//Outputs will be in the fuel order that comes out of Simulate(), which may not match that
 		//when we started.  Therefore we need to be sure that the 'initial' is in the same order as
 		//the final.  Once resorting of data is implemented we won't need to be as careful.
-		simData.combustion_ij[i] = simData.w_o_ij_Final[i] - simData.w_o_ij_Initial[i];
+		simData.combustion_ij[i] = simData.w_o_ij_Initial[i] - simData.w_o_ij_Final[i];
 
 		//Add checking for values that are below 0?
 	}
@@ -295,6 +291,15 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		output << "combustion_ij: ";
 		//output << "Fuel combusted: ";
 		PrintVector(output, combustion_ij);
+
+		output << "tign_ij: ";
+		PrintVector(output, tign_ij);
+
+		output << "tout_ij_Min: ";
+		PrintVector(output, tout_ij_Min);
+
+		output << "tout_ij_Max: ";
+		PrintVector(output, tout_ij_Max);
 	}
 
 	return output;
