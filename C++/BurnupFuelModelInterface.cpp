@@ -234,6 +234,8 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//Store these now until resorting is added.  The units will change as a result:
 	simData.SAV_ij = sigma;//Store (reordered) SAVs.
 	simData.w_o_ij_Initial = wdry;//Store (reordered and re-united) initial fuel loadings.
+	simData.M_f_ij = fmois;
+	simData.fuelNames = fuelNames;
 
 	//Calculate the amount combusted:
 	simData.combustion_ij.assign(numFuelTypes, 0);
@@ -279,8 +281,19 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
 		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
 
+		output << "Fuel Names: ";
+		//PrintVector(output, fuelNames);
+		for (int i = 0; i < fuelNames.size() - 1; i++)
+		{
+			output << fuelNames[i] << ", ";
+		}
+		output << fuelNames[fuelNames.size() - 1] << std::endl;
+
 		output << "SAV_ij: ";
 		PrintVector(output, SAV_ij);
+
+		output << "M_f_ij: ";
+		PrintVector(output, M_f_ij);
 
 		output << "w_o_ij_Initial: ";
 		PrintVector(output, w_o_ij_Initial);
