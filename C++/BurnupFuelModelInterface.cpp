@@ -19,6 +19,7 @@ Licence?????
 ***************************************************************************************************/
 
 #include <vector>
+#include <iostream>
 
 #include "BurnupFuelModelInterface.h"
 #include "BurnupCore.h"
@@ -93,7 +94,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	
 	BurnupSim simData;//Container for simulation data.
 	
-	simData.SAV_ij = FuelModel.SAV_ij;//Store SAVs.
+	simData.SAV_ij = fuelModel.SAV_ij;//Store SAVs.
 	simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
 	int numFuelTypes = fuelModel.numClasses;
 
