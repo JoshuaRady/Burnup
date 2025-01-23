@@ -246,7 +246,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		//Outputs will be in the fuel order that comes out of Simulate(), which may not match that
 		//when we started.  Therefore we need to be sure that the 'initial' is in the same order as
 		//the final.  Once resorting of data is implemented we won't need to be as careful.
-		simData.combustion_ij[i] = w_o_ij_Final[i] - w_o_ij_Initial[i];
+		simData.combustion_ij[i] = simData.w_o_ij_Final[i] - simData.w_o_ij_Initial[i];
 
 		//Add checking for values that are below 0?
 	}
