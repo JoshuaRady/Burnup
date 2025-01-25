@@ -63,6 +63,12 @@ Licence?????
  * Simulation conditions and settings:
  * @param[in] dT			Time step for integration of burning rates (s). [dT in original Burnup]
  * @param[in] nTimeSteps	Number of time steps to run.
+ * @param[in] burnupFormat	How should the output be returned?  The default (false) is to return the
+ *                        	fuel level output in the same units and fuel order as the fuel model
+ *                        	input.  If true the output will use the original Burnup units and the
+ *                        	fuel level output may be reordered.  In either case the outputs at the
+ *                        	fuel pair level will be raw Burnup output (at least for now).
+ *
  * @param[in] ak			Area influence factor (ak / K_a parameter).
  *              			We modify the original behavior such that a negative value indicates
  *              			that the value of ak / K_a should be calculated according to Albini &
@@ -86,6 +92,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
                      const double tempAirC, const double U,
                      const double fireIntensity, const double t_r,
                      const double dT, const int nTimeSteps,
+                     const bool burnupFormat,
                      const double ak, const double r0, const double dr)
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
@@ -94,25 +101,23 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	
 	BurnupSim simData;//Container for simulation data.
 	
-	//If we save inputs here they may not match order of the other inputs.  Will work after we resort:
-	//simData.SAV_ij = fuelModel.SAV_ij;//Store SAVs.
-	//simData.w_o_ij_Initial = fuelModel.w_o_ij;//Store initial fuel loadings.
-
 	int numFuelTypes = fuelModel.numClasses;
 
-	//Check that units of the fuel model are correct:
+	//Check that units of the fuel model are metric as needed:
 	if (fuelModel.units != Metric)
 	{
 		fuelModel.ConvertUnits(Metric);
 	}
 	
-	//Fuel models do not provide names for fuel types so we make some:  Add leading 0s to improve sorting?????
+	//Fuel models do not provide names for fuel types so we make some:
+	//Add leading 0s to improve sorting?????
 	std::vector<std::string> fuelNames(numFuelTypes);
 	
 	for (int i = 0; i < numFuelTypes; i++)
 	{
 		fuelNames[i] = "Fuel " + std::to_string(i);
 	}
+	std::vector<std::string> fuelNamesInitial = fuelNames;//fuelNamesFM??????
 	
 	//Since Burnup may sort the order of fuels we need to pass in modifiable copies of fuel
 	//properties stored in the fuel model:
@@ -134,17 +139,17 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		theSAV *= 100;//cm^2/cm^3 = 1/cm -> m^2/m^3 = 1/m  (1/(m/cm) = cm/m = 100)
 	}
 
-	//Other variables that are input only that will be modified...
-	double fi = fireIntensity;//Need a copy that can be modified.
+	//Make copies of other variables that are input only that will be modified by Burnup:
+	double fi = fireIntensity;
 	double dtInOut = dT;
 
 	//Set the fuel property inputs missing in the fuel model to default values:
 	//In the future these parameters may be added to the FuelModel class or a child thereof.
 	//These are default(ish?) values from FOFEM.
 	std::vector <double> cheat_ij(numFuelTypes, 2750);//Heat capacity: J/kg K for all fuel types.
-	std::vector <double> condry_ij(numFuelTypes, 0.133);//W/m K for all fuel types.
-	std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//C -> K for intact fuels.
-	//FOFEM uses 302 C for punky fuels.
+	std::vector <double> condry_ij(numFuelTypes, 0.133);//Conductivity: W/m K for all fuel types.
+	std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
+	//FOFEM uses 302 C for 'punky' logs.
 	std::vector <double> tchar_ij(numFuelTypes, 377 + CtoK);//C -> K for all fuel types.
 
 	//Perform the simulation:
@@ -172,20 +177,22 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         simData.tout_kl,//tout
 	         simData.diam_kl);//diam
 	         //outputHistory = false);
-	
-	//Copy remaining variables to the output object:
+
+	//Copy output variables [not directly modified by Burnup] to the output object:
 	simData.burnoutTime = dtInOut;
 	//We could convert negative values to flags.
-	
+
 	simData.finalFireIntensity = fireIntensity;//Return the final fire intensity.
-	
-	//The output by interaction pairs contains useful information but the values by fuel type are
+
+	simData.klFuelNames = fuelNames;//Alway store the potentially reordered names.
+
+
+	//The outputs by interaction pairs contain useful information but the values by fuel type are
 	//most likely to be of primary interest.  Summarize variables by fuel type:
-	
 	simData.w_o_ij_Final.assign(numFuelTypes, 0);
 	
-	//Ignition time:
-	//Burnup SUMMARY() uses the time the first element in the class ignites.
+	//Ignition times:
+	//Burnup SUMMARY() uses the time the first element in the class ignites so we do too.
 	simData.tign_ij.assign(numFuelTypes, 0);
 	
 	//Burnout time:
@@ -227,23 +234,69 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 
 	//This needs to be tested for cases where some fuels don't ignite!!!!
 
-	//Add!!!!!
-	//Resort the fuels to their original fuel model order:
-	//Since the main outputs are in kl space this may be a bit tricky.
+	if (burnupFormat)
+	{
+		//Store the fuel level inputs in their reordered (and re-united) forms:
+		simData.SAV_ij = sigma;//SAVs.
+		simData.w_o_ij_Initial = wdry;//Initial fuel loadings.
+		simData.M_f_ij = fmois;//Fuel moisture/
 
-	//Store these now until resorting is added.  The units will change as a result:
-	simData.SAV_ij = sigma;//Store (reordered) SAVs.
-	simData.w_o_ij_Initial = wdry;//Store (reordered and re-united) initial fuel loadings.
-	simData.M_f_ij = fmois;
-	simData.fuelNames = fuelNames;
+		simData.fuelNames = fuelNames;
+	}
+	else
+	{
+		//Store the fuel level inputs in their original fuel model order and metric units:
+		simData.SAV_ij = fm.SAV_ij;//SAVs
+		simData.w_o_ij_Initial = fm.w_o_ij;//Initial fuel loadings.
+		simData.M_f_ij = fm.M_f_ij;//Fuel moisture.
 
-	//Calculate the amount combusted:
+		simData.fuelNames = fuelNamesInitial;
+
+		int fuelOrder[numFuelTypes];
+
+		if (fuelNamesInitial == fuelNames)
+		{
+			//fuelOrder = ?????
+			klFuelsReordered = false;
+			//There is no need tp resort.
+		}
+		else
+		{
+			klFuelsReordered = true;
+			//klFuelNames = 
+
+			//Determine how the fuels were reordered:
+			//Burnup stores the sort order internally as key[].  We could pass that out to eliminate the
+			//need for this code.
+			for (int m = 0; m < numFuelTypes; m++)
+			{
+				for (int n = 0; j < numFuelTypes; n++)
+				{
+					if (fuelNamesInitial[m] == fuelNames[n])
+					{
+						fuelOrder[m] = n;
+						break;
+					}
+				}
+			}
+
+			//Reorder the fuel level outputs to the original fuel model order:
+			Reorder(w_o_ij_Final, fuelOrder);
+			Reorder(tign_ij, fuelOrder);
+			Reorder(tout_ij_Min, fuelOrder);
+			Reorder(tout_ij_Max, fuelOrder);
+			
+			//I don't think any output units need to be converted?????
+
+			//The outputs by pairs are not easily reordered so we leave them for now.
+
+		}
+	}
+
+	//Calculate the amount combusted at the end so we don't have to reorder it:
 	simData.combustion_ij.assign(numFuelTypes, 0);
 	for (int i = 0; i < numFuelTypes; i++)
 	{
-		//Outputs will be in the fuel order that comes out of Simulate(), which may not match that
-		//when we started.  Therefore we need to be sure that the 'initial' is in the same order as
-		//the final.  Once resorting of data is implemented we won't need to be as careful.
 		simData.combustion_ij[i] = simData.w_o_ij_Initial[i] - simData.w_o_ij_Final[i];
 
 		//Add checking for values that are below 0?
@@ -251,10 +304,34 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 
 	//Need to add handling for history data!!!!!
 
-	//Need to convert unit back?????
-
 	return simData;
 }
+
+/** Reorder a vector.
+ * 
+ * @param vec	The vector to reorder.
+ * @param order	An array the length of vec with positions (0 based) each index should be moved to.
+ *
+ * @returns Nothing.  We could return the vector rather than modifying it in place.
+ */
+void Reorder(std::vector<double>& vec, const std::vector<int> order)
+{
+	//Check the order is valid:
+	if (vec.size() != order.size())
+	{
+		Stop("Reorder(): The order is not the same length as the vector.");
+	}
+	//Check order values are valid...
+
+	//std::vector<double> temp(vec.size())
+	std::vector<double> copy = vec;
+
+	for (int i = 0; i < vec.size(); i+-)
+	{
+		vec[order[i]] = copy[i];
+	}
+}
+
 
 /** Print the Burnup simulation data to an output stream.
  *
