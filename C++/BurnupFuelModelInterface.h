@@ -90,6 +90,7 @@ BurnupSim SimulateFM(FuelModel fuelModel, const double duffLoading, const double
                      const double tempAirC, const double U, const double fireIntensity,
                      const double t_r, const double dT, const int nTimeSteps,
                      const bool burnupFormat = false,
+                     const std::vector <double> tpig_ij = {},
                      const double ak = -1.0, const double r0 = 1.83, const double dr = 0.40);
 
 void Reorder(std::vector<double>& vec, const std::vector<int> order);

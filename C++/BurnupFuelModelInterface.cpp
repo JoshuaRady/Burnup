@@ -20,9 +20,11 @@ Licence?????
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
 #include "BurnupFuelModelInterface.h"
 #include "BurnupCore.h"
+#include "FireweedMessaging.h"
 #include "FireweedStringUtils.h"//For PrintVector().
 #include "FireweedUnits.h"
 
@@ -100,7 +102,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
                      const double fireIntensity, const double t_r,
                      const double dT, const int nTimeSteps,
                      const bool burnupFormat,
-                     const std::vector <double> tpig_ij = {};
+                     const std::vector <double> tpig_ij,
                      const double ak, const double r0, const double dr)
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
@@ -198,7 +200,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         wdry, ash, htval, fmois, dendry, sigma,
 	         cheat_ij,//cheat
 	         condry_ij,//condry,
-	         tpig_ij,//tpig
+	         tpig_ij_K,//tpig
 	         tchar_ij,//tchar,
 	         //Outputs by interaction pairs:
 	         simData.w_o_kl,//wo
@@ -276,30 +278,30 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	else
 	{
 		//Store the fuel level inputs in their original fuel model order and metric units:
-		simData.SAV_ij = fm.SAV_ij;//SAVs
-		simData.w_o_ij_Initial = fm.w_o_ij;//Initial fuel loadings.
-		simData.M_f_ij = fm.M_f_ij;//Fuel moisture.
+		simData.SAV_ij = fuelModel.SAV_ij;//SAVs
+		simData.w_o_ij_Initial = fuelModel.w_o_ij;//Initial fuel loadings.
+		simData.M_f_ij = fuelModel.GetM_f_ij();//Fuel moisture.
 
 		simData.fuelNames = fuelNamesInitial;
 
-		int fuelOrder[numFuelTypes];
+		std::vector<int> fuelOrder(numFuelTypes);
 
 		if (fuelNamesInitial == fuelNames)
 		{
 			//fuelOrder = ?????
-			klFuelsReordered = false;
+			simData.klFuelsReordered = false;
 			//There is no need tp resort.
 		}
 		else
 		{
-			klFuelsReordered = true;
+			simData.klFuelsReordered = true;
 
 			//Determine how the fuels were reordered:
 			//Burnup stores the sort order internally as key[].  We could pass that out to eliminate the
 			//need for this code.
 			for (int m = 0; m < numFuelTypes; m++)
 			{
-				for (int n = 0; j < numFuelTypes; n++)
+				for (int n = 0; n < numFuelTypes; n++)
 				{
 					if (fuelNamesInitial[m] == fuelNames[n])
 					{
@@ -310,10 +312,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 			}
 
 			//Reorder the fuel level outputs to the original fuel model order:
-			Reorder(w_o_ij_Final, fuelOrder);
-			Reorder(tign_ij, fuelOrder);
-			Reorder(tout_ij_Min, fuelOrder);
-			Reorder(tout_ij_Max, fuelOrder);
+			Reorder(simData.w_o_ij_Final, fuelOrder);
+			Reorder(simData.tign_ij, fuelOrder);
+			Reorder(simData.tout_ij_Min, fuelOrder);
+			Reorder(simData.tout_ij_Max, fuelOrder);
 
 			//I don't think any output units need to be converted?????
 
@@ -354,7 +356,7 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
 	//std::vector<double> temp(vec.size())
 	std::vector<double> copy = vec;
 
-	for (int i = 0; i < vec.size(); i+-)
+	for (int i = 0; i < vec.size(); i++)
 	{
 		vec[order[i]] = copy[i];
 	}
