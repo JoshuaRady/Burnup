@@ -447,7 +447,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		
 		if (fuelModelFormat)
 		{
-			savWidth = 9;
+			savWidth = 8;//9;
 			savUnits = "cm^2/cm^3";
 		}
 		else
@@ -496,7 +496,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
 				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
-				<< std::setw(9) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
+				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
 	}
 
