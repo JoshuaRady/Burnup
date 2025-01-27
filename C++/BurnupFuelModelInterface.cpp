@@ -268,6 +268,8 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 
 	if (burnupFormat)
 	{
+		fuelModelFormat = false;
+
 		//Store the fuel level inputs in their reordered (and re-united) forms:
 		simData.SAV_ij = sigma;//SAVs.
 		simData.w_o_ij_Initial = wdry;//Initial fuel loadings.
@@ -277,6 +279,8 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	}
 	else
 	{
+		fuelModelFormat = true;
+
 		//Store the fuel level inputs in their original fuel model order and metric units:
 		simData.SAV_ij = fuelModel.SAV_ij;//SAVs
 		simData.w_o_ij_Initial = fuelModel.w_o_ij;//Initial fuel loadings.
@@ -375,6 +379,15 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
 std::ostream& BurnupSim::Print(std::ostream& output) const
 {
 	output << "Burnup simulation:" << std::endl;
+
+	if (fuelModelFormat)
+	{
+		output << "Data is in fuel moddel format." << std::endl;
+	}
+	else
+	{
+		output << "Data is in Burnup format." << std::endl;
+	}
 
 	if (burnoutTime == -1.0)
 	{
