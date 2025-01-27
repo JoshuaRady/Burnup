@@ -125,7 +125,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	
 	for (int i = 0; i < numFuelTypes; i++)
 	{
-		fuelNames[i] = "Fuel " + std::to_string(i);
+		fuelNames[i] = "Fuel " + std::to_string(i + 1);
 	}
 	std::vector<std::string> fuelNamesInitial = fuelNames;//fuelNamesFM??????
 	
