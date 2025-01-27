@@ -160,7 +160,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	std::vector <double> condry_ij(numFuelTypes, 0.133);//Conductivity: W/m K for all fuel types.
 	
 	//std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
-	std::vector <double> tpig_ij_K;//Modifiable copy in Kelvins.
+	std::vector <double> tpig_ij_K(numFuelTypes);//Modifiable copy in Kelvins.
 	if (tpig_ij.empty())
 	{
 		tpig_ij_K.assign(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
