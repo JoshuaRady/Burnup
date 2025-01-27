@@ -71,7 +71,7 @@ struct BurnupSim {
 	                      //This will remain true even if the fuels are reorder for the ij variables.
 	                      //Do we need to specify kl?  Is there a clearer way to note this state?
 	std::vector<std::string> klFuelNames;//Change to or add an order?
-	//This is only needed if fuelModelFormat = true and klFuelsReordered = true.  If  
+	//This is only needed if fuelModelFormat = true and klFuelsReordered = true.
 
 	std::vector<double> w_o_kl;//Final ovendry loading for the larger of each component pair (kg/sq m). [wo in original Burnup]
 	std::vector<double> xmat_kl;//Table of influence fractions between components.

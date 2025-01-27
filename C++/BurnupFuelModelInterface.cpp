@@ -69,6 +69,13 @@ Licence?????
  *                        	fuel level output may be reordered.  In either case the outputs at the
  *                        	fuel pair level will be raw Burnup output (at least for now).
  *
+ * @note The order for the optional parameters is tricky.  We try to put them in the order with the
+ * most likely to be supplied first.
+ *
+ * Optional fuel properties:
+ * @param[in] tpig_ij		Ignition temperature, C.  Defaults to 327 C for all fuels.
+ *
+ * Optional conditions and settings:
  * @param[in] ak			Area influence factor (ak / K_a parameter).
  *              			We modify the original behavior such that a negative value indicates
  *              			that the value of ak / K_a should be calculated according to Albini &
@@ -93,6 +100,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
                      const double fireIntensity, const double t_r,
                      const double dT, const int nTimeSteps,
                      const bool burnupFormat,
+                     const std::vector <double> tpig_ij = {};
                      const double ak, const double r0, const double dr)
                      //const bool outputHistory = false)///Add?
                      //const bool debug = false);//Add?
@@ -148,8 +156,30 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	//These are default(ish?) values from FOFEM.
 	std::vector <double> cheat_ij(numFuelTypes, 2750);//Heat capacity: J/kg K for all fuel types.
 	std::vector <double> condry_ij(numFuelTypes, 0.133);//Conductivity: W/m K for all fuel types.
-	std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
-	//FOFEM uses 302 C for 'punky' logs.
+	
+	//std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
+	std::vector <double> tpig_ij_K;//Modifiable copy in Kelvins.
+	if (tpig_ij.empty())
+	{
+		tpig_ij_K.assign(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
+		//FOFEM uses 302 C for 'punky' logs.
+	}
+	else
+	{
+		//We could allow a single value be passed in as a value for all members.
+		if (tpig_ij.size() != numFuelTypes)
+		{
+			Stop("tpig_ij does not match the number of fuel types.");
+		}
+
+		//for (int i = 0; i < numFuelTypes; i++)
+		//for (int k = 0; k < numFuelTypes; k++)//k used here in the fuel model sense.
+		for (int kFM = 0; kFM < numFuelTypes; kFM++)//k used here in the fuel model sense.
+		{
+			tpig_ij_K[kFM] = tpig_ij[kFM] + CtoK;
+		}
+	}
+	
 	std::vector <double> tchar_ij(numFuelTypes, 377 + CtoK);//C -> K for all fuel types.
 
 	//Perform the simulation:
@@ -263,7 +293,6 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		else
 		{
 			klFuelsReordered = true;
-			//klFuelNames = 
 
 			//Determine how the fuels were reordered:
 			//Burnup stores the sort order internally as key[].  We could pass that out to eliminate the
@@ -285,11 +314,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 			Reorder(tign_ij, fuelOrder);
 			Reorder(tout_ij_Min, fuelOrder);
 			Reorder(tout_ij_Max, fuelOrder);
-			
+
 			//I don't think any output units need to be converted?????
 
 			//The outputs by pairs are not easily reordered so we leave them for now.
-
 		}
 	}
 
@@ -332,6 +360,7 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
 	}
 }
 
+//BurnupSim Functions:------------------------------------------------------------------------------
 
 /** Print the Burnup simulation data to an output stream.
  *
@@ -358,38 +387,74 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
 		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
 
-		output << "Fuel Names: ";
-		//PrintVector(output, fuelNames);
-		for (int i = 0; i < fuelNames.size() - 1; i++)
+		//Print one by one:
+// 		output << "Fuel Names: ";
+// 		//PrintVector(output, fuelNames);
+// 		for (int i = 0; i < fuelNames.size() - 1; i++)
+// 		{
+// 			output << fuelNames[i] << ", ";
+// 		}
+// 		output << fuelNames[fuelNames.size() - 1] << std::endl;
+// 
+// 		output << "SAV_ij: ";
+// 		PrintVector(output, SAV_ij);
+// 
+// 		output << "M_f_ij: ";
+// 		PrintVector(output, M_f_ij);
+// 
+// 		output << "w_o_ij_Initial: ";
+// 		PrintVector(output, w_o_ij_Initial);
+// 
+// 		output << "w_o_ij_Final: ";
+// 		PrintVector(output, w_o_ij_Final);
+// 
+// 		output << "combustion_ij: ";
+// 		//output << "Fuel combusted: ";
+// 		PrintVector(output, combustion_ij);
+// 
+// 		output << "tign_ij: ";
+// 		PrintVector(output, tign_ij);
+// 
+// 		output << "tout_ij_Min: ";
+// 		PrintVector(output, tout_ij_Min);
+// 
+// 		output << "tout_ij_Max: ";
+// 		PrintVector(output, tout_ij_Max);
+
+		//Print the bulk of outputs in a table for easy interpretation:
+
+		//Member name header: Too long currently!!!!!
+		std::cout << std::setw(7) << "Name"
+			<< std::setw(11) << "w_o_ij_Initial"//Too long.
+			<< std::setw(12) << "w_o_ij_Final"//Too long.
+			<< std::setw(16) << "tign_ij"
+			<< std::setw(11) << "tout_ij_Min"//Too long.
+			<< std::setw(11) << "tout_ij_Max"//Too long.
+			<< std::setw(10) << "M_f_ij"
+			<< std::setw(8) << "SAV_ij" << std::endl;
+
+		//Descriptive header:
+		std::cout << std::setw(7) << " "
+			<< std::setw(11) << "Preburn_wo"
+			<< std::setw(12) << "Postburn_wo"
+			<< std::setw(16) << "IgnitionTimeMin"
+			<< std::setw(11) << "BurnoutMin"
+			<< std::setw(11) << "BurnoutMax"
+			<< std::setw(10) << "MoistFrac"
+			<< std::setw(8) << "SAV" << std::endl;
+
+		//Values:
+		for (int i = 0; i < SAV_ij.size(); i++)
 		{
-			output << fuelNames[i] << ", ";
+			std::cout << std::setw(7) << fuelNames[i]
+				<< std::setw(11) << std::fixed << std::setprecision(5) << w_o_ij_Initial[i]
+				<< std::setw(12) << std::fixed << std::setprecision(5) << w_o_ij_Final[i]
+				<< std::setw(16) << std::fixed << std::setprecision(0) << tign_ij[i]
+				<< std::setw(11) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
+				<< std::setw(11) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
+				<< std::setw(10) << std::fixed << std::setprecision(2) << M_f_ij[i]
+				<< std::setw(9) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
-		output << fuelNames[fuelNames.size() - 1] << std::endl;
-
-		output << "SAV_ij: ";
-		PrintVector(output, SAV_ij);
-
-		output << "M_f_ij: ";
-		PrintVector(output, M_f_ij);
-
-		output << "w_o_ij_Initial: ";
-		PrintVector(output, w_o_ij_Initial);
-
-		output << "w_o_ij_Final: ";
-		PrintVector(output, w_o_ij_Final);
-
-		output << "combustion_ij: ";
-		//output << "Fuel combusted: ";
-		PrintVector(output, combustion_ij);
-
-		output << "tign_ij: ";
-		PrintVector(output, tign_ij);
-
-		output << "tout_ij_Min: ";
-		PrintVector(output, tout_ij_Min);
-
-		output << "tout_ij_Max: ";
-		PrintVector(output, tout_ij_Max);
 	}
 
 	return output;
