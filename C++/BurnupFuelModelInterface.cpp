@@ -425,36 +425,77 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 
 		//Print the bulk of outputs in a table for easy interpretation:
 
-		//Member name header: Too long currently!!!!!
-		std::cout << std::setw(7) << "Name"
-			<< std::setw(11) << "w_o_ij_Initial"//Too long.
-			<< std::setw(12) << "w_o_ij_Final"//Too long.
-			<< std::setw(16) << "tign_ij"
-			<< std::setw(11) << "tout_ij_Min"//Too long.
-			<< std::setw(11) << "tout_ij_Max"//Too long.
-			<< std::setw(10) << "M_f_ij"
-			<< std::setw(8) << "SAV_ij" << std::endl;
+		//Widths similar to standard Burnup output table formating elsewhere:
+		//const int nameWidth = 7;
+		//const int w_oIWidth = 11;
+		//const int w_oFWidth = 12;
+		//const int tignWidth = 16;
+		//const int toutMinWidth = 11;
+		//const int toutMaxWidth = 11;
+		//const int m_fWidth = 10;
+		//const int savWidth = 8;
+
+		const int nameWidth = 7;
+		const int w_oIWidth = 15;
+		const int w_oFWidth = 13;
+		const int tignWidth = 16;
+		const int toutMinWidth = 12;
+		const int toutMaxWidth = 12;
+		const int m_fWidth = 10;
+		int savWidth;
+		std::string savUnits;
+		
+		if (fuelModelFormat)
+		{
+			savWidth = 9;
+			savUnits = "cm^2/cm^3";
+		}
+		else
+		{
+			savWidth = 8;
+			savUnits = "m^2/m^3";
+		}
+
+		//Member name header:
+		std::cout << std::setw(nameWidth) << "Name"
+			<< std::setw(w_oIWidth) << "w_o_ij_Initial"
+			<< std::setw(w_oFWidth) << "w_o_ij_Final"
+			<< std::setw(tignWidth) << "tign_ij"
+			<< std::setw(toutMinWidth) << "tout_ij_Min"
+			<< std::setw(toutMaxWidth) << "tout_ij_Max"
+			<< std::setw(m_fWidth) << "M_f_ij"
+			<< std::setw(savWidth) << "SAV_ij" << std::endl;
+
+		//Units header:
+		std::cout << std::setw(nameWidth) << " "
+			<< std::setw(w_oIWidth) << "kg/m^2"
+			<< std::setw(w_oFWidth) << "kg/m^2"
+			<< std::setw(tignWidth) << "seconds"
+			<< std::setw(toutMinWidth) << "seconds"
+			<< std::setw(toutMaxWidth) << "seconds"
+			<< std::setw(m_fWidth) << "fraction"
+			<< std::setw(savWidth) << savUnits << std::endl;
 
 		//Descriptive header:
-		std::cout << std::setw(7) << " "
-			<< std::setw(11) << "Preburn_wo"
-			<< std::setw(12) << "Postburn_wo"
-			<< std::setw(16) << "IgnitionTimeMin"
-			<< std::setw(11) << "BurnoutMin"
-			<< std::setw(11) << "BurnoutMax"
-			<< std::setw(10) << "MoistFrac"
-			<< std::setw(8) << "SAV" << std::endl;
+		std::cout << std::setw(nameWidth) << " "
+			<< std::setw(w_oIWidth) << "Preburn_wo"
+			<< std::setw(w_oFWidth) << "Postburn_wo"
+			<< std::setw(tignWidth) << "IgnitionTimeMin"
+			<< std::setw(toutMinWidth) << "BurnoutMin"
+			<< std::setw(toutMaxWidth) << "BurnoutMax"
+			<< std::setw(m_fWidth) << "MoistFrac"
+			<< std::setw(savWidth) << "SAV" << std::endl;
 
 		//Values:
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
-			std::cout << std::setw(7) << fuelNames[i]
-				<< std::setw(11) << std::fixed << std::setprecision(5) << w_o_ij_Initial[i]
-				<< std::setw(12) << std::fixed << std::setprecision(5) << w_o_ij_Final[i]
-				<< std::setw(16) << std::fixed << std::setprecision(0) << tign_ij[i]
-				<< std::setw(11) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
-				<< std::setw(11) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
-				<< std::setw(10) << std::fixed << std::setprecision(2) << M_f_ij[i]
+			std::cout << std::setw(nameWidth) << fuelNames[i]
+				<< std::setw(w_oIWidth) << std::fixed << std::setprecision(5) << w_o_ij_Initial[i]
+				<< std::setw(w_oFWidth) << std::fixed << std::setprecision(5) << w_o_ij_Final[i]
+				<< std::setw(tignWidth) << std::fixed << std::setprecision(0) << tign_ij[i]
+				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
+				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
+				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
 				<< std::setw(9) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
 	}
