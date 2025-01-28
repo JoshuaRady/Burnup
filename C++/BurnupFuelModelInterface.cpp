@@ -5,7 +5,7 @@ Woodwell Climate Research Center
 Started: 1/17/2025
 Reference: Proj. 11 Exp. 22
 
-	This provides an alternate interface to the Burnup wildfire fuel consumption model that uses
+	This provides an alternate interface to the Burnup wildfire fuel consumption model that takes
 fire behavior fuel models, as implemented in the Fireweed Wildfire Code Library.
 
 References:
@@ -32,39 +32,46 @@ Licence?????
  * consumption properties.
  *
  * This alternate interface allows a fuel model to be used as input to Burnup.  This reduces the
- * number f inputs and simplifies outputs by returning all of them in a single object rather than
- * using multiple return arguments which need to be initialized by the calling code.  The parameter
+ * number of inputs and simplifies outputs by returning all of them in a single object rather than
+ * using multiple return arguments that need to be initialized by the calling code.  The parameter
  * names have been made more descriptive than the standard interface.  The code handles conversion
- * of variables that differ in units between the standard fuel models and Burnup.
+ * of variables that differ in units between the standard fuel models and Burnup.  Fuel model /
+ * Rothermel & Albini units are used on the input side.  The raw Burnup outputs are also processed
+ * tp produce summaries by fuel type, which is more useful for most applications than output by fuel
+ * pairs.
  *
  * Fuel models do not contain all the fuel properties that Burnup needs.  For now the heat capacity
  * (cheat), thermal conductivity (condry), ignition temperature (tpig), and char temperature (tchar)
- * for all fuels are set to default values.  In the future these parameters may be added to the
- * FuelModel class or a child thereof.
+ * for all fuels are set to default values (unless provided explicitly, see below).  In the future
+ * these parameters may be added to the FuelModel class or a child thereof.
  *
  * Fuel properties:
  * @param FuelModel A fuel model to calculate fuel consumption for.
  *                  The fuel moisture, M_f_ij, must be included in the FuelModel object.
  *                  FuelModel is not const so we can the units can be converted if necessary.
- *                  The post-fire loading could be returned but updating w_o_ij but given the many
- *                  other outputs it doesn't seem useful.
+ *                  The post-fire loading could be returned by updating w_o_ij but, given the many
+ *                  other outputs, this doesn't seem useful.
  * 
  * Duff conditions:
- * @param[in] duffLoading	Duff loading (kg/m^2, aka W sub d). [wdf in original Burnup]
+ * @param[in] duffLoading	Duff loading (kg/m^2, aka W sub d). [wdf in Burnup nomenclature]
  * @param[in] duffMoisture	Ratio of moisture mass to dry organic mass / duff fractional moisture
- *                        	aka R sub M). [dfm in original Burnup]
+ *                        	aka R sub M). [dfm in Burnup nomenclature]
+ *
+ * @note Setting duffLoading = 0 should eliminate the effect of duff on the simulation.  Duff
+ * moisture should not matter with no loading.  1.0 seems like a good placeholder value in this
+ * case.
  *
  * Environmental conditions:
- * @param[in] tempAirC	Ambient air temperature (C).
- * @param[in] U			Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
+ * @param[in] tempAirC		Ambient air temperature (C). [Burnup uses tpamb in K.]
+ * @param[in] U				Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
  *
  * Igniting fire conditions:
- * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW / m^2).
- * @param[in] t_r			Igniting fire residence time (s). [ti in original Burnup]
+ * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW / m^2). [fi in Burnup nomenclature]
+ * @param[in] t_r			Igniting fire residence time (s). [ti in Burnup nomenclature]
  *
  * Simulation conditions and settings:
- * @param[in] dT			Time step for integration of burning rates (s). [dT in original Burnup]
- * @param[in] nTimeSteps	Number of time steps to run.
+ * @param[in] dT			Time step for integration of burning rates (s). 
+ * @param[in] nTimeSteps	Number of time steps to run. [ntimes in Burnup nomenclature]
  * @param[in] burnupFormat	How should the output be returned?  The default (false) is to return the
  *                        	fuel level output in the same units and fuel order as the fuel model
  *                        	input.  If true the output will use the original Burnup units and the
@@ -75,7 +82,9 @@ Licence?????
  * most likely to be supplied first.
  *
  * Optional fuel properties:
- * @param[in] tpig_ij		Ignition temperature, C.  Defaults to 327 C for all fuels.
+ * As discussed above cheat, condry, tpig, tchar will be given defaults if not included.  tpig may
+ * be specified specifically.  The others may be added or incorporated in FuelModel.
+ * @param[in] tpig_ij		Ignition temperature (C).  Defaults to 327 C for all fuels.
  *
  * Optional conditions and settings:
  * @param[in] ak			Area influence factor (ak / K_a parameter).
@@ -90,14 +99,13 @@ Licence?????
  * @returns A BurnupSim object holding the resulting output from the simulation (and maybe some of the inputs?).
  *
  * @note The setting values can be hard to determine.  We provide default values for these based on
- * on some papers but more could be done to inform value selection.
- * @note Setting duffLoading = 0 should eliminate the effect of duff on the simulation.  Duff
- * moisture should not matter with no loading.  1.0 seems like a good placeholder value in this
- * case.
+ * on papers but more could be done to inform value selection.
+ *
+ * @note This code needs to be tested for cases where some fuels don't ignite.
  */
 BurnupSim SimulateFM(FuelModel fuelModel,
-                     const double duffLoading,//Default to 0?
-                     const double duffMoisture,//Default to 1.0?
+                     const double duffLoading,
+                     const double duffMoisture,
                      const double tempAirC, const double U,
                      const double fireIntensity, const double t_r,
                      const double dT, const int nTimeSteps,
@@ -127,7 +135,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	{
 		fuelNames[i] = "Fuel " + std::to_string(i + 1);
 	}
-	std::vector<std::string> fuelNamesInitial = fuelNames;//fuelNamesFM??????
+	std::vector<std::string> fuelNamesInitial = fuelNames;
 	
 	//Since Burnup may sort the order of fuels we need to pass in modifiable copies of fuel
 	//properties stored in the fuel model:
@@ -159,7 +167,6 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	std::vector <double> cheat_ij(numFuelTypes, 2750);//Heat capacity: J/kg K for all fuel types.
 	std::vector <double> condry_ij(numFuelTypes, 0.133);//Conductivity: W/m K for all fuel types.
 	
-	//std::vector <double> tpig_ij(numFuelTypes, 327 + CtoK);//Ignition Temp: C -> K for intact fuels.
 	std::vector <double> tpig_ij_K(numFuelTypes);//Modifiable copy in Kelvins.
 	if (tpig_ij.empty())
 	{
@@ -168,14 +175,12 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	}
 	else
 	{
-		//We could allow a single value be passed in as a value for all members.
+		//Note: We could allow a single value be passed in as a value for all members.
 		if (tpig_ij.size() != numFuelTypes)
 		{
 			Stop("tpig_ij does not match the number of fuel types.");
 		}
 
-		//for (int i = 0; i < numFuelTypes; i++)
-		//for (int k = 0; k < numFuelTypes; k++)//k used here in the fuel model sense.
 		for (int kFM = 0; kFM < numFuelTypes; kFM++)//k used here in the fuel model sense.
 		{
 			tpig_ij_K[kFM] = tpig_ij[kFM] + CtoK;
@@ -210,18 +215,17 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	         simData.diam_kl);//diam
 	         //outputHistory = false);
 
-	//Copy output variables [not directly modified by Burnup] to the output object:
+	//Copy output variables (not directly modified by Burnup) to the output object:
 	simData.burnoutTime = dtInOut;
-	//We could convert negative values to flags.
+	//Note: We could convert negative values to flags.
 
 	simData.finalFireIntensity = fireIntensity;//Return the final fire intensity.
-
 	simData.klFuelNames = fuelNames;//Alway store the potentially reordered names.
 
+	//The outputs by interaction pairs contain useful information but value by fuel type are more
+	//likely to be of primary interest.  Summarize variables by fuel type:
 
-	//The outputs by interaction pairs contain useful information but the values by fuel type are
-	//most likely to be of primary interest.  Summarize variables by fuel type:
-	simData.w_o_ij_Final.assign(numFuelTypes, 0);
+	simData.w_o_ij_Final.assign(numFuelTypes, 0);//Final loading.
 	
 	//Ignition times:
 	//Burnup SUMMARY() uses the time the first element in the class ignites so we do too.
@@ -264,8 +268,6 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		simData.tout_ij_Max[k0] = std::min(simData.tout_ij_Max[k0], simData.burnoutTime);
 	}
 
-	//This needs to be tested for cases where some fuels don't ignite!!!!
-
 	if (burnupFormat)
 	{
 		simData.fuelModelFormat = false;
@@ -273,8 +275,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		//Store the fuel level inputs in their reordered (and re-united) forms:
 		simData.SAV_ij = sigma;//SAVs.
 		simData.w_o_ij_Initial = wdry;//Initial fuel loadings.
-		simData.M_f_ij = fmois;//Fuel moisture/
-
+		simData.M_f_ij = fmois;//Fuel moisture.
 		simData.fuelNames = fuelNames;
 	}
 	else
@@ -282,17 +283,15 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 		simData.fuelModelFormat = true;
 
 		//Store the fuel level inputs in their original fuel model order and metric units:
-		simData.SAV_ij = fuelModel.SAV_ij;//SAVs
+		simData.SAV_ij = fuelModel.SAV_ij;//SAVs.
 		simData.w_o_ij_Initial = fuelModel.w_o_ij;//Initial fuel loadings.
 		simData.M_f_ij = fuelModel.GetM_f_ij();//Fuel moisture.
-
 		simData.fuelNames = fuelNamesInitial;
 
-		std::vector<int> fuelOrder(numFuelTypes);
 
+		//Check if the fuels have been reordered and sort back to the original order if needed:
 		if (fuelNamesInitial == fuelNames)
 		{
-			//fuelOrder = ?????
 			simData.klFuelsReordered = false;
 			//There is no need tp resort.
 		}
@@ -301,8 +300,9 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 			simData.klFuelsReordered = true;
 
 			//Determine how the fuels were reordered:
-			//Burnup stores the sort order internally as key[].  We could pass that out to eliminate the
-			//need for this code.
+			//Burnup stores the sort order internally as key[].  We could pass that out to eliminate
+			//the need for this code.
+			std::vector<int> fuelOrder(numFuelTypes);
 			for (int m = 0; m < numFuelTypes; m++)
 			{
 				for (int n = 0; n < numFuelTypes; n++)
@@ -319,12 +319,11 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 			}
 
 			//Reorder the fuel level outputs to the original fuel model order:
+			//None of these outputs units need to be converted.
 			Reorder(simData.w_o_ij_Final, fuelOrder);
 			Reorder(simData.tign_ij, fuelOrder);
 			Reorder(simData.tout_ij_Min, fuelOrder);
 			Reorder(simData.tout_ij_Max, fuelOrder);
-
-			//I don't think any output units need to be converted?????
 
 			//The outputs by pairs are not easily reordered so we leave them for now.
 		}
@@ -336,7 +335,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	{
 		simData.combustion_ij[i] = simData.w_o_ij_Initial[i] - simData.w_o_ij_Final[i];
 
-		//Add checking for values that are below 0?
+		//Add checking of values?
 	}
 
 	//Need to add handling for history data!!!!!
@@ -360,7 +359,6 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
 	}
 	//Check order values are valid...
 
-	//std::vector<double> temp(vec.size())
 	std::vector<double> copy = vec;
 
 	for (int i = 0; i < vec.size(); i++)
@@ -377,7 +375,7 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
  *
  * @returns The ostream so it can be conatinated to.
  *
- * @note This is a draft and only some of the top level data members are currently printed.
+ * @note Currently only fire summary and fuel level data members are printed.
  */
 std::ostream& BurnupSim::Print(std::ostream& output) const
 {
@@ -385,7 +383,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 
 	if (fuelModelFormat)
 	{
-		output << "Data is in fuel moddel format." << std::endl;
+		output << "Data is in fuel model format." << std::endl;
 	}
 	else
 	{
@@ -463,7 +461,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		
 		if (fuelModelFormat)
 		{
-			savWidth = 8;//9;
+			savWidth = 9;
 			savUnits = "cm^2/cm^3";
 		}
 		else
@@ -503,7 +501,6 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(savWidth) << "SAV" << std::endl;
 
 		//Values:
-		std::streamsize thePrecision = std::cout.precision();
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
 			std::cout << std::setw(nameWidth) << fuelNames[i]
@@ -515,9 +512,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
 				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
-		//std::cout.precision(thePrecision);//Restore the previous setting.
-		//std::cout << std::defaultfloat << std::endl;//Restore the previous settings.
-		std::cout.copyfmt(std::ios(nullptr));//Restore the previous settings.
+		std::cout.copyfmt(std::ios(nullptr));//Restore the previous print settings.
 	}
 
 	return output;

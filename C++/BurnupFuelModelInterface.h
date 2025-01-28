@@ -21,6 +21,9 @@ Licence?????
 /** @struct BUSim
  *
  * @brief A data structure that holds the output of a Burnup simulation (and a selection of inputs).
+ * This object is used by SimulateFM() to organize and return Burnup outputs.  It also contains
+ * additional processed outputs that make the data easier to use and printing utilities to display
+ * the output as text. History output will be added in the future.
  *
  * @note This data structure may need some refinement.  It has been designed to deal with several
  * different use cases but it may be a bit confusing.  We will review it after using it a bit.
@@ -37,14 +40,15 @@ struct BurnupSim {
 	//Data by fuel type:
 	//The ij suffix indicate variables that are organized by fuel type.
 	//This notation may be a bit confusing when the output is returned in Burnup form as the fuel
-	//types may not truly be fuel model ij order.
+	//types may not truly be fuel model ij order.  Is there a better notation?
 
 	bool fuelModelFormat;//Or burnupFormat?
 	                     //If true the fuel level output is in the same units and fuel order as the
-	                     //fuel model input to Burnup.  If flase the output is in the original
+	                     //fuel model input to Burnup.  If false the output is in the original
 	                     //Burnup units and the fuels may be reordered.
 
 	//Select fuel properties (inputs) by type:
+	//Some of the fuel properties are saved to make it easier to interpret the outputs.
 	std::vector<double> SAV_ij;//Characteristic surface-area-to-volume ratios for each fuel type (cm^2/cm^3).
 	std::vector<double> M_f_ij;//Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
 
@@ -75,8 +79,8 @@ struct BurnupSim {
 
 	std::vector<double> w_o_kl;//Final ovendry loading for the larger of each component pair (kg/sq m). [wo in original Burnup]
 	std::vector<double> xmat_kl;//Table of influence fractions between components.
-	std::vector<double> tign_kl;//Ignition time for the larger of each fuel component pair.
-	std::vector<double> tout_kl;//Burnout time of larger component of pairs.
+	std::vector<double> tign_kl;//Ignition time for the larger of each fuel component pair (s).
+	std::vector<double> tout_kl;//Burnout time of larger component of pairs (s).
 	std::vector<double> diam_kl;//Final diameter of the larger of each fuel component pair (m).//!!!!!!
 
 	//Fire history to be added...
