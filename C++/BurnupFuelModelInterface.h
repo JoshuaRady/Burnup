@@ -21,7 +21,7 @@ Licence?????
 /** @struct BUSim
  *
  * @brief A data structure that holds the output of a Burnup simulation (and a selection of inputs).
- * This object is used by SimulateFM() to organize and return Burnup outputs.  It also contains
+ * This object is used by BurnupFM() to organize and return Burnup outputs.  It also contains
  * additional processed outputs that make the data easier to use and printing utilities to display
  * the output as text. History output will be added in the future.
  *
@@ -90,12 +90,12 @@ struct BurnupSim {
 
 std::ostream& operator<<(std::ostream& output, const BurnupSim& fm);
 
-BurnupSim SimulateFM(FuelModel fuelModel, const double duffLoading, const double duffMoisture,
-                     const double tempAirC, const double U, const double fireIntensity,
-                     const double t_r, const double dT, const int nTimeSteps,
-                     const bool burnupFormat = false,
-                     const std::vector <double> tpig_ij = {},
-                     const double ak = -1.0, const double r0 = 1.83, const double dr = 0.40);
+BurnupSim BurnupFM(FuelModel fuelModel, const double duffLoading, const double duffMoisture,
+                   const double tempAirC, const double U, const double fireIntensity,
+                   const double t_r, const double dT, const int nTimeSteps,
+                   const bool burnupFormat = false,
+                   const std::vector <double> tpig_ij = {},
+                   const double ak = -1.0, const double r0 = 1.83, const double dr = 0.40);
 
 void Reorder(std::vector<double>& vec, const std::vector<int> order);
 

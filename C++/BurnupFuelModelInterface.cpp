@@ -102,19 +102,19 @@ Licence?????
  * @note The setting values can be hard to determine.  We provide default values for these based on
  * on papers but more could be done to inform value selection.
  *
- * @note This code needs to be tested for cases where some fuels don't ignite.
+ * @note This function was SimulateFH().
  */
-BurnupSim SimulateFM(FuelModel fuelModel,
-                     const double duffLoading,
-                     const double duffMoisture,
-                     const double tempAirC, const double U,
-                     const double fireIntensity, const double t_r,
-                     const double dT, const int nTimeSteps,
-                     const bool burnupFormat,
-                     const std::vector <double> tpig_ij,
-                     const double ak, const double r0, const double dr)
-                     //const bool outputHistory = false)///Add?
-                     //const bool debug = false);//Add?
+BurnupSim BurnupFM(FuelModel fuelModel,
+                   const double duffLoading,
+                   const double duffMoisture,
+                   const double tempAirC, const double U,
+                   const double fireIntensity, const double t_r,
+                   const double dT, const int nTimeSteps,
+                   const bool burnupFormat,
+                   const std::vector <double> tpig_ij,
+                   const double ak, const double r0, const double dr)
+                   //const bool outputHistory = false)///Add?
+                   //const bool debug = false);//Add?
 {
 	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
@@ -153,7 +153,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	std::vector<double> fmois = fuelModel.GetM_f_ij();
 	if (fmois.empty())
 	{
-		Stop("SimulateFM(): Fuel moisture must be include in the fuel model passed in.");
+		Stop("BurnupFM(): Fuel moisture must be include in the fuel model passed in.");
 	}
 
 	std::vector<double> dendry = fuelModel.rho_p_ij;
