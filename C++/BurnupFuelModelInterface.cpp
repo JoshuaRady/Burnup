@@ -309,7 +309,10 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 				{
 					if (fuelNamesInitial[m] == fuelNames[n])
 					{
-						fuelOrder[m] = n;
+						//This gives the the postions each original index was move to:
+						//fuelOrder[m] = n;
+						//What we want to is were to move indexes to get the original order back:
+						fuelOrder[n] = m;
 						break;
 					}
 				}
@@ -344,7 +347,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 /** Reorder a vector.
  * 
  * @param vec	The vector to reorder.
- * @param order	An array the length of vec with positions (0 based) each index should be moved to.
+ * @param order	The order (0 based) that the current indexes should be moved to.
  *
  * @returns Nothing.  We could return the vector rather than modifying it in place.
  */
