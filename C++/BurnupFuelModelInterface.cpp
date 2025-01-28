@@ -268,7 +268,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 
 	if (burnupFormat)
 	{
-		fuelModelFormat = false;
+		simData.fuelModelFormat = false;
 
 		//Store the fuel level inputs in their reordered (and re-united) forms:
 		simData.SAV_ij = sigma;//SAVs.
@@ -279,7 +279,7 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	}
 	else
 	{
-		fuelModelFormat = true;
+		simData.fuelModelFormat = true;
 
 		//Store the fuel level inputs in their original fuel model order and metric units:
 		simData.SAV_ij = fuelModel.SAV_ij;//SAVs
