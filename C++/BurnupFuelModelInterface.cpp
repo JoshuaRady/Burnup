@@ -18,9 +18,10 @@ International Journal of Wildland Fire 5(3): 173-192, 1995.
 Licence?????
 ***************************************************************************************************/
 
-#include <vector>
+#include <algorithm>//For sort().
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 #include "BurnupFuelModelInterface.h"
 #include "BurnupCore.h"
@@ -349,21 +350,32 @@ BurnupSim SimulateFM(FuelModel fuelModel,
  * @param order	The order (0 based) that the current indexes should be moved to.
  *
  * @returns Nothing.  We could return the vector rather than modifying it in place.
+ *
+ * @note This could be moved to a utilities header.
  */
 void Reorder(std::vector<double>& vec, const std::vector<int> order)
 {
-	//Check the order is valid:
+	//Check the order size is valid:
 	if (vec.size() != order.size())
 	{
 		Stop("Reorder(): The order is not the same length as the vector.");
 	}
-	//Check order values are valid...
-
-	std::vector<double> copy = vec;
-
+	//Check order values are valid:
+	std::vector<int> orderValues = order;
+	std::sort(orderValues.begin(), orderValues.end());
 	for (int i = 0; i < vec.size(); i++)
 	{
-		vec[order[i]] = copy[i];
+		if (orderValues[i] != i)
+		{
+			Stop("Reorder(): Order contains invalid or duplicate value.");
+		}
+	}
+
+	//Reorder the vector:
+	std::vector<double> copy = vec;
+	for (int j = 0; j < vec.size(); j++)
+	{
+		vec[order[j]] = copy[j];
 	}
 }
 
