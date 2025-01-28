@@ -151,6 +151,11 @@ BurnupSim SimulateFM(FuelModel fuelModel,
 	}
 
 	std::vector<double> fmois = fuelModel.GetM_f_ij();
+	if (fmois.empty())
+	{
+		Stop("SimulateFM(): Fuel moisture must be include in the fuel model passed in.");
+	}
+
 	std::vector<double> dendry = fuelModel.rho_p_ij;
 	std::vector<double> sigma = fuelModel.SAV_ij;
 	for (double& theSAV : sigma)
