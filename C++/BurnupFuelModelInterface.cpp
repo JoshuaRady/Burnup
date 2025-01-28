@@ -439,7 +439,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 // 		output << "tout_ij_Max: ";
 // 		PrintVector(output, tout_ij_Max);
 
-		//Print the bulk of outputs in a table for easy interpretation:
+		//Print the the fuel level outputs in a table for easy interpretation:
 
 		//Widths similar to standard Burnup output table formating elsewhere:
 		//const int nameWidth = 7;
@@ -503,6 +503,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(savWidth) << "SAV" << std::endl;
 
 		//Values:
+		std::streamsize thePrecision = std:cout.precision();
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
 			std::cout << std::setw(nameWidth) << fuelNames[i]
@@ -514,6 +515,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
 				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
+		std:cout.precision(thePrecision);//Restore the previous setting.
 	}
 
 	return output;
