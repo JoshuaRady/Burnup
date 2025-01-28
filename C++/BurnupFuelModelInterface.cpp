@@ -516,7 +516,8 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
 		//std::cout.precision(thePrecision);//Restore the previous setting.
-		std::cout << std::defaultfloat << std::endl;//Restore the previous settings.
+		//std::cout << std::defaultfloat << std::endl;//Restore the previous settings.
+		std::cout.copyfmt(std::ios(nullptr));//Restore the previous settings.
 	}
 
 	return output;
