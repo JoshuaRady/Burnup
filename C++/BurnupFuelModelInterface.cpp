@@ -503,7 +503,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(savWidth) << "SAV" << std::endl;
 
 		//Values:
-		std::streamsize thePrecision = std:cout.precision();
+		std::streamsize thePrecision = std::cout.precision();
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
 			std::cout << std::setw(nameWidth) << fuelNames[i]
