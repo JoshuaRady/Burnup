@@ -102,7 +102,7 @@ Licence?????
  * @note The setting values can be hard to determine.  We provide default values for these based on
  * on papers but more could be done to inform value selection.
  *
- * @note This function was SimulateFH().
+ * @note This function was SimulateFM().
  */
 BurnupSim BurnupFM(FuelModel fuelModel,
                    const double duffLoading,
@@ -421,6 +421,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
 
 		//Print one by one:
+		//This works but it is hard to read within fuels.
 // 		output << "Fuel Names: ";
 // 		//PrintVector(output, fuelNames);
 // 		for (int i = 0; i < fuelNames.size() - 1; i++)
@@ -488,7 +489,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		}
 
 		//Member name header:
-		std::cout << std::setw(nameWidth) << "Name"
+		output << std::setw(nameWidth) << "Name"
 			<< std::setw(w_oIWidth) << "w_o_ij_Initial"
 			<< std::setw(w_oFWidth) << "w_o_ij_Final"
 			<< std::setw(tignWidth) << "tign_ij"
@@ -498,7 +499,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(savWidth) << "SAV_ij" << std::endl;
 
 		//Units header:
-		std::cout << std::setw(nameWidth) << " "
+		output << std::setw(nameWidth) << " "
 			<< std::setw(w_oIWidth) << "kg/m^2"
 			<< std::setw(w_oFWidth) << "kg/m^2"
 			<< std::setw(tignWidth) << "seconds"
@@ -508,7 +509,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(savWidth) << savUnits << std::endl;
 
 		//Descriptive header:
-		std::cout << std::setw(nameWidth) << " "
+		output << std::setw(nameWidth) << " "
 			<< std::setw(w_oIWidth) << "Preburn_wo"
 			<< std::setw(w_oFWidth) << "Postburn_wo"
 			<< std::setw(tignWidth) << "IgnitionTimeMin"
@@ -520,7 +521,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		//Values:
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
-			std::cout << std::setw(nameWidth) << fuelNames[i]
+			output << std::setw(nameWidth) << fuelNames[i]
 				<< std::setw(w_oIWidth) << std::fixed << std::setprecision(5) << w_o_ij_Initial[i]
 				<< std::setw(w_oFWidth) << std::fixed << std::setprecision(5) << w_o_ij_Final[i]
 				<< std::setw(tignWidth) << std::fixed << std::setprecision(0) << tign_ij[i]
@@ -529,7 +530,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
 				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
 		}
-		std::cout.copyfmt(std::ios(nullptr));//Restore the previous print settings.
+		output.copyfmt(std::ios(nullptr));//Restore the previous print settings.
 	}
 
 	return output;
