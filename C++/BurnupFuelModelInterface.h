@@ -46,6 +46,8 @@ struct BurnupSim {
 	                     //Burnup units and the fuels may be reordered.
 
 	//Inputs:
+	double fireIntensity;//Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
+	double t_r;//Igniting fire residence time (s). [ti in Burnup nomenclature]
 
 	//Select fuel properties (inputs) by fuel type:
 	//Some of the fuel properties are saved to make it easier to interpret the outputs.

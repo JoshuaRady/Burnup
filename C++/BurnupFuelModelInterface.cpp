@@ -67,7 +67,7 @@ Licence?????
  * @param[in] U				Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
  *
  * Igniting fire conditions:
- * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW / m^2). [fi in Burnup nomenclature]
+ * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
  * @param[in] t_r			Igniting fire residence time (s). [ti in Burnup nomenclature]
  *
  * Simulation conditions and settings:
@@ -119,6 +119,9 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 	const double CtoK = 273;//Burnup's value for 0 C in K.
 	
 	BurnupSim simData;//Container for simulation data.
+	//Store inputs with invariant units:
+	simData.fireIntensity = fireIntensity;
+	simData.t_r = t_r;
 	
 	int numFuelTypes = fuelModel.numClasses;
 
@@ -417,8 +420,14 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 	}
 	else
 	{
+		//output << "The igniting fire intensity was " << fireIntensity << " kW/m^2." << std::endl;
+		output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
+		//output << "The igniting fire residence time was " << t_r << " seconds." << std::endl;
+		output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
+
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
-		output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
+		//output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
+		output << "Final fire intensity: " << finalFireIntensity << " kW/m^2." << std::endl;
 
 		//Print one by one:
 		//This works but it is hard to read within fuels.
