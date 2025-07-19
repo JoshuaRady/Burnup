@@ -48,7 +48,7 @@ BurnupHistory::BurnupHistory()
  * added in future.
  */
 void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFuelsTypes,
-                                const std::vector<std::string> parts, const std::vector<double> wo,
+                                const std::vector<std::string>& parts, const std::vector<double>& wo,
                                 const double fi)
 {
 	/*Each call to this function stores a new time step of data to the history.  By reserving a
@@ -92,7 +92,7 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
  * @note This is a public wrapper for access to the hidden private BUHistStore instantiation.
  */
 void SaveStateToHistory(const int ts, const double time, const int numFuelsTypes,
-                        const std::vector<std::string> parts, const std::vector<double> wo,
+                        const std::vector<std::string>& parts, const std::vector<double>& wo,
                         const std::vector<double> diam, const double fi)
 {
 	BUHistStore.AddTimeStep(ts, time, numFuelTypes, parts, wo, fi);

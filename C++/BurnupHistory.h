@@ -32,13 +32,13 @@ struct BurnupHistory {
 	BurnupHistory();
 	//void SetTimeSteps(const int numTimeSteps);
 	void AddTimeStep(const int ts, const double time, const int numFuelTypes,
-	                 const std::vector<std::string> parts, const std::vector<double> wo,
+	                 const std::vector<std::string>& parts, const std::vector<double>& wo,
 	                 const double fi);
 };
 
 //External functions:
 void SaveStateToHistory(const int ts, const double time, const int numFuelTypes,
-                        const std::vector<std::string> parts, const std::vector<double> wo,
+                        const std::vector<std::string>& parts, const std::vector<double>& wo,
                         const double fi);
 BurnupHistory GetHistory();
 
