@@ -26,14 +26,20 @@ struct BurnupHistory {
 	std::vector<int> timestep;//Needed?
 	std::vector<double> timeSec;//The time point in the simulation (seconds).
 	std::vector<double> fireIntensity;//The fire intensity (site avg) at each time step (kW/m^2).
+	//parts
 	//std::vector<double> w_o_ij://Vector of vectors?
 	
-	void SetTimeSteps(const int numTimeSteps);
+	BurnupHistory();
+	//void SetTimeSteps(const int numTimeSteps);
+	void AddTimeStep(const int ts, const double time, const int numFuelTypes,
+	                 const std::vector<std::string> parts, const std::vector<double> wo,
+	                 const double fi);
 };
 
-void SaveStateToHistory(const int ts, const double time, const int number,
+//External functions:
+void SaveStateToHistory(const int ts, const double time, const int numFuelTypes,
                         const std::vector<std::string> parts, const std::vector<double> wo,
-                        const std::vector<double> diam, const double fi);
+                        const double fi);
 BurnupHistory GetHistory();
 
 #endif //BURNUPHISTORY_H
