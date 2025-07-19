@@ -37,7 +37,7 @@ BurnupHistory::BurnupHistory()
  *
  * @param[in] ts			Current timestep count.
  * @param[in] time			Current time (s).
- * @param[in] numFuelsTypes	Actual number of fuel components.		Or numFuels
+ * @param[in] numFuelsTypes	Actual number of fuel components.		Or numFuels?????
  * @param[in] parts			Fuel component names / labels. [maxno]
  * @param[in] wo			Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
  * @param[in] fi			Current fire intensity (site avg), kW / sq m.
@@ -64,6 +64,15 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 	//Sum the loadings for each fuel type across all components and store.
 
 	fireIntensity.push_back(fi);
+}
+
+/** Is the object currently empty?
+ *
+ * @returns Nothing.
+ */
+bool BurnupHistory::Empty() const
+{
+	return timestep.empty();
 }
 
 //External functions:-------------------------------------------------------------------------------
