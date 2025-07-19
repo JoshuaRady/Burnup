@@ -10,6 +10,7 @@ Reference: Proj. 11 Exp. 25
 Licence?????
 ***************************************************************************************************/
 
+#include <cmath>//For fabs().
 #include "BurnupHistory.h"
 
 //The default(ish) number of time steps is 3000.  We add one since we currently also record the
@@ -75,6 +76,44 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 bool BurnupHistory::Empty() const
 {
 	return timestep.empty();
+}
+
+/** Calculate total energy produced by the fire from the fire intensity history.
+ *
+ * @returns The total energy released during the fire, including that of the flaming front (kJ/m^2).?????
+ */
+double BurnupHistory::IntegrateFireIntensity() const
+{
+	if (Empty())
+	{
+		//Report and error!!!!!
+		return 0.0;
+	}
+	
+	/*We include the igniting fire intensity from the flmaming front, which is an input to Burnup
+	rather than a computed output, at the start of the history at time step 0.  The flaming front is
+	modeled as an intensity and residence time, which varies in length.  We treat the intensity for
+	this timestep as constant so the cummulative energy is the intensity times the residence time,
+	which we can recover from the time at timestep 1.*/
+	double totalEnergy = fireIntensity[0] * timeSec[1]
+
+	//The remaining timesteps represent Burnup calculated output and will have regular time steps.
+	//We can recover that by looking at the next two and assuming they are all the same from there:
+	double dT = timeSec[2] - timeSec[1];
+	
+	/*The intensity tends to drop very quickly from the igniting intensity and then drop more
+	slowly from there.  We could integrate this as a stepped curve, assuming the intensity is
+	constant for each time step but it is more realistic to interpolate between each point and
+	integrate the area of each quadrilateral.  The only issue is what to do with the last value,
+	where we have no futher value after it.  From Burnup's description the last point seems to
+	represent the final intensity at burnout.  We can therefore ignore anything beyond that.*/
+	for (int i = 1; i < timestep.size() - 2; i++)
+	{
+		double midpoint = std::fabs(fireIntensity[i + 1] - fireIntensity[i]);//It could go up in theory.
+		totalEnergy + = midpoint * dT;
+	}
+
+	return totalEnergy;
 }
 
 //External functions:-------------------------------------------------------------------------------
