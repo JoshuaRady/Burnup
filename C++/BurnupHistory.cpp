@@ -12,7 +12,9 @@ Licence?????
 
 #include "BurnupHistory.h"
 
-const int NumTimeStepsDefault = 3000;
+//The default(ish) number of time steps is 3000.  We add one since we currently also record the
+//initial state as well.
+const int NumTimeStepsDefault = 3001;
 
 //We need a persistant object to short data to.  This is kept private in this file, only being\
 //accessed via the provided functions:
@@ -22,7 +24,7 @@ BurnupHistory BUHistStore;
  */
 BurnupHistory::BurnupHistory()
 {
-	//The object starts off empty but we reserve about the amount of space:
+	//The object starts off empty but we reserve about the amount of space we expect to use:
 	timestep.reserve(NumTimeStepsDefault);
 	timeSec.reserve(NumTimeStepsDefault);
 	fireIntensity.reserve(NumTimeStepsDefault);
