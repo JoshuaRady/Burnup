@@ -17,8 +17,10 @@ Licence?????
 //initial state as well.
 const int NumTimeStepsDefault = 3001;
 
-//We need a persistant object to short data to.  This is kept private in this file, only being\
+//We need a persistant object to short data to.  This is kept private in this file, only being
 //accessed via the provided functions:
+//The downside of the this approach is that it will sit around taking up a good bit of space, even
+//when not in use.
 BurnupHistory BUHistStore;
 
 /** Default constructor
@@ -86,7 +88,7 @@ double BurnupHistory::IntegrateFireIntensity() const
 {
 	if (Empty())
 	{
-		//Report and error!!!!!
+		//Report an error!!!!!
 		return 0.0;
 	}
 	
@@ -118,7 +120,6 @@ double BurnupHistory::IntegrateFireIntensity() const
 
 //External functions:-------------------------------------------------------------------------------
 
-//SaveStateToFile():
 /** Store the state of a Burnup simulation at the current timestep to a BurnupHistory object for
  * later use.  Sequential calls to this routine will produce a full history of the simulated fire.
  * This is provided as a programatic alternative to saving the history to a file with
