@@ -30,9 +30,9 @@ BurnupHistory::BurnupHistory()
 
 //We could add a way to set up or reserve more space than the default.  However, tt is not clear yet
 //if this is needed.
-//void BurnupHistory::SetTimeSteps(const int numTimeSteps)
+//void BurnupHistory::SetTimeSteps(const int numTimeSteps)//numFuelsTypes
 
-/** Add the state of a Burnup simulation at timestep.  Sequential calls to this routine will
+/** Add the state of a Burnup simulation for a timestep.  Sequential calls to this routine will
  * produce a full history of the simulated fire.
  *
  * @param[in] ts			Current timestep count.
@@ -51,16 +51,19 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
                                 const std::vector<std::string> parts, const std::vector<double> wo,
                                 const double fi)
 {
-	/*Each call to this function stores a new time step of data to the history.  We need to make
-	sure there is room for the data.  We can do this in two ways.  We could increase the size of
-	the data stores each time we add a point, but that is not very efficient with vectors.
-	Alternatively, we can size the data at the outset.  Since the number of timesteps is known at
-	the outset of a Burnup simulations this seems like the right way to go, but it wouldn't be a bad
-	idea to check as we go.
-	Actually, by reserving a reasonable amount of space we can add length to our vectors efficiently
-	and use push_back()*/
+	/*Each call to this function stores a new time step of data to the history.  By reserving a
+	reasonable amount of space we can add length to our vectors efficiently using push_back().
+	Since the number of timesteps is known at the outset of a simulation and we generally use the
+	default, we do this in the constructor*/
+	timestep.push_back(ts);
+	timeSec.push_back(time);
 
-	
+	//Store the fuel loading: ToDo!!!!!
+	//If this is the first time step we will need to create vectors for each fuel type. (Or do this earlier.)
+	//Possibly record the fuel names?
+	//Sum the loadings for each fuel type across all components and store.
+
+	fireIntensity.push_back(fi);
 }
 
 //External functions:-------------------------------------------------------------------------------
