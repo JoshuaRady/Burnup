@@ -13,6 +13,7 @@ Licence?????
 #define BURNUPHISTORY_H
 
 #include <vector>
+#include <string>
 
 /** @struct BurnupHistory
  *
