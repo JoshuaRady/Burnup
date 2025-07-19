@@ -35,6 +35,15 @@ BurnupHistory::BurnupHistory()
 //if this is needed.
 //void BurnupHistory::SetTimeSteps(const int numTimeSteps)//numFuelsTypes
 
+/** Is the object currently empty?
+ *
+ * @returns Nothing.
+ */
+bool BurnupHistory::Empty() const
+{
+	return timestep.empty();
+}
+
 /** Add the state of a Burnup simulation for a timestep.  Sequential calls to this routine will
  * produce a full history of the simulated fire.
  *
@@ -67,15 +76,6 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 	//Sum the loadings for each fuel type across all components and store.
 
 	fireIntensity.push_back(fi);
-}
-
-/** Is the object currently empty?
- *
- * @returns Nothing.
- */
-bool BurnupHistory::Empty() const
-{
-	return timestep.empty();
 }
 
 /** Calculate total energy produced by the fire from the fire intensity history.

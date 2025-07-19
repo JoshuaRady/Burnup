@@ -32,10 +32,10 @@ struct BurnupHistory {
 	
 	BurnupHistory();
 	//void SetTimeSteps(const int numTimeSteps);
+	bool Empty() const;
 	void AddTimeStep(const int ts, const double time, const int numFuelTypes,
 	                 const std::vector<std::string>& parts, const std::vector<double>& wo,
 	                 const double fi);
-	bool Empty() const;
 	double IntegrateFireIntensity() const
 };
 
