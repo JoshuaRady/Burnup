@@ -13,7 +13,7 @@ Licence?????
 #include <cmath>//For fabs().
 #include "BurnupHistory.h"
 
-//The default(ish) number of time steps is 3000.  We add one since we currently also record the
+//The default(ish) number of timesteps is 3000.  We add one since we currently also record the
 //initial state as well.
 const int NumTimeStepsDefault = 3001;
 
@@ -63,7 +63,7 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
                                 const std::vector<std::string>& parts, const std::vector<double>& wo,
                                 const double fi)
 {
-	/*Each call to this function stores a new time step of data to the history.  By reserving a
+	/*Each call to this function stores a new timestep of data to the history.  By reserving a
 	reasonable amount of space we can add length to our vectors efficiently using push_back().
 	Since the number of timesteps is known at the outset of a simulation and we generally use the
 	default, we do this in the constructor*/
@@ -71,7 +71,7 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 	timeSec.push_back(time);
 
 	//Store the fuel loading: ToDo!!!!!
-	//If this is the first time step we will need to create vectors for each fuel type. (Or do this earlier.)
+	//If this is the first timestep we will need to create vectors for each fuel type. (Or do this earlier.)
 	//Possibly record the fuel names?
 	//Sum the loadings for each fuel type across all components and store.
 
@@ -91,19 +91,19 @@ double BurnupHistory::IntegrateFireIntensity() const
 	}
 	
 	/*We include the igniting fire intensity from the flmaming front, which is an input to Burnup
-	rather than a computed output, at the start of the history at time step 0.  The flaming front is
+	rather than a computed output, at the start of the history at timestep 0.  The flaming front is
 	modeled as an intensity and residence time, which varies in length.  We treat the intensity for
 	this timestep as constant so the cummulative energy is the intensity times the residence time,
 	which we can recover from the time at timestep 1.*/
 	double totalEnergy = fireIntensity[0] * timeSec[1]
 
-	//The remaining timesteps represent Burnup calculated output and will have regular time steps.
+	//The remaining timesteps represent Burnup calculated output and will have regular timesteps.
 	//We can recover that by looking at the next two and assuming they are all the same from there:
 	double dT = timeSec[2] - timeSec[1];
 	
 	/*The intensity tends to drop very quickly from the igniting intensity and then drop more
 	slowly from there.  We could integrate this as a stepped curve, assuming the intensity is
-	constant for each time step but it is more realistic to interpolate between each point and
+	constant for each timestep but it is more realistic to interpolate between each point and
 	integrate the area of each quadrilateral.  The only issue is what to do with the last value,
 	where we have no futher value after it.  From Burnup's description the last point seems to
 	represent the final intensity at burnout.  We can therefore ignore anything beyond that.*/
@@ -127,7 +127,7 @@ double BurnupHistory::IntegrateFireIntensity() const
  * @par The level of detail stored is less than in SaveStateToFile().  Fire intensity and fuel
  * loading over time are recorded as these are the most important features needed to understand the
  * simulation.  SaveStateToFile() stores the fuel loadings and fuel diameters by component pairs at
- * each time step. This function will only store the total loadings for each fuel class.  It doesn't
+ * each timestep. This function will only store the total loadings for each fuel class.  It doesn't
  * store diameters as there is no useful way to average diameter across pairs for a fule type.
  *
  * @param[in] ts			Current timestep count.

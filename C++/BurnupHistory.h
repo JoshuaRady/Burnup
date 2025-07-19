@@ -26,7 +26,7 @@ Licence?????
 struct BurnupHistory {
 	std::vector<int> timestep;//Needed?
 	std::vector<double> timeSec;//The time point in the simulation (seconds).
-	std::vector<double> fireIntensity;//The fire intensity (site avg) at each time step (kW/m^2).
+	std::vector<double> fireIntensity;//The fire intensity (site avg) at each timestep (kW/m^2).
 	//parts
 	//std::vector<double> w_o_ij://Vector of vectors?
 	
