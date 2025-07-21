@@ -17,8 +17,7 @@ Licence?????
 
 #include "FireweedFuelModels.h"
 
-//This will need to be moved to the header when done:
-/** @struct BUSim
+/** @struct BurnupSim
  *
  * @brief A data structure that holds the output of a Burnup simulation (and a selection of inputs).
  * This object is used by BurnupFM() to organize and return Burnup outputs.  It also contains
@@ -33,7 +32,7 @@ Licence?????
  * @par Calculated outputs by interaction pairs:
  * These are raw outputs from Burnup with data by fuel type interaction pairs, triangular matrices
  * represented as vectors in Burnup kl matrix space.  These outputs are always in Burnup fuel
- * order, which may have been reordered from that input.  If klFuelsReordered is true use
+ * order, which may have been reordered from that of the input.  If klFuelsReordered is true use
  * klFuelNames to interpret the fuel indexes.
  *
  * @note This data structure may need some refinement.  It has been designed to deal with several
