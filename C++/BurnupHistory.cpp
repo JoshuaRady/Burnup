@@ -97,7 +97,7 @@ double BurnupHistory::IntegrateFireIntensity() const
 	modeled as an intensity and residence time, which varies in length.  We treat the intensity for
 	this timestep as constant so the cummulative energy is the intensity times the residence time,
 	which we can recover from the time at timestep 1.*/
-	double totalEnergy = fireIntensity[0] * timeSec[1]
+	double totalEnergy = fireIntensity[0] * timeSec[1];
 
 	//The remaining timesteps represent Burnup calculated output and will have regular timesteps.
 	//We can recover that by looking at the next two and assuming they are all the same from there:
@@ -112,7 +112,7 @@ double BurnupHistory::IntegrateFireIntensity() const
 	for (int i = 1; i < timestep.size() - 2; i++)
 	{
 		double midHeight = (fireIntensity[i] + fireIntensity[i + 1]) / 2;
-		totalEnergy + = midHeight * dT;
+		totalEnergy += midHeight * dT;
 	}
 
 	return totalEnergy;
@@ -133,7 +133,7 @@ double BurnupHistory::IntegrateFireIntensity() const
  *
  * @param[in] ts			Current timestep count.
  * @param[in] time			Current time (s).
- * @param[in] numFuelsTypes	Actual number of fuel components.
+ * @param[in] numFuelTypes	Actual number of fuel components.
  * @param[in] parts			Fuel component names / labels. [maxno]
  * @param[in] wo			Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
  * @param[in] fi			Current fire intensity (site avg), kW / sq m.
@@ -142,7 +142,7 @@ double BurnupHistory::IntegrateFireIntensity() const
  * 
  * @note This is a public wrapper for access to the hidden private BUHistStore instantiation.
  */
-void SaveStateToHistory(const int ts, const double time, const int numFuelsTypes,
+void SaveStateToHistory(const int ts, const double time, const int numFuelTypes,
                         const std::vector<std::string>& parts, const std::vector<double>& wo,
                         const std::vector<double> diam, const double fi)
 {
