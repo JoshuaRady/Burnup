@@ -2415,10 +2415,6 @@ void SaveStateToFile(const int ts, const double time, const int number,
 	const std::string histFileName("BurnupHistory.txt");//histFile in Fortran.
 	const char delim = '\t';//Delimiter = tab character
 
-	//Locals:
-	//integer :: k, l, kl ! Counters.
-	//int kl;//Triangular matrix index, 0 based.
-
 	std::string fuelName;//Name of the (larger) fuel type.
 	std::string compName;//The name of the companion/partner fuel.
 	std::ofstream histFile;
@@ -2428,55 +2424,35 @@ void SaveStateToFile(const int ts, const double time, const int number,
 		//Create or open the history file:
 		if (ts == 0)//In the first timestep create and set up the file:
 		{
-			//open(hUnit, file = histFile, status = 'NEW', iostat = openStat, iomsg = ioMsg)
-			//std;:iostream histFile(histFileName);
 			histFile.open(histFileName);
-			//if (openStat .ne. 0) then
 			if (!histFile.is_open())
 			{
-				//print *, "Can't create file: ", histFile, ", Error: ", openStat, ", Message: ", ioMsg
-				//The error message will likely include the file name so we can omit it.
-				//print warnFmt, "Can't create file, Error: ", openStat, ", Message: ", ioMsg
-				
 				Warning("Can't create file: " + histFileName + ", Error: " + std::strerror(errno));
 				SaveHistory = false;//If we can't create the file don't try anything further.
 				return;
 			}
 
 			//Write a column header for the file:
-			//write(hUnit, '(a)') "Timestep	TimeSec	Variable	Value	ID1	ID2"
 			histFile << "Timestep	TimeSec	Variable	Value	ID1	ID2" << std::endl;
 		}
 		else//Reopen the file and append:
 		{
-			//open(hUnit, file = histFile, position = 'APPEND', status = 'OLD', &
-			//	 iostat = openStat, iomsg = ioMsg)
 			histFile.open(histFileName);
-			//if (openStat .ne. 0) then
 			if (!histFile.is_open())
 			{
-				//print warnFmt, "Can't reopen file, Error: ", openStat, ", Message: ", ioMsg
-				
 				Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
 				SaveHistory = false;//Assume the error will persist so don't try again.
 				return;
 			}
 		}
 
-		//do k = 1, number
-		//for (int k0 = 0; k0 < number; k0++)
-		//for (int k = 0; k <= number; k++)//Bad!!!!!
 		for (int k = 1; k <= number; k++)
 		{
 			int k0 = k - 1;//Only used once.
 			fuelName = parts[k0];
 
-			//do l = 0, k
-			//for (int l = 0; l < number; l++)
 			for (int l = 0; l <= k; l++)
 			{
-				//int l0 = l - 1;
-				//int kl = Loc(k0 + 1, l);//Triangular matrix index, 0 based.
 				int kl = Loc(k, l);
 
 				//Get the name of the partner component:
@@ -2490,22 +2466,16 @@ void SaveStateToFile(const int ts, const double time, const int number,
 				}
 
 				//Fuel loading:
-				//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-				//	  ts, time, "w_o", wo(kl), trim(fuelName), trim(compName)
 				histFile << ts << delim << time << delim << "w_o" << delim << wo[kl] << delim
 				         << fuelName << delim << compName << '\n';
 
 				//Particle diameter:
-				//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-				//	  ts, time, "Diameter", diam(kl), trim(fuelName), trim(compName)
 				histFile << ts << delim << time << delim << "Diameter" << delim << diam[kl] << delim
 				         << fuelName << delim << compName << '\n';
 			}
 		}
 
 		//Average fire intensity:
-		//write(hUnit, formatDelim, iostat = writeStat, iomsg = ioMsg) &
-		//	  ts, time, "FireIntensity", fi, "NA", "NA"
 		histFile << ts << delim << time << delim << "FireIntensity" << delim << fi << delim
 				         << "NA" << delim << "NA" << std::endl;
 
