@@ -77,6 +77,7 @@ that may not be correct.
 #include <vector>
 
 #include "BurnupCore.h"
+#include "BurnupHistory.h"
 #include "FireweedMessaging.h"
 #include "FireweedUtils.h"//Just for SameLengths().
 
