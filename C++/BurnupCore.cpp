@@ -200,7 +200,8 @@ int NumFuelTypes = 0;//Used to store the number of fuel types for some functions
  * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * Settings:
- * @param outputHistory	Should fire history be saved?  Defaults to false.
+ * @param outputHistory	Should fire history be saved?  Defaults to false.  Use 1 to save to file,
+ *                     	2 to save to history object in memory.
  *
  * @note The calculated output vectors do not need to be sized on input (though they can be).  Empty
  * vectors can be passed in, which simplifies the calling code.  The vectors will be resized on
@@ -290,7 +291,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	//Record the state before the start of the simulation.  This need to be done after ARRAYS()
 	//because parts, wo, and diam may get reordered.  now and tis are not initialized yet so we
 	//set the time explicitly.  
-	SaveStateToFile(0, 0.0, number, parts, wo, diam, fi);
+	SaveState(0, 0.0, number, parts, wo, diam, fi);
 	//The first simulated time point starts at the end of the igniting fire residence time.  The
 	//fire intensity is a constant value for this period.  It would make sense to make another
 	//record of fire intensity at the end of the residence time.  However, this would lead to
@@ -332,7 +333,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 	FIRINT(wodot, ash, htval, number, area, fint, fi);
 
 	//Record the state after START() and the first call to FIRINT(), if needed:
-	SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+	SaveState(now, tis, number, parts, wo, diam, fi);
 
 	//If the fire intensity is above the extinguishing threshold calculate combustion until
 	//the fire goes out or the number of timesteps is reached:
@@ -364,7 +365,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
 			FIRINT(wodot, ash, htval, number, area, fint, fi);
 
 			//Save the state at each timestep, if needed:
-			SaveStateToFile(now, tis, number, parts, wo, diam, fi);
+			SaveState(now, tis, number, parts, wo, diam, fi);
 
 			if (fi <= fimin)
 			{
