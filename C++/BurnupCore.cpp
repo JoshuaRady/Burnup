@@ -2343,9 +2343,11 @@ void ValidateOutputVector(std::vector<double>& output, const std::string outputN
  * Sequential calls to this routine will produce a full history of the simulated fire.
  * Data is only saved when the SaveHistory setting is set to true.
  *
+ * @par
  * Successful output from this routine is treated as non-critical as it doesn't impact the
  * simulation process.  Output failures are reported but are not treated as fatal.
  *
+ * @par
  * The file name is currently fixed.  A history file from a previous run will prevent a new one
  * from being created.  In the future we may automatically number the file if it already exists.
  * Allowing the file name to be specified would only work in some contexts.  For example, we
@@ -2355,38 +2357,55 @@ void ValidateOutputVector(std::vector<double>& output, const std::string outputN
  * @param[in] time		Current time (s).
  * @param[in] number	Actual number of fuel components.
  * @param[in] parts		Fuel component names / labels. [maxno]
- *
- * All the outputs from START() and STEP():
- * Currently only some of these are passed in to be saved. In the future others may be added.
  * @param[in] wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
  * @param[in] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]	!!!!!
-	!real*4, intent(in) :: flit(maxno)		Fraction of each component currently alight.
-	!real*4, intent(in) :: fout(maxno)		Fraction of each component currently gone out.
- * The following are recomputed at each time point but only the final values would be needed:
-	!real*4, intent(in) :: tdry(maxkl)		! Time of drying start of the larger of each fuel component pair, s.
-	!real*4, intent(in) :: tign(maxkl)		! Ignition time for the larger of each fuel component pair, s. [maxkl]
-	!real*4, intent(in) :: tout(maxkl)		! Burnout time of larger component of pairs, s.
-	!real*4, intent(in) :: qcum(maxkl)		! Cumulative heat input to larger of pair, J / sq m.
-	!real*4, intent(in) :: tcum(maxkl)		! Cumulative temp integral for qcum (drying).
-	!real*4, intent(in) :: acum(maxkl)		! Heat pulse area for historical rate averaging.
- * This includes time so again only the final value would be needed:
-	!real*4, intent(in) :: qdot(maxkl, mxstep)	! History (post ignite) of heat transfer rate
-												! to the larger of each component pair, W / sq m..
-	!real*4, intent(in) :: ddot(maxkl)		! Diameter reduction rate, larger of pair, m / s.
-	!real*4, intent(in) :: wodot(maxkl)		! Dry loading loss rate for larger of pair.
-	!real*4, intent(in) :: work(maxno)	! Workspace array.
  * @param[in] fi		Current fire intensity (site avg), kW / sq m.
+ *
+ * @par
+ * The following are states output by STASH() currently but not output here:
+ * These have been deemed less essential than loading, diameter, and fire intensity but could
+ * be added in the future.
+ *
+ * @par
+ * The burning fractions and fuel moisture could be used to better understand the simulation:
+ * - flit		Fraction of each component currently alight. [maxno]
+ * - fout		Fraction of each component currently gone out. [maxno]
+ * - fmois	Moisture fraction of component. [maxno]
+ *
+ * @par
+ * These rates of change can be infered to some degree from the loading and diameters:
+ * - wodot	Burning rates of interacting pairs of fuel components. [maxkl]
+ * - ddot		Diameter reduction rate, larger of pair, m / s. [maxkl]
+ *
+ * @par
+ The following are recomputed at each time point but only the final values would be needed:
+ * - tdry		Time of drying start of the larger of each fuel component pair, s. [maxkl]
+ * - tign		Ignition time for the larger of each fuel component pair, s. [maxkl]
+ * - tout		Burnout time of larger component of pairs, s. [maxkl]
+ *
+ * @par
+ * There are addition states returned by START() and STEP(): qcum, tcum. acum, work, and qdot that
+ * could also be record in theory but are even more subtle.
  *
  * @returns Nothing.
  *
  * @par Format for the variable output:
  * The data is written in long format with tab delimited fields:
  * timestep (integer), time (float), variable (string), value (float), and IDs (strings).
+ *
+ * The variables output at each timestep are:
+ *   - The loading (w_o) of each fuel size broken down by fuel pair.
+ *   - The diameter of each fuel size broken down by fuel pair.
+ *   - The average fire intensity.
+ * 
  * The IDs are currently only used to identify the fuel pairs.  If that is the only use they
  * should be renamed.
  *
  * @par History:
- * Added for module.  This routine provides an alternative to the original STASH() function. [More...]
+ * Added for module.  This routine provides an alternative to the original Fortran STASH() function.
+ * STASH() produces rather old fashioned Fortran style output.  It is readable but is not easy to
+ * ingest so we have not ported it to C++.  See above for notes about states reported by STASH() not
+ * currently saved by this function.
  */
 void SaveStateToFile(const int ts, const double time, const int number,
                      const std::vector<std::string> parts, const std::vector<double> wo,
