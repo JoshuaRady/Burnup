@@ -111,8 +111,8 @@ double BurnupHistory::IntegrateFireIntensity() const
 	represent the final intensity at burnout.  We can therefore ignore anything beyond that.*/
 	for (int i = 1; i < timestep.size() - 2; i++)
 	{
-		double midpoint = std::fabs(fireIntensity[i + 1] - fireIntensity[i]);//It could go up in theory.
-		totalEnergy + = midpoint * dT;
+		double midHeight = (fireIntensity[i] + fireIntensity[i + 1]) / 2;
+		totalEnergy + = midHeight * dT;
 	}
 
 	return totalEnergy;
