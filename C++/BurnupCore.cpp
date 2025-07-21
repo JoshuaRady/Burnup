@@ -2433,7 +2433,8 @@ void SaveStateToFile(const int ts, const double time, const int number,
 			}
 
 			//Write a column header for the file:
-			histFile << "Timestep	TimeSec	Variable	Value	ID1	ID2" << std::endl;
+			histFile << "Timestep" << delim << "TimeSec" << delim << "Variable" << delim << "Value"
+			         << delim << "ID1" << delim << "ID2" << '\n';//std::endl;
 		}
 		else//Reopen the file and append:
 		{
