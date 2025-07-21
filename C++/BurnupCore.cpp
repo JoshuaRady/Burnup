@@ -124,8 +124,9 @@ const char noCmpStr[] = "no companion";//The name for no companion pairs.
                                        //in Summary().  'none' is a Fortran keyword so it was renamed.
 
 //Globals:------------------------------------------------------------------------------------------
-bool SaveHistory = false;//Should fire history be output to file?
-int NumFuelTypes = 0;
+//Should fire history be output to file?:
+int SaveHistory = 0;//0 = false, 1 = save to file, 2 = save to history object.  Create constants?????
+int NumFuelTypes = 0;//Used to store the number of fuel types for some functions.
 
 //Code:---------------------------------------------------------------------------------------------
 
