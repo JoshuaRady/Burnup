@@ -28,7 +28,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
               std::vector<double>& sigma, std::vector<double>& cheat, std::vector<double>& condry,
               std::vector<double>& tpig, std::vector<double>& tchar, std::vector<double>& wo,
               std::vector<double>& xmat, std::vector<double>& tign, std::vector<double>& tout,
-              std::vector<double>& diam, const bool outputHistory = false);
+              std::vector<double>& diam, const int outputHistory = 0);
 
 //Core calculation functions:
 void DUFBRN(const double wdf, const double dfm, double& dfi, double& tdf);

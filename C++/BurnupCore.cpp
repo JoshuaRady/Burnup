@@ -223,7 +223,7 @@ void Simulate(double& fi, const double ti, const double u, const double d, const
               std::vector<double>& sigma, std::vector<double>& cheat, std::vector<double>& condry,
               std::vector<double>& tpig, std::vector<double>& tchar, std::vector<double>& wo,
               std::vector<double>& xmat, std::vector<double>& tign, std::vector<double>& tout,
-              std::vector<double>& diam, const bool outputHistory)
+              std::vector<double>& diam, const int outputHistory)
 {
 	int lenkl = Length_kl(number);//Triangular matrix size.
 
@@ -2376,9 +2376,8 @@ void SaveState(const int ts, const double time, const int number,
 }
 
 //SaveStateToFile():
-/** Output the state of the simulation at the current timestep to file (if needed):
+/** Output the state of the simulation at the current timestep to file.
  * Sequential calls to this routine will produce a full history of the simulated fire.
- * Data is only saved when the SaveHistory setting is set to true.
  *
  * @par
  * Successful output from this routine is treated as non-critical as it doesn't impact the
@@ -2456,7 +2455,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 	std::string compName;//The name of the companion/partner fuel.
 	std::ofstream histFile;
 
-	if (SaveHistory)
+	if (SaveHistory)//Not really necessary if called via SaveState()!
 	{
 		//Create or open the history file:
 		if (ts == 0)//In the first timestep create and set up the file:
@@ -2465,7 +2464,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 			if (!histFile.is_open())
 			{
 				Warning("Can't create file: " + histFileName + ", Error: " + std::strerror(errno));
-				SaveHistory = false;//If we can't create the file don't try anything further.
+				SaveHistory = 0;//If we can't create the file don't try anything further.
 				return;
 			}
 
@@ -2479,7 +2478,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 			if (!histFile.is_open())
 			{
 				Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
-				SaveHistory = false;//Assume the error will persist so don't try again.
+				SaveHistory = 0;//Assume the error will persist so don't try again.
 				return;
 			}
 		}
