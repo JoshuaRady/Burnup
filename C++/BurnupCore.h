@@ -87,6 +87,9 @@ double ErrorApprox(const double h, const double theta);
 void ValidateOutputVector(std::vector<double>& output, const std::string outputName);
 
 //File IO:
+void SaveState(const int ts, const double time, const int number,
+               const std::vector<std::string> parts, const std::vector<double> wo,
+               const std::vector<double> diam, const double fi);
 void SaveStateToFile(const int ts, const double time, const int number,
                      const std::vector<std::string> parts, const std::vector<double> wo,
                      const std::vector<double> diam, const double fi);

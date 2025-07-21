@@ -125,7 +125,9 @@ const char noCmpStr[] = "no companion";//The name for no companion pairs.
 
 //Globals:------------------------------------------------------------------------------------------
 //Should fire history be output to file?:
-int SaveHistory = 0;//0 = false, 1 = save to file, 2 = save to history object.  Create constants?????
+//0 = false, 1 = save to file, 2 = save to history object.  Create constants?????
+//This is a global to allow file assess failures to prevent repeated file access attempts.
+int SaveHistory = 0;
 int NumFuelTypes = 0;//Used to store the number of fuel types for some functions.
 
 //Code:---------------------------------------------------------------------------------------------
@@ -2336,6 +2338,39 @@ void ValidateOutputVector(std::vector<double>& output, const std::string outputN
 		}
 
 		output.assign(lenkl, 0.0);//The incoming values are ignored so resize() would be fine too.
+	}
+}
+
+//SaveState():
+/** Output the state of the simulation at the current timestep (if needed).
+ * This is a wrapper that checks if saving has been requested (see SaveHistory stetting) and
+ * dispatches the state information to the proper function depending on the mode.
+ * Sequential calls to this routine will produce a full history of the simulated fire.
+ *
+ * @param[in] ts		Current timestep count.
+ * @param[in] time		Current time (s).
+ * @param[in] number	Actual number of fuel components.
+ * @param[in] parts		Fuel component names / labels. [maxno]
+ * @param[in] wo		Current ovendry loading for the larger of each component pair, kg / sq m. [maxkl]
+ * @param[in] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]	!!!!!
+ * @param[in] fi		Current fire intensity (site avg), kW / sq m.
+ *
+ * @returns Nothing.
+ *
+ * @par History:
+ * Added for module.
+ */
+void SaveState(const int ts, const double time, const int number,
+               const std::vector<std::string> parts, const std::vector<double> wo,
+               const std::vector<double> diam, const double fi)
+{
+	if (SaveHistory == 1)
+	{
+		SaveStateToFile(ts, time, number, parts, wo, diam, fi);
+	}
+	else if (SaveHistory == 2)
+	{
+		SaveStateToHistory(ts, time, number, parts, wo, diam, fi);
 	}
 }
 
