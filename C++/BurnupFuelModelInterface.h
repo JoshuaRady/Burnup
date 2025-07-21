@@ -16,6 +16,7 @@ Licence?????
 #include <string>
 
 #include "FireweedFuelModels.h"
+#include "BurnupHistory.h"
 
 /** @struct BurnupSim
  *
@@ -89,7 +90,7 @@ struct BurnupSim {
 	std::vector<double> tout_kl;//Burnout time of larger component of pairs (s).
 	std::vector<double> diam_kl;//Final diameter of the larger of each fuel component pair (m).
 
-	//Fire history to be added...
+	BurnupHistory history;//A record of the simulation history.
 
 	std::ostream& Print(std::ostream& output) const;
 };

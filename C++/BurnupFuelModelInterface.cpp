@@ -221,8 +221,8 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 	         simData.xmat_kl,//xmat
 	         simData.tign_kl,//tign
 	         simData.tout_kl,//tout
-	         simData.diam_kl);//diam
-	         //outputHistory = false);
+	         simData.diam_kl,//diam
+	         outputHistory = 2);//Save the history output.
 
 	//Copy output variables (not directly modified by Burnup) to the output object:
 	simData.burnoutTime = dtInOut;
@@ -347,7 +347,7 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 		//Add checking of values?
 	}
 
-	//Need to add handling for history data!!!!!
+	simData.history = GetHistory();//Store the simulation history data.
 
 	return simData;
 }
