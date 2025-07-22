@@ -72,7 +72,7 @@ that may not be correct.
 #include <cerrno>
 #include <cmath>//For pow(), sqrt(), abs(), acos()..
 #include <cstring>//For strerror().
-#include <fstream>
+#include <fstream>//Currently only really need ofstream.
 #include <iostream>//Or just <ostream>?
 #include <vector>
 
@@ -2483,7 +2483,7 @@ void SaveStateToFile(const int ts, const double time, const int number,
 	}
 	else//Reopen the file and append:
 	{
-		histFile.open(histFileName);
+		histFile.open(histFileName, std::ios::app);
 		if (!histFile.is_open())
 		{
 			Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
