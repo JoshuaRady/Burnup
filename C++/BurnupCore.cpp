@@ -2372,7 +2372,7 @@ void SaveState(const int ts, const double time, const int number,
 			SaveStateToFile(ts, time, number, parts, wo, diam, fi);
 			break;
 		
-		case 1:
+		case 2:
 			SaveStateToHistory(ts, time, number, parts, wo, fi);
 			break;
 		
