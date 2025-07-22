@@ -116,7 +116,7 @@ BurnupSim BurnupFM(FuelModel fuelModel,
                    const bool burnupFormat,
                    const std::vector <double> tpig_ij,
                    const double ak, const double r0, const double dr,
-                   const int outputHistory = 2)
+                   const int outputHistory)
                    //const bool debug = false);//Add?
 {
 	const double CtoK = 273;//Burnup's value for 0 C in K.

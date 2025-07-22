@@ -103,7 +103,7 @@ BurnupSim BurnupFM(FuelModel fuelModel, const double duffLoading, const double d
                    const bool burnupFormat = false,
                    const std::vector <double> tpig_ij = {},
                    const double ak = -1.0, const double r0 = 1.83, const double dr = 0.40,
-                   const int outputHistory);
+                   const int outputHistory = 2);
 
 void Reorder(std::vector<double>& vec, const std::vector<int> order);
 
