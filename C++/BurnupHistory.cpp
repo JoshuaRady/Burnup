@@ -5,12 +5,13 @@ Woodwell Climate Research Center
 Started: 7/18/2025
 Reference: Proj. 11 Exp. 25
 
-	This provides an object to store Burnup model state during the time evolution of a simulation.
+	This provides an object to store Burnup model state during the time evolution of a simulation
+to create a programmatically available simulation history.
 
 Licence?????
 ***************************************************************************************************/
 
-#include <cmath>//For fabs().
+//#include <cmath>//For fabs().
 #include "BurnupHistory.h"
 
 //The default(ish) number of timesteps is 3000.  We add one since we currently also record the
@@ -122,8 +123,8 @@ double BurnupHistory::IntegrateFireIntensity() const
 
 /** Store the state of a Burnup simulation at the current timestep to a BurnupHistory object for
  * later use.  Sequential calls to this routine will produce a full history of the simulated fire.
- * This is provided as a programatic alternative to saving the history to a file with
- * SaveStateToFile().
+ * This is provided as an alternative to saving the history to a file with SaveStateToFile() that
+ * make the history programmatically available.
  * 
  * @par The level of detail stored is less than in SaveStateToFile().  Fire intensity and fuel
  * loading over time are recorded as these are the most important features needed to understand the
