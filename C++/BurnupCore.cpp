@@ -126,7 +126,7 @@ const char noCmpStr[] = "no companion";//The name for no companion pairs.
 
 //Globals:------------------------------------------------------------------------------------------
 //Should fire history be output to file?:
-//0 = false, 1 = save to file, 2 = save to history object.  Create constants?????
+//0 = false, 1 = save to file, 2 = store to history object, 3 = do both.  Create constants?????
 //This is a global to allow file assess failures to prevent repeated file access attempts.
 int SaveHistory = 0;
 int NumFuelTypes = 0;//Used to store the number of fuel types for some functions.
@@ -200,8 +200,8 @@ int NumFuelTypes = 0;//Used to store the number of fuel types for some functions
  * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * Settings:
- * @param outputHistory	Should fire history be saved?  Defaults to false.  Use 1 to save to file,
- *                     	2 to save to history object in memory.
+ * @param outputHistory	Should fire history be saved? Defaults to false (0). Use 1 to save to file,
+ *                     	2 to store a history object in memory, 3 for both.
  *
  * @note The calculated output vectors do not need to be sized on input (though they can be).  Empty
  * vectors can be passed in, which simplifies the calling code.  The vectors will be resized on
@@ -2346,7 +2346,7 @@ void ValidateOutputVector(std::vector<double>& output, const std::string outputN
 //SaveState():
 /** Output the state of the simulation at the current timestep (if needed).
  * This is a wrapper that checks if saving has been requested (see SaveHistory stetting) and
- * dispatches the state information to the proper function depending on the mode.
+ * dispatches the state information to the proper function(s) depending on the mode.
  * Sequential calls to this routine will produce a full history of the simulated fire.
  *
  * @param[in] ts		Current timestep count.
@@ -2366,13 +2366,23 @@ void SaveState(const int ts, const double time, const int number,
                const std::vector<std::string> parts, const std::vector<double> wo,
                const std::vector<double> diam, const double fi)
 {
-	if (SaveHistory == 1)
+	switch (SaveHistory)
 	{
-		SaveStateToFile(ts, time, number, parts, wo, diam, fi);
-	}
-	else if (SaveHistory == 2)
-	{
-		SaveStateToHistory(ts, time, number, parts, wo, fi);
+		case 1:
+			SaveStateToFile(ts, time, number, parts, wo, diam, fi);
+			break;
+		
+		case 1:
+			SaveStateToHistory(ts, time, number, parts, wo, fi);
+			break;
+		
+		case 3:
+			SaveStateToFile(ts, time, number, parts, wo, diam, fi);
+			SaveStateToHistory(ts, time, number, parts, wo, fi);
+			break;
+		
+		default:
+			break;
 	}
 }
 
@@ -2456,68 +2466,65 @@ void SaveStateToFile(const int ts, const double time, const int number,
 	std::string compName;//The name of the companion/partner fuel.
 	std::ofstream histFile;
 
-	if (SaveHistory)//Not really necessary if called via SaveState()!
+	//Create or open the history file:
+	if (ts == 0)//In the first timestep create and set up the file:
 	{
-		//Create or open the history file:
-		if (ts == 0)//In the first timestep create and set up the file:
+		histFile.open(histFileName);
+		if (!histFile.is_open())
 		{
-			histFile.open(histFileName);
-			if (!histFile.is_open())
-			{
-				Warning("Can't create file: " + histFileName + ", Error: " + std::strerror(errno));
-				SaveHistory = 0;//If we can't create the file don't try anything further.
-				return;
-			}
-
-			//Write a column header for the file:
-			histFile << "Timestep" << delim << "TimeSec" << delim << "Variable" << delim << "Value"
-			         << delim << "ID1" << delim << "ID2" << '\n';//std::endl;
-		}
-		else//Reopen the file and append:
-		{
-			histFile.open(histFileName);
-			if (!histFile.is_open())
-			{
-				Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
-				SaveHistory = 0;//Assume the error will persist so don't try again.
-				return;
-			}
+			Warning("Can't create file: " + histFileName + ", Error: " + std::strerror(errno));
+			SaveHistory -= 1;//If we can't create the file don't try anything further.
+			return;
 		}
 
-		for (int k = 1; k <= number; k++)
+		//Write a column header for the file:
+		histFile << "Timestep" << delim << "TimeSec" << delim << "Variable" << delim << "Value"
+				 << delim << "ID1" << delim << "ID2" << '\n';//std::endl;
+	}
+	else//Reopen the file and append:
+	{
+		histFile.open(histFileName);
+		if (!histFile.is_open())
 		{
-			int k0 = k - 1;//Only used once.
-			fuelName = parts[k0];
-
-			for (int l = 0; l <= k; l++)
-			{
-				int kl = Loc(k, l);
-
-				//Get the name of the partner component:
-				if (l == 0)
-				{
-					compName = noCmpStr;
-				}
-				else
-				{
-					compName = parts[l - 1];//l0
-				}
-
-				//Fuel loading:
-				histFile << ts << delim << time << delim << "w_o" << delim << wo[kl] << delim
-				         << fuelName << delim << compName << '\n';
-
-				//Particle diameter:
-				histFile << ts << delim << time << delim << "Diameter" << delim << diam[kl] << delim
-				         << fuelName << delim << compName << '\n';
-			}
+			Warning("Can't reopen file: " + histFileName + ", Error: " + std::strerror(errno));
+			SaveHistory -= 1;//Assume the error will persist so don't try again.
+			return;
 		}
+	}
 
-		//Average fire intensity:
-		histFile << ts << delim << time << delim << "FireIntensity" << delim << fi << delim
-				         << "NA" << delim << "NA" << std::endl;
+	for (int k = 1; k <= number; k++)
+	{
+		int k0 = k - 1;//Only used once.
+		fuelName = parts[k0];
 
-		histFile.close();//Close the file.
-		//Should check for any write errors here!!!!!
-	}//(SaveHistory)
+		for (int l = 0; l <= k; l++)
+		{
+			int kl = Loc(k, l);
+
+			//Get the name of the partner component:
+			if (l == 0)
+			{
+				compName = noCmpStr;
+			}
+			else
+			{
+				compName = parts[l - 1];//l0
+			}
+
+			//Fuel loading:
+			histFile << ts << delim << time << delim << "w_o" << delim << wo[kl] << delim
+					 << fuelName << delim << compName << '\n';
+
+			//Particle diameter:
+			histFile << ts << delim << time << delim << "Diameter" << delim << diam[kl] << delim
+					 << fuelName << delim << compName << '\n';
+		}
+	}
+
+	//Average fire intensity:
+	histFile << ts << delim << time << delim << "FireIntensity" << delim << fi << delim
+					 << "NA" << delim << "NA" << std::endl;
+
+	histFile.close();//Close the file.
+	//Should check for any write errors here!!!!!
 }

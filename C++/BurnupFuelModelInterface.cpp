@@ -97,6 +97,9 @@ Licence?????
  * @param[in] dr			Max - min value of mixing parameter.
  *              			Default value of 0.40 from Albini, Brown, Reinhardt, and Ottmar 1995.
  *
+ * @param outputHistory	Should fire history be saved? Use 0 to not save, 1 to save to file,
+ *                     	2 to store a history object in memory, 3 for both. Defaults to 2.
+ *
  * @returns A BurnupSim object holding the resulting output from the simulation (and maybe some of the inputs?).
  *
  * @note The setting values can be hard to determine.  We provide default values for these based on
@@ -112,8 +115,8 @@ BurnupSim BurnupFM(FuelModel fuelModel,
                    const double dT, const int nTimeSteps,
                    const bool burnupFormat,
                    const std::vector <double> tpig_ij,
-                   const double ak, const double r0, const double dr)
-                   //const bool outputHistory = false)///Add?
+                   const double ak, const double r0, const double dr,
+                   const int outputHistory = 2)
                    //const bool debug = false);//Add?
 {
 	const double CtoK = 273;//Burnup's value for 0 C in K.
@@ -222,7 +225,7 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 	         simData.tign_kl,//tign
 	         simData.tout_kl,//tout
 	         simData.diam_kl,//diam
-	         2);//outputHistory: Save the history output.
+	         outputHistory);
 
 	//Copy output variables (not directly modified by Burnup) to the output object:
 	simData.burnoutTime = dtInOut;
