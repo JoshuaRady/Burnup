@@ -144,7 +144,7 @@ double BurnupHistory::IntegrateFireIntensity() const
  */
 void SaveStateToHistory(const int ts, const double time, const int numFuelTypes,
                         const std::vector<std::string>& parts, const std::vector<double>& wo,
-                        const std::vector<double> diam, const double fi)
+                        const double fi)
 {
 	BUHistStore.AddTimeStep(ts, time, numFuelTypes, parts, wo, fi);
 }
