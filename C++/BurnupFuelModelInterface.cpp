@@ -396,7 +396,7 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
  *
  * @param output The output stream to print to.
  *
- * @returns The ostream so it can be conatinated to.
+ * @returns The ostream so it can be concatenated to.
  *
  * @note Currently only fire summary and fuel level data members are printed.
  */
