@@ -200,8 +200,8 @@ int NumFuelTypes = 0;//Used to store the number of fuel types for some functions
  * @param[out] diam		Current diameter of the larger of each fuel component pair, m. [maxkl]
  *
  * Settings:
- * @param outputHistory	Should fire history be saved? Defaults to false (0). Use 1 to save to file,
- *                     	2 to store a history object in memory, 3 for both.
+ * @param[in] outputHistory	Should fire history be saved? Defaults to false (0). Use 1 to save to
+ *                         	file,2 to store a history object in memory, 3 for both.
  *
  * @note The calculated output vectors do not need to be sized on input (though they can be).  Empty
  * vectors can be passed in, which simplifies the calling code.  The vectors will be resized on
@@ -2271,7 +2271,7 @@ int Loc(const int k, const int l)
  *
  * The original code set this as a fixed value notated maxkl.
  *
- * @param numFuels The number of fuel type elements.
+ * @param[in] numFuels The number of fuel type elements.
  *
  * @returns The triangular matrix size.
  *

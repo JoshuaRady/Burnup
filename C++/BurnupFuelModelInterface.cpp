@@ -47,7 +47,7 @@ Licence?????
  * these parameters may be added to the FuelModel class or a child thereof.
  *
  * Fuel properties:
- * @param FuelModel A fuel model to calculate fuel consumption for.
+ * @param[in] FuelModel A fuel model to calculate fuel consumption for.
  *                  The fuel moisture, M_f_ij, must be included in the FuelModel object.
  *                  FuelModel is not const so we can the units can be converted if necessary.
  *                  The post-fire loading could be returned by updating w_o_ij but, given the many
@@ -97,8 +97,8 @@ Licence?????
  * @param[in] dr			Max - min value of mixing parameter.
  *              			Default value of 0.40 from Albini, Brown, Reinhardt, and Ottmar 1995.
  *
- * @param outputHistory	Should fire history be saved? Use 0 to not save, 1 to save to file,
- *                     	2 to store a history object in memory, 3 for both. Defaults to 2.
+ * @param[in] outputHistory	Should fire history be saved? Use 0 to not save, 1 to save to file,
+ *                         	2 to store a history object in memory, 3 for both. Defaults to 2.
  *
  * @returns A BurnupSim object holding the resulting output from the simulation (and maybe some of the inputs?).
  *
@@ -357,8 +357,8 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 
 /** Reorder a vector.
  * 
- * @param vec	The vector to reorder.
- * @param order	The order (0 based) that the current indexes should be moved to.
+ * @param[in,out] vec	The vector to reorder.
+ * @param[in] order		The order (0 based) that the current indexes should be moved to.
  *
  * @returns Nothing.  We could return the vector rather than modifying it in place.
  *
@@ -394,7 +394,7 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
 
 /** Print the Burnup simulation data to an output stream.
  *
- * @param output The output stream to print to.
+ * @param[in] output The output stream to print to.
  *
  * @returns The ostream so it can be concatenated to.
  *
