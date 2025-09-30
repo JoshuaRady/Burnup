@@ -23,7 +23,7 @@ Licence?????
  * @brief A data structure that holds the output of a Burnup simulation (and a selection of inputs).
  * This object is used by BurnupFM() to organize and return Burnup outputs.  It also contains
  * additional processed outputs that make the data easier to use and printing utilities to display
- * the output as text. History output will be added in the future.
+ * the output as text.
  *
  * @par Data by fuel type:
  * The ij suffix indicate variables that are organized by fuel type (fuel model notation).
