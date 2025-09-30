@@ -46,8 +46,8 @@ struct BurnupSim {
 	                     //Burnup units and the fuels may be reordered.
 
 	//Inputs:
-	double fireIntensity;//Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
-	double t_r;//Igniting fire residence time (s). [ti in Burnup nomenclature]
+	double fireIntensity = 0.0;//Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
+	double t_r = 0.0;//Igniting fire residence time (s). [ti in Burnup nomenclature]
 
 	//Select fuel properties (inputs) by fuel type:
 	//Some of the fuel properties are saved to make it easier to interpret the outputs.
@@ -55,13 +55,15 @@ struct BurnupSim {
 	std::vector<double> M_f_ij;//Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
 
 	//Outputs:
-	double burnoutTime;//The time the fire went out = length of the fire (s).
-	                   //A value of -1 indicates the fuel did not ignite.  A value
-	                   //of -2 indicates the fuel did not complete drying.  In such
-	                   //cases most of remaining return variables will not be
-	                   //meaningful.
+	double burnoutTime = -3.0;//The time the fire went out = length of the fire (s).
+	                          //A value of -1 indicates the fuel did not ignite.
+	                          //A value of -2 indicates the fuel did not complete drying.
+	                          //A value of -3 indicates the simulation has not been computed.  This
+	                          //value was added as a flag for this object.
+	                          //Additional negative values are reserved for future use.
+	                          //If negative most of remaining member values will not be meaningful.
 	
-	double finalFireIntensity;//The final fire intensity (kW / m^2).
+	double finalFireIntensity = 0.0;//The final fire intensity (kW / m^2).
 
 	//Outputs by fuel type:
 	std::vector<std::string> fuelNames;//Fuel type names: Burnup specific.
