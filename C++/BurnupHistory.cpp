@@ -11,8 +11,8 @@ to create a programmatically available simulation history.
 Licence?????
 ***************************************************************************************************/
 
-//#include <cmath>//For fabs().
 #include "BurnupHistory.h"
+#include "FireweedMessaging.h"
 
 //The default(ish) number of timesteps is 3000.  We add one since we currently also record the
 //initial state as well.
@@ -83,13 +83,26 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 
 /** Calculate total energy produced by the fire from the fire intensity history.
  *
- * @returns The total energy released during the fire, including that of the flaming front (kJ/m^2).?????
+ * @returns The total energy released during the fire, including that of the flaming front (kJ/m^2).
+ *
+ * @note The fact that we include the energy of the flaming front may be double counting.  If we
+ * consider that the energy input from the flames next to the site we should also consider that a
+ * similar amount of energy is lost to the adjacent patch.
  */
 double BurnupHistory::IntegrateFireIntensity() const
 {
 	if (Empty())
 	{
-		//Report an error!!!!!
+		//If history has not been stored return 0 and a warning.  This might warrant an error:
+		Warning("BurnupHistory: The fire history is not stored.");
+		return 0.0;
+	}
+	else if (timestep.size() == 1)
+	{
+		//If there is only one timestep (representing the flaming fron) the fire did not ignite:
+		//We don't know why the fire didn't start without access to the parent object's burnoutTime
+		//member.  The fact tha
+		Warning("BurnupHistory: The fire did not ignite.");
 		return 0.0;
 	}
 	
