@@ -132,7 +132,7 @@ double BurnupHistory::IntegrateFireIntensity() const
 	return totalEnergy;
 }
 
-/** Print the fire history data to an output stream.
+/** Print the fire history data to an output stream formatted for screen reading.
  *
  * @param[in] output The output stream to print to.
  *
@@ -162,7 +162,7 @@ std::ostream& BurnupHistory::Print(std::ostream& output) const
 		<< std::setw(timeSecWidth) << "Seconds"
 		<< std::setw(fireIntensityWidth) << "kW/m^2" << std::endl;
 
-	/Values:
+	//Values:
 	for (int i = 0; i < timestep.size(); i++)
 	{
 		output << std::setw(thickWidth) << timestep[i]//Integer
