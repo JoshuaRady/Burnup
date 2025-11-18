@@ -132,6 +132,48 @@ double BurnupHistory::IntegrateFireIntensity() const
 	return totalEnergy;
 }
 
+/** Print the fire history data to an output stream.
+ *
+ * @param[in] output The output stream to print to.
+ *
+ * @returns The ostream so it can be concatenated to.
+ */
+std::ostream& BurnupHistory::Print(std::ostream& output) const
+{
+	output << "Ground fire soil profile:" << std::endl;
+
+	//Print layer properties in table form:
+	const int timestepWidth = 9;//Name & description
+	const int timeSecWidth = 8;//Name & units
+	const int fireIntensityWidth = 14;//Name
+
+	//Member name header:
+	output << std::setw(timestepWidth) << "timestep"
+		<< std::setw(timeSecWidth) << "timeSec"
+		<< std::setw(fireIntensityWidth) << "fireIntensity" << std::endl;
+
+	//Descriptive header:
+	ooutput << std::setw(timestepWidth) << "Timestep"
+		<< std::setw(timeSecWidth) << "time"
+		<< std::setw(fireIntensityWidth) << "Intensity" << std::endl;
+
+	//Units header:
+	output << std::setw(timestepWidth) << "Step"
+		<< std::setw(timeSecWidth) << "Seconds"
+		<< std::setw(fireIntensityWidth) << "kW/m^2" << std::endl;
+
+	/Values:
+	for (int i = 0; i < timestep.size(); i++)
+	{
+		output << std::setw(thickWidth) << timestep[i]//Integer
+			<< std::setw(thickWidth) << timeSec[i]//Should be integer.
+			<< std::setw(thickWidth) << fireIntensity[i] << std::endl;//Last field don't control the length?
+			//<< std::setw(thickWidth) << std::fixed << std::setprecision(2) << fireIntensity[i] << std::endl;
+	}
+
+	return output;
+}
+
 //External functions:-------------------------------------------------------------------------------
 
 /** Store the state of a Burnup simulation at the current timestep to a BurnupHistory object for
@@ -171,3 +213,4 @@ BurnupHistory GetHistory()
 	//Add checking that the history is complete?
 	return BUHistStore;
 }
+

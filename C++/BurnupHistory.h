@@ -37,6 +37,8 @@ struct BurnupHistory {
 	                 const std::vector<std::string>& parts, const std::vector<double>& wo,
 	                 const double fi);
 	double IntegrateFireIntensity() const;
+
+	std::ostream& Print(std::ostream& output) const;
 };
 
 //External functions:
