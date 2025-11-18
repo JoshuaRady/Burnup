@@ -46,5 +46,6 @@ void SaveStateToHistory(const int ts, const double time, const int numFuelTypes,
                         const std::vector<std::string>& parts, const std::vector<double>& wo,
                         const double fi);
 BurnupHistory GetHistory();
+std::ostream& operator<<(std::ostream& output, const BurnupHistory& history);
 
 #endif //BURNUPHISTORY_H

@@ -214,3 +214,12 @@ BurnupHistory GetHistory()
 	return BUHistStore;
 }
 
+/* Overloaded stream print operator for BurnupHistory.
+ *
+ */
+std::ostream& operator<<(std::ostream& output, const BurnupHistory& history)
+{
+	history.Print(output);
+	return output;
+}
+
