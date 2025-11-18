@@ -155,7 +155,7 @@ std::ostream& BurnupHistory::Print(std::ostream& output) const
 		<< std::setw(fireIntensityWidth) << "fireIntensity" << std::endl;
 
 	//Descriptive header:
-	ooutput << std::setw(timestepWidth) << "Timestep"
+	output << std::setw(timestepWidth) << "Timestep"
 		<< std::setw(timeSecWidth) << "time"
 		<< std::setw(fireIntensityWidth) << "Intensity" << std::endl;
 
@@ -167,10 +167,10 @@ std::ostream& BurnupHistory::Print(std::ostream& output) const
 	//Values:
 	for (int i = 0; i < timestep.size(); i++)
 	{
-		output << std::setw(thickWidth) << timestep[i]//Integer
-			<< std::setw(thickWidth) << timeSec[i]//Should be integer.
-			<< std::setw(thickWidth) << fireIntensity[i] << std::endl;//Last field don't control the length?
-			//<< std::setw(thickWidth) << std::fixed << std::setprecision(2) << fireIntensity[i] << std::endl;
+		output << std::setw(timestepWidth) << timestep[i]//Integer
+			<< std::setw(timeSecWidth) << timeSec[i]//Should be integer.
+			<< std::setw(fireIntensityWidth) << fireIntensity[i] << std::endl;//Last field don't control the length?
+			//<< std::setw(fireIntensityWidth) << std::fixed << std::setprecision(2) << fireIntensity[i] << std::endl;
 	}
 
 	return output;
@@ -195,6 +195,8 @@ std::ostream& BurnupHistory::PrintDelimited(std::ostream& output, const char del
 		//The intensity field could be rounded but leave it for accuracy:
 		output << delim << timestep[i] << delim << timeSec[i] << delim << fireIntensity[i] << std::endl;
 	}
+
+	return output;
 }
 
 //External functions:-------------------------------------------------------------------------------
