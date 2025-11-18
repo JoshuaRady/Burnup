@@ -140,7 +140,7 @@ double BurnupHistory::IntegrateFireIntensity() const
  */
 std::ostream& BurnupHistory::Print(std::ostream& output) const
 {
-	output << "Ground fire soil profile:" << std::endl;
+	output << "Burnup fire intensity history:" << std::endl;
 
 	//Print layer properties in table form:
 	const int timestepWidth = 9;//Name & description
