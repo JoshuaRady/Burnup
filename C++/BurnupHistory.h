@@ -12,8 +12,9 @@ Licence?????
 #ifndef BURNUPHISTORY_H
 #define BURNUPHISTORY_H
 
-#include <vector>
+#include <iostream>//Or just <ostream>?
 #include <string>
+#include <vector>
 
 /** @struct BurnupHistory
  *

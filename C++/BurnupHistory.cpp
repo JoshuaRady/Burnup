@@ -11,6 +11,8 @@ to create a programmatically available simulation history.
 Licence?????
 ***************************************************************************************************/
 
+#include <iomanip>
+
 #include "BurnupHistory.h"
 #include "FireweedMessaging.h"
 
