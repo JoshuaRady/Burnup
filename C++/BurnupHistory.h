@@ -39,6 +39,7 @@ struct BurnupHistory {
 	double IntegrateFireIntensity() const;
 
 	std::ostream& Print(std::ostream& output) const;
+	std::ostream& PrintDelimited(std::ostream& output, const char delim = '\t') const;
 };
 
 //External functions:

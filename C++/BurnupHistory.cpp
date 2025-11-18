@@ -174,6 +174,27 @@ std::ostream& BurnupHistory::Print(std::ostream& output) const
 	return output;
 }
 
+/** Print the fire history data to an output stream as a set of delimited data rows for each
+ * timestep, suitable for data ingestion.
+ *
+ * @param[in] output The output stream to print to.
+ * @param[in] delim The delimiter character.  Defaults to the tab character.
+ *
+ * @returns The ostream so it can be concatenated to.
+ */
+std::ostream& BurnupHistory::PrintDelimited(std::ostream& output, const char delim) const
+{
+	//Print the header:
+	output << delim << "Timestep" << delim << "TimeSec" << delim << "FireIntensity" << std::endl;
+
+	//Print the value for each timestep in rows:
+	for (int i = 0; i < timestep.size(); i++)
+	{
+		//The intensity field could be rounded but leave it for accuracy:
+		output << delim << timestep[i] << delim << timeSec[i] << delim << fireIntensity[i] << std::endl;
+	}
+}
+
 //External functions:-------------------------------------------------------------------------------
 
 /** Store the state of a Burnup simulation at the current timestep to a BurnupHistory object for
