@@ -6,7 +6,9 @@ Started: 7/18/2025
 Reference: Proj. 11 Exp. 25
 
 	This provides an object to store Burnup model state during the time evolution of a simulation
-to create a programmatically available simulation history.
+to create a programmatically available simulation history.  A more detailed history of the
+simulation can be saved to file using SaveStateToFile().  Currently this history focused on the fire
+intensity over time.
 
 Licence?????
 ***************************************************************************************************/
@@ -61,8 +63,8 @@ bool BurnupHistory::Empty() const
  *
  * @returns Nothing.
  * 
- * @note The function is not yet complete.  The fuel loading in not actually stored yet and will be
- * added in future.
+ * @note The function currently only stores the fire intensity over time.  The fuel loading will be
+ * added in the future.
  */
 void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFuelsTypes,
                                 const std::vector<std::string>& parts, const std::vector<double>& wo,
@@ -71,7 +73,7 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 	/*Each call to this function stores a new timestep of data to the history.  By reserving a
 	reasonable amount of space we can add length to our vectors efficiently using push_back().
 	Since the number of timesteps is known at the outset of a simulation and we generally use the
-	default, we do this in the constructor*/
+	default, we do this in the constructor.*/
 	timestep.push_back(ts);
 	timeSec.push_back(time);
 
@@ -103,7 +105,7 @@ double BurnupHistory::IntegrateFireIntensity() const
 	{
 		//If there is only one timestep (representing the flaming fron) the fire did not ignite:
 		//We don't know why the fire didn't start without access to the parent object's burnoutTime
-		//member.  The fact tha
+		//member.
 		Warning("BurnupHistory: The fire did not ignite.");
 		return 0.0;
 	}
@@ -156,7 +158,7 @@ std::ostream& BurnupHistory::Print(std::ostream& output) const
 
 	//Descriptive header:
 	output << std::setw(timestepWidth) << "Timestep"
-		<< std::setw(timeSecWidth) << "time"
+		<< std::setw(timeSecWidth) << "Time"
 		<< std::setw(fireIntensityWidth) << "Intensity" << std::endl;
 
 	//Units header:
