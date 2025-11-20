@@ -423,62 +423,15 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 	}
 	else
 	{
-		//output << "The igniting fire intensity was " << fireIntensity << " kW/m^2." << std::endl;
 		output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
-		//output << "The igniting fire residence time was " << t_r << " seconds." << std::endl;
 		output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
 
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
-		//output << "The final fire intensity was " << finalFireIntensity << " (kW / m^2)." << std::endl;
 		output << "Final fire intensity: " << finalFireIntensity << " kW/m^2." << std::endl;
-
-		//Print one by one:
-		//This works but it is hard to read within fuels.
-// 		output << "Fuel Names: ";
-// 		//PrintVector(output, fuelNames);
-// 		for (int i = 0; i < fuelNames.size() - 1; i++)
-// 		{
-// 			output << fuelNames[i] << ", ";
-// 		}
-// 		output << fuelNames[fuelNames.size() - 1] << std::endl;
-// 
-// 		output << "SAV_ij: ";
-// 		PrintVector(output, SAV_ij);
-// 
-// 		output << "M_f_ij: ";
-// 		PrintVector(output, M_f_ij);
-// 
-// 		output << "w_o_ij_Initial: ";
-// 		PrintVector(output, w_o_ij_Initial);
-// 
-// 		output << "w_o_ij_Final: ";
-// 		PrintVector(output, w_o_ij_Final);
-// 
-// 		output << "combustion_ij: ";
-// 		//output << "Fuel combusted: ";
-// 		PrintVector(output, combustion_ij);
-// 
-// 		output << "tign_ij: ";
-// 		PrintVector(output, tign_ij);
-// 
-// 		output << "tout_ij_Min: ";
-// 		PrintVector(output, tout_ij_Min);
-// 
-// 		output << "tout_ij_Max: ";
-// 		PrintVector(output, tout_ij_Max);
 
 		//Print the the fuel level outputs in a table for easy interpretation:
 
 		//Widths similar to standard Burnup output table formating elsewhere:
-		//const int nameWidth = 7;
-		//const int w_oIWidth = 11;
-		//const int w_oFWidth = 12;
-		//const int tignWidth = 16;
-		//const int toutMinWidth = 11;
-		//const int toutMaxWidth = 11;
-		//const int m_fWidth = 10;
-		//const int savWidth = 8;
-
 		const int nameWidth = 7;
 		const int w_oIWidth = 15;
 		const int w_oFWidth = 13;
