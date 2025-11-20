@@ -444,7 +444,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		
 		if (fuelModelFormat)
 		{
-			savWidth = 9;
+			savWidth = 10;
 			savUnits = "cm^2/cm^3";
 		}
 		else
