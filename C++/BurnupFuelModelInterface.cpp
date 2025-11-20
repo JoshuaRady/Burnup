@@ -26,7 +26,6 @@ Licence?????
 #include "BurnupFuelModelInterface.h"
 #include "BurnupCore.h"
 #include "FireweedMessaging.h"
-#include "FireweedStringUtils.h"//For PrintVector().
 #include "FireweedUnits.h"
 
 /** Perform a fuel consumption simulation using a fuel model and prescribed inputs and return fuel
@@ -63,8 +62,9 @@ Licence?????
  * case.
  *
  * Environmental conditions:
- * @param[in] tempAirC		Ambient air temperature (C). [Burnup uses tpamb in K.]
- * @param[in] U				Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/s).
+ * @param[in] tempAirC		Ambient air temperature (C). [Burnup uses tpamb in K internally.]
+ * @param[in] U				Mean horizontal windspeed at top of fuelbed (~ at midflame height)
+ *             				(m/min). [Burnup uses u in m/s internally.]
  *
  * Igniting fire conditions:
  * @param[in] fireIntensity	Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
@@ -123,6 +123,8 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 	
 	BurnupSim simData;//Container for simulation data.
 	//Store inputs with invariant units:
+	simData.tempAirC = tempAirC;
+	simData.U = U;
 	simData.fireIntensity = fireIntensity;
 	simData.t_r = t_r;
 	
@@ -423,13 +425,17 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 	}
 	else
 	{
+		//Inputs:
+		output << "Ambient air temperature: " << tempAirC << " C." << std::endl;
+		output << "Mean horizontal windspeed: " << tempAirC << " m/s." << std::endl;
 		output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
 		output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
 
+		//Outputs:
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
 		output << "Final fire intensity: " << finalFireIntensity << " kW/m^2." << std::endl;
 
-		//Print the the fuel level outputs in a table for easy interpretation:
+		//Print the the fuel level outputs in a screen readable table for easy interpretation:
 
 		//Widths similar to standard Burnup output table formating elsewhere:
 		const int nameWidth = 7;
