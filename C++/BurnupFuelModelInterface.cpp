@@ -505,7 +505,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				//<< std::setw(tignWidth) << std::fixed << std::setprecision(timePrec) << tign_ij[i]
 				//Let scientific notation be used for the ingntion time, which can be huge when
 				//SAV = 0.  This is a stopgap until we decide what to do with this.
-				<< std::setw(tignWidth) << std::setprecision(timePrec) << tign_ij[i]
+				<< std::setw(tignWidth) << std::defaultfloat << std::setprecision(timePrec) << tign_ij[i]
 				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(timePrec) << tout_ij_Min[i]
 				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(timePrec) << tout_ij_Max[i]
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(moistPrec) << M_f_ij[i]
