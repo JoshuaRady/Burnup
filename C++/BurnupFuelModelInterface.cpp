@@ -449,7 +449,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		const int toutMaxWidth = 12;
 		const int m_fWidth = 10;
 		int savWidth;
-		const int burntWidth = 12;
+		const int burntWidth = 8;
 		std::string savUnits;
 		
 		if (fuelModelFormat)
@@ -542,7 +542,8 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			}
 			else if (SAV_ij[i] == 0.0)
 			{
-				burnStatus = "Placeholder";//What is a better description?  Empty is unclear. Missing?
+				//What is a good description?  Empty is unclear. Missing? Placeholder?
+				burnStatus = "Dummy";
 			}
 			else
 			{
