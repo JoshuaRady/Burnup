@@ -34,23 +34,29 @@ Licence?????
  * This alternate interface allows a fuel model to be used as input to Burnup.  This reduces the
  * number of inputs and simplifies outputs by returning all of them in a single object rather than
  * using multiple return arguments that need to be initialized by the calling code.  The parameter
- * names have been made more descriptive than the standard interface.  The code handles conversion
- * of variables that differ in units between the standard fuel models and Burnup.  Fuel model /
- * Rothermel & Albini units are used on the input side.  The raw Burnup outputs are also processed
- * tp produce summaries by fuel type, which is more useful for most applications than output by fuel
- * pairs.
+ * names have been made more descriptive than the standard Burnup interface.  The code handles
+ * conversion of variables that differ in units between the standard fuel models and Burnup.  Fuel
+ * model / Rothermel & Albini units are used on the input side.  The raw Burnup outputs are also
+ * processed to produce summaries by fuel type, which is more useful for most applications than
+ * output by fuel pairs.
  *
  * Fuel models do not contain all the fuel properties that Burnup needs.  For now the heat capacity
  * (cheat), thermal conductivity (condry), ignition temperature (tpig), and char temperature (tchar)
  * for all fuels are set to default values (unless provided explicitly, see below).  In the future
  * these parameters may be added to the FuelModel class or a child thereof.
  *
+ * Standard fuel models may contain fuels types that have no fuel loadings and fuel types that are
+ * just placeholders, e.g. the GR fuel models don't have a live woody class.  These fuels don't
+ * affect the results of the valid fuels but Burnup does comupute values like ignition and burnout
+ * times for them.  We return these results even though they may not be very meaningful.  The
+ * Print() function lablels them to reduce confusion.
+ *
  * Fuel properties:
  * @param[in] FuelModel A fuel model to calculate fuel consumption for.
- *                  The fuel moisture, M_f_ij, must be included in the FuelModel object.
- *                  FuelModel is not const so we can the units can be converted if necessary.
- *                  The post-fire loading could be returned by updating w_o_ij but, given the many
- *                  other outputs, this doesn't seem useful.
+ *                      The fuel moisture, M_f_ij, must be included in the FuelModel object.
+ *                      FuelModel is not const so the units can be converted if necessary.
+ *                      The post-fire loading could be returned by updating w_o_ij but, given the many
+ *                      other outputs, this doesn't seem useful.
  * 
  * Duff conditions:
  * @param[in] duffLoading	Duff loading (kg/m^2, aka W sub d). [wdf in Burnup nomenclature]
