@@ -401,6 +401,9 @@ void Reorder(std::vector<double>& vec, const std::vector<int> order)
  * @returns The ostream so it can be concatenated to.
  *
  * @note Currently only fire summary and fuel level data members are printed.
+ *
+ * @note The general formating of the output table is stuctured similarly to the Burnup output table
+ *       from FOFEM as seen in the FOFEM 6.7 User Guide.
  */
 std::ostream& BurnupSim::Print(std::ostream& output) const
 {
@@ -446,7 +449,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		const int toutMaxWidth = 12;
 		const int m_fWidth = 10;
 		int savWidth;
-		const int burntWidth = 8;
+		const int burntWidth = 12;
 		std::string savUnits;
 		
 		if (fuelModelFormat)
@@ -468,7 +471,8 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(toutMinWidth) << "tout_ij_Min"
 			<< std::setw(toutMaxWidth) << "tout_ij_Max"
 			<< std::setw(m_fWidth) << "M_f_ij"
-			<< std::setw(savWidth) << "SAV_ij" << std::endl;
+			<< std::setw(savWidth) << "SAV_ij" 
+			<< std::setw(burntWidth) << "Burnt"<< std::endl;
 
 		//Units header:
 		output << std::setw(nameWidth) << " "
@@ -488,19 +492,23 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(toutMinWidth) << "BurnoutMin"
 			<< std::setw(toutMaxWidth) << "BurnoutMax"
 			<< std::setw(m_fWidth) << "MoistFrac"
-			<< std::setw(savWidth) << "SAV"
-			<< std::setw(burntWidth) << "Burnt"<< std::endl;
+			<< std::setw(savWidth) << "SAV" << std::endl;
 
 		//Values:
+		const int timePrec = 1;//Decimal places for the ignition and burnout times.  FOFEM uses 0.
+		const int moistPrec = 5;//Decimal places for moisture.  FOFEM uses 2.
 		for (int i = 0; i < SAV_ij.size(); i++)
 		{
 			output << std::setw(nameWidth) << fuelNames[i]
 				<< std::setw(w_oIWidth) << std::fixed << std::setprecision(5) << w_o_ij_Initial[i]
 				<< std::setw(w_oFWidth) << std::fixed << std::setprecision(5) << w_o_ij_Final[i]
-				<< std::setw(tignWidth) << std::fixed << std::setprecision(0) << tign_ij[i]
-				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
-				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
-				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
+				//<< std::setw(tignWidth) << std::fixed << std::setprecision(timePrec) << tign_ij[i]
+				//Let scientific notation be used for the ingntion time, which can be huge when
+				//SAV = 0.  This is a stopgap until we decide what to do with this.
+				<< std::setw(tignWidth) << std::setprecision(timePrec) << tign_ij[i]
+				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(timePrec) << tout_ij_Min[i]
+				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(timePrec) << tout_ij_Max[i]
+				<< std::setw(m_fWidth) << std::fixed << std::setprecision(moistPrec) << M_f_ij[i]
 				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i];// << std::endl;
 			
 			/*Label the fuels that burnt:
@@ -526,7 +534,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			}
 			else if (SAV_ij[i] == 0.0)
 			{
-				burnStatus = "Missing";//What is a better description?  Placeholder?
+				burnStatus = "Placeholder";//What is a better description?  Empty is unclear. Missing?
 			}
 			else
 			{
