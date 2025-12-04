@@ -520,13 +520,13 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			The burn status could be computed and stored in the object, which we may do after
 			finalizing and test the logic here.*/
 			std::string burnStatus;
-			if (w_o_ij_Initial[i] == 0)
+			if (w_o_ij_Initial[i] == 0.0)
 			{
 				burnStatus = "No fuel";
 			}
-			if (SAV_ij[i] == 0)
+			else if (SAV_ij[i] == 0.0)
 			{
-				burnStatus = "Empty";//What is a better description?  Placeholder?
+				burnStatus = "Missing";//What is a better description?  Placeholder?
 			}
 			else
 			{
