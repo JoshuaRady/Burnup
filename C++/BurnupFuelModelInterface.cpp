@@ -171,6 +171,15 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 		theSAV *= 100;//cm^2/cm^3 = 1/cm -> m^2/m^3 = 1/m  (1/(m/cm) = cm/m = 100)
 	}
 
+	//Warn if a fuel loading is provided for a placeholder fuel position not intended to be used:
+	for (int i = 0; i < numFuelTypes; i++)
+	{
+		if (fuelModel.SAV_ij[i] == 0.0 && fuelModel.w_o_ij[i] > 0.0)
+		{
+			Warning("Fuel loading provided for placeholder / dummy fuel type.");
+		}
+	}
+
 	//Make copies of other variables that are input only that will be modified by Burnup:
 	double fi = fireIntensity;
 	double dtInOut = dT;
@@ -200,7 +209,7 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 			tpig_ij_K[kFM] = tpig_ij[kFM] + CtoK;
 		}
 	}
-	
+
 	std::vector <double> tchar_ij(numFuelTypes, 377 + CtoK);//C -> K for all fuel types.
 
 	//Perform the simulation:
