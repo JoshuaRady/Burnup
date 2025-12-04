@@ -446,6 +446,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		const int toutMaxWidth = 12;
 		const int m_fWidth = 10;
 		int savWidth;
+		const int burntWidth = 8;
 		std::string savUnits;
 		
 		if (fuelModelFormat)
@@ -487,7 +488,8 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			<< std::setw(toutMinWidth) << "BurnoutMin"
 			<< std::setw(toutMaxWidth) << "BurnoutMax"
 			<< std::setw(m_fWidth) << "MoistFrac"
-			<< std::setw(savWidth) << "SAV" << std::endl;
+			<< std::setw(savWidth) << "SAV"
+			<< std::setw(burntWidth) << "Burnt"<< std::endl;
 
 		//Values:
 		for (int i = 0; i < SAV_ij.size(); i++)
@@ -499,7 +501,43 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				<< std::setw(toutMinWidth) << std::fixed << std::setprecision(0) << tout_ij_Min[i]
 				<< std::setw(toutMaxWidth) << std::fixed << std::setprecision(0) << tout_ij_Max[i]
 				<< std::setw(m_fWidth) << std::fixed << std::setprecision(2) << M_f_ij[i]
-				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i] << std::endl;
+				<< std::setw(savWidth) << std::fixed << std::setprecision(2) << SAV_ij[i];// << std::endl;
+			
+			/*Label the fuels that burnt:
+			We do this to make the results clearer.  The change in loadings show what burnt but
+			small changes may not be obvious and there is a lot of other data can make it hard to
+			quickly glean the burn status.
+			In addtion to fuels that burn and don't burn there are 'invalid' fuels that don't
+			really contribute to the fire but will still have burn time values calculated, which
+			can be confusing. We label them to make it clear.
+			'Invalid' fuels are a product of using standard fuel models, which have postions for the
+			5 (or 6) standard fuels even though some may fuels may not be really represented
+			(SAV = 0 in our representation) or fuel may not be present (loading = 0). We could drop
+			these fuels befpre putting them into Burnup but they don't have any effect and it is
+			harder to use the output when it doesn't match the inputs. We could also replace the
+			calculations for these fuels with some place holder values.  There are options for the
+			future.
+			The burn status could be computed and stored in the object, which we may do after
+			finalizing and test the logic here.*/
+			if (w_o_ij_Initial[i] == 0)
+			{
+				output << std::setw(burntWidth) << "No fuel";
+			}
+			if (SAV_ij[i] == 0)
+			{
+				output << std::setw(burntWidth) << "Empty";//What is a better description?  Placeholder?
+			}
+			else
+			{
+				if (w_o_ij_Final[i] < w_o_ij_Initial[i])
+				{
+					output << std::setw(burntWidth) << "True";
+				}
+				else
+				{
+					output << std::setw(burntWidth) << "False";
+				}
+			}
 		}
 		output.copyfmt(std::ios(nullptr));//Restore the previous print settings.
 	}
