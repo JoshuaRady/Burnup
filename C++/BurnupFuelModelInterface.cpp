@@ -519,25 +519,27 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 			future.
 			The burn status could be computed and stored in the object, which we may do after
 			finalizing and test the logic here.*/
+			std::string burnStatus;
 			if (w_o_ij_Initial[i] == 0)
 			{
-				output << std::setw(burntWidth) << "No fuel";
+				burnStatus = "No fuel";
 			}
 			if (SAV_ij[i] == 0)
 			{
-				output << std::setw(burntWidth) << "Empty";//What is a better description?  Placeholder?
+				burnStatus = "Empty";//What is a better description?  Placeholder?
 			}
 			else
 			{
 				if (w_o_ij_Final[i] < w_o_ij_Initial[i])
 				{
-					output << std::setw(burntWidth) << "True";
+					burnStatus = "True";
 				}
 				else
 				{
-					output << std::setw(burntWidth) << "False";
+					burnStatus = "False";
 				}
 			}
+			output << std::setw(burntWidth) << burnStatus << std::endl;
 		}
 		output.copyfmt(std::ios(nullptr));//Restore the previous print settings.
 	}
