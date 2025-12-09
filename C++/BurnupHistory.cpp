@@ -51,6 +51,21 @@ bool BurnupHistory::Empty() const
 	return timestep.empty();
 }
 
+/** Clear the data from the fire history.
+ * 
+ * We use a persistant global BurnupHistory object BUHistStore to accumulate timesteps over a
+ * simulation.  If more that one simulation is performed in a session we need to be able to clear
+ * the timesteps from the first simulation or the timesteps of the second will be append to them.
+ *
+ * @returns Nothing.
+ */
+void BurnupHistory::Clear()
+{
+	timestep.clear();
+	timeSec.clear();
+	fireIntensity.clear();
+}
+
 /** Add the state of a Burnup simulation for a timestep.  Sequential calls to this routine will
  * produce a full history of the simulated fire.
  *
@@ -70,6 +85,13 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
                                 const std::vector<std::string>& parts, const std::vector<double>& wo,
                                 const double fi)
 {
+	//Detect when we are starting a new simulation and clear the history:
+	//This is an issue because BUHistStore persists across simulations.
+	if (ts == 0 && !Empty())
+	{
+		Clear();
+	}
+	
 	/*Each call to this function stores a new timestep of data to the history.  By reserving a
 	reasonable amount of space we can add length to our vectors efficiently using push_back().
 	Since the number of timesteps is known at the outset of a simulation and we generally use the
