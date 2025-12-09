@@ -143,7 +143,7 @@ int NumFuelTypes = 0;//Used to store the number of fuel types for some functions
  * The value passed in for fi is the igniting fire intensity.  The variable is later reused and
  * updated by FIRINT().  It is passed on to other routines that use but do not change it.
  * These two uses could be separated.  The value returned is the final intensity, which might
- * be of use.  A history would be more valuable.
+ * be of use.  A full history can be saved by setting outputHistory.
  *
  * @param[in] ti		Igniting fire residence time (s).
  * @param[in] u			Mean horizontal windspeed at top of fuelbed (m/s).
