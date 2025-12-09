@@ -567,7 +567,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 				//Some very small changes in loading that are not consistant between systems have
 				//been observed for fuels not expected to burn.  This is likly floating point slop.
 				//Avoid false positives with FloatCompare().
-				if (!FloatCompare(w_o_ij_Initial[i], w_o_ij_Final[i], 0.00000000001)
+				if (!FloatCompare(w_o_ij_Initial[i], w_o_ij_Final[i], 0.00000000001))
 				{
 					burnStatus = "True";
 				}
