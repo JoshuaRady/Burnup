@@ -248,7 +248,7 @@ BurnupSim BurnupFM(FuelModel fuelModel,
 	simData.burnoutTime = dtInOut;
 	//Note: We could convert negative values to flags.
 
-	simData.finalFireIntensity = fireIntensity;//Return the final fire intensity.
+	simData.finalFireIntensity = fi;//Return the final fire intensity.
 	simData.klFuelNames = fuelNames;//Alway store the potentially reordered names.
 
 	//The outputs by interaction pairs contain useful information but value by fuel type are more
