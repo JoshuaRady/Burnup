@@ -47,7 +47,7 @@ struct BurnupSim {
 
 	//Inputs:
 	double tempAirC = 0.0;//Ambient air temperature (C). [Burnup uses tpamb in K.]
-	double U = 0.0;//Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/min).
+	double U = 0.0;//Mean horizontal windspeed at top of fuelbed [~ at midflame height] (m/min). [Burnup uses u in m/s.]
 	double fireIntensity = 0.0;//Igniting fire intensity (site avg) (kW/m^2). [fi in Burnup nomenclature]
 	double t_r = 0.0;//Igniting fire residence time (s). [ti in Burnup nomenclature]
 

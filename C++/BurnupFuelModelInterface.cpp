@@ -446,7 +446,7 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 	{
 		//Inputs:
 		output << "Ambient air temperature: " << tempAirC << " C." << std::endl;
-		output << "Mean horizontal windspeed: " << U << " m/s." << std::endl;
+		output << "Mean horizontal windspeed: " << U << " m/min." << std::endl;
 		output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
 		output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
 
