@@ -434,6 +434,13 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 		output << "Data is in Burnup format." << std::endl;
 	}
 
+	//Inputs:
+	//These are useful to help understand what is going on when a fire doesn't start so aways print.
+	output << "Ambient air temperature: " << tempAirC << " C." << std::endl;
+	output << "Mean horizontal windspeed: " << U << " m/min." << std::endl;
+	output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
+	output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
+
 	if (burnoutTime == -1.0)
 	{
 		output << "Igniting fire cannot ignite fuel." << std::endl;
@@ -444,12 +451,6 @@ std::ostream& BurnupSim::Print(std::ostream& output) const
 	}
 	else
 	{
-		//Inputs:
-		output << "Ambient air temperature: " << tempAirC << " C." << std::endl;
-		output << "Mean horizontal windspeed: " << U << " m/min." << std::endl;
-		output << "Igniting fire intensity: " << fireIntensity << " kW/m^2." << std::endl;
-		output << "Igniting fire residence time (t_r): " << t_r << " seconds." << std::endl;
-
 		//Outputs:
 		output << "The fire burnt out after " << burnoutTime << " seconds." << std::endl;
 		output << "Final fire intensity: " << finalFireIntensity << " kW/m^2." << std::endl;
