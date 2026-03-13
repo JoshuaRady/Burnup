@@ -109,7 +109,8 @@ void BurnupHistory::AddTimeStep(const int ts, const double time, const int numFu
 
 /** Calculate total energy produced by the fire from the fire intensity history.
  *
- * @returns The total energy released during the fire, including that of the flaming front (kJ/m^2).
+ * @returns The total heat energy per area (HPA) released during the fire, including that of the
+ *          flaming front (kJ/m^2).
  *
  * @note The fact that we include the energy of the flaming front may be double counting.  If we
  * consider that the energy input from the flames next to the site we should also consider that a
