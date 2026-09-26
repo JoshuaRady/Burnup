@@ -1212,7 +1212,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		else//Otherwise signal the condition and return
 		{
 			std::fill(tign.begin(), tign.end(), -2.0);//Value signals fuel did not dry.
-			Msg.Log("Igniting fire cannot dry fuel.");
+			Msg->Log("Igniting fire cannot dry fuel.");
 			return;
 		}
 	}
@@ -1306,7 +1306,7 @@ void START(const double dt, const int now, std::vector<double>& wo, std::vector<
 		else//Otherwise signal the condition and return:
 		{
 			std::fill(tign.begin(), tign.end(), -1.0);//Value signals fuel did not ignite.
-			Msg.Log("Igniting fire cannot ignite fuel.");
+			Msg->Log("Igniting fire cannot ignite fuel.");
 			return;
 		}
 	}
